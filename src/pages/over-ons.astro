@@ -1,0 +1,82 @@
+---
+// src/pages/over-ons.astro
+import PageLayout from '../layouts/PageLayout.astro';
+
+const breadcrumbs = [
+  { label: 'Over ons' }
+];
+---
+
+<PageLayout
+  title="Over WerkRekenen.com"
+  description="Leer meer over de missie, transparantie en rekenmethodiek van WerkRekenen.com: het betrouwbare Nederlandse rekenplatform voor werk en salaris."
+  breadcrumbs={breadcrumbs}
+  lastUpdated="januari 2026"
+>
+  <h2>Onze missie: Helderheid in werk en inkomen</h2>
+  <p>
+    Het Nederlandse stelsel van arbeidsvoorwaarden, salarisberekeningen, CAO-regelingen en fiscale vrijstellingen is een van de meest complete ter wereld — maar vaak ook een van de meest complexe. Hoe reken je een fulltime maandsalaris om naar een eerlijk uurloon? Hoeveel reiskostenvergoeding mag je werkgever maximaal belastingvrij uitkeren? En hoeveel vakantiedagen bouw je precies op als je 32 uur per week werkt?
+  </p>
+  <p>
+    <strong>WerkRekenen.com</strong> is opgericht met één duidelijk doel: werknemers, werkgevers, HR-professionals en zzp'ers voorzien van eenvoudige, snelle en wiskundig accurate rekentools die 100% zijn afgestemd op de actuele Nederlandse wet- en regelgeving.
+  </p>
+
+  <h2>Waarom wij anders zijn</h2>
+  <p>
+    Veel rekenwebsites op internet zijn generieke, internationaal vertaalde sjablonen die geen rekening houden met specifieke Nederlandse regels zoals de 214-dagenregeling van de Belastingdienst, het wettelijk minimumpercentage vakantiebijslag (WML), of het onderscheid tussen wettelijke en bovenwettelijke vakantiedagen in het Burgerlijk Wetboek.
+  </p>
+  <p>
+    Bij WerkRekenen.com ontwerpen we elke calculator specifiek voor de Nederlandse arbeidsmarkt:
+  </p>
+  <ul>
+    <li><strong>Actuele officiële normen:</strong> We baseren onze formules rechtstreeks op publicaties van de Rijksoverheid, de Belastingdienst, UWV en het CBS.</li>
+    <li><strong>Volledige privacy:</strong> Onze rekenmodules draaien volledig <em>client-side</em> in je eigen webbrowser. Je gegevens worden nooit naar een server gestuurd of opgeslagen in een database.</li>
+    <li><strong>Geen overbodige ballast:</strong> Geen trage tracking-scripts, geen verplichte accountregistraties of opdringerige pop-ups. Direct resultaat.</li>
+  </ul>
+
+  <h2>Onze bronnen & methodologie</h2>
+  <p>
+    Transparantie staat bij ons voorop. Waar een berekening afhankelijk is van wettelijke tarieven of forfaits, vermelden we altijd het geldende jaar en de wettelijke grondslag:
+  </p>
+  <table>
+    <thead>
+      <tr>
+        <th>Onderwerp</th>
+        <th>Officiële bron in Nederland</th>
+        <th>Wettelijke basis</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Reiskostenvergoeding</strong></td>
+        <td>Belastingdienst</td>
+        <td>Max. € 0,23 / km onbelast (Wet op de loonbelasting 1964)</td>
+      </tr>
+      <tr>
+        <td><strong>Thuiswerkvergoeding</strong></td>
+        <td>Belastingdienst / Nibud</td>
+        <td>Max. € 2,40 / dag onbelaste gerichte vrijstelling</td>
+      </tr>
+      <tr>
+        <td><strong>Vakantiegeld</strong></td>
+        <td>Ministerie van SZW</td>
+        <td>Min. 8% wettelijk minimum (Wet minimumloon en minimumvakantiebijslag)</td>
+      </tr>
+      <tr>
+        <td><strong>Vakantie-uren</strong></td>
+        <td>Burgerlijk Wetboek</td>
+        <td>Min. 4× wekelijkse arbeidsduur (Artikel 7:634 BW)</td>
+      </tr>
+      <tr>
+        <td><strong>Werkdagen & Feestdagen</strong></td>
+        <td>Rijksoverheid</td>
+        <td>Officiële nationale feestdagenkalender Nederland</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Onafhankelijkheid en disclaimer</h2>
+  <p>
+    WerkRekenen.com is een onafhankelijk platform en is niet gelieerd aan de Nederlandse overheid of de Belastingdienst. Hoewel we onze calculaties met de grootst mogelijke zorgvuldigheid opstellen en continu actualiseren, dienen de uitkomsten altijd als betrouwbare indicatie. Aan de berekeningen kunnen geen juridische of fiscale rechten worden ontleend.
+  </p>
+</PageLayout>

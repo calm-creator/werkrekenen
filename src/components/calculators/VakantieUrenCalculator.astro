@@ -1,0 +1,239 @@
+---
+// src/components/calculators/VakantieUrenCalculator.astro
+---
+
+<div class="calc-grid" id="vakantie-uren-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Contractgegevens invoeren</h2>
+
+    <!-- Contracturen per week -->
+    <div class="form-group">
+      <label for="input-vu-hours" class="form-label">Aantal contracturen per week</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-vu-hours"
+          class="form-input input-has-suffix"
+          value="40"
+          min="1"
+          max="60"
+          step="1"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-hours-pills">
+        <button type="button" class="vu-pill" data-hours="24">24 uur</button>
+        <button type="button" class="vu-pill" data-hours="32">32 uur</button>
+        <button type="button" class="vu-pill" data-hours="36">36 uur</button>
+        <button type="button" class="vu-pill is-active" data-hours="40">40 uur</button>
+      </div>
+      <span class="form-hint">Het aantal uren waarvoor je bent aangenomen in je arbeidsovereenkomst.</span>
+    </div>
+
+    <!-- Totaal aantal vakantiedagen bij fulltime -->
+    <div class="form-group">
+      <label for="input-vu-ft-days" class="form-label">Vakantiedagen bij fulltime (volgens je CAO/contract)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-vu-ft-days"
+          class="form-input input-has-suffix"
+          value="25"
+          min="20"
+          max="50"
+          step="1"
+        />
+        <span class="input-suffix">dagen / jaar</span>
+      </div>
+      <span class="form-hint">
+        Wettelijk minimaal 20 dagen (4 weken). In de meeste Nederlandse CAO's is 25 dagen (5 weken) gebruikelijk.
+      </span>
+    </div>
+
+    <!-- Fulltime norm van de organisatie -->
+    <div class="form-group">
+      <label class="form-label">Fulltime norm van jouw werkgever/CAO</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="ft-norm-36" name="ft-norm" value="36" />
+          <label for="ft-norm-36">36 uur (CAO)</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="ft-norm-40" name="ft-norm" value="40" checked />
+          <label for="ft-norm-40">40 uur (Standaard)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-vakantie-uren" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Totaal vakantie-uren per jaar</span>
+      <div class="result-hero-value" id="res-vu-total-hours">200 uur</div>
+      <span class="result-hero-sub" id="res-vu-total-days">is gelijk aan 25 werkdagen</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Wettelijke vakantie-uren</span>
+        <span class="result-row-value" id="res-vu-statutory-hours">160 uur (20 dagen)</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bovenwettelijke vakantie-uren</span>
+        <span class="result-row-value" id="res-vu-non-statutory-hours">40 uur (5 dagen)</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Deeltijdfactor (parttime)</span>
+        <span class="result-row-value" id="res-vu-parttime-pct">100%</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Opbouw per gewerkte maand</span>
+        <span class="result-row-value" id="res-vu-monthly-accrual">16,67 uur</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Belangrijk wettelijk verschil:</strong>
+      <ul style="margin-top: 0.25rem; padding-left: 1.2rem;">
+        <li><strong>Wettelijke uren</strong> vervallen 6 maanden na het opbouwjaar (per 1 juli).</li>
+        <li><strong>Bovenwettelijke uren</strong> hebben een verjaringstermijn van 5 jaar.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-hours-pills {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .vu-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+  }
+
+  .vu-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .vu-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('vakantie-uren-calc');
+    if (!calc) return;
+
+    const inputHours = calc.querySelector('#input-vu-hours');
+    const pills = calc.querySelectorAll('.vu-pill');
+    const inputFtDays = calc.querySelector('#input-vu-ft-days');
+    const radioFt36 = calc.querySelector('#ft-norm-36');
+    const radioFt40 = calc.querySelector('#ft-norm-40');
+    const btnReset = calc.querySelector('#btn-reset-vakantie-uren');
+
+    const resTotalHours = calc.querySelector('#res-vu-total-hours');
+    const resTotalDays = calc.querySelector('#res-vu-total-days');
+    const resStatutory = calc.querySelector('#res-vu-statutory-hours');
+    const resNonStatutory = calc.querySelector('#res-vu-non-statutory-hours');
+    const resParttimePct = calc.querySelector('#res-vu-parttime-pct');
+    const resMonthlyAccrual = calc.querySelector('#res-vu-monthly-accrual');
+
+    const formatNumber = (val, dec = 1) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function calculate() {
+      const hours = Math.max(0, parseFloat(inputHours.value) || 0);
+      const ftDays = Math.max(20, parseFloat(inputFtDays.value) || 25);
+      const ftNorm = radioFt36.checked ? 36 : 40;
+
+      const parttimeFactor = hours / ftNorm;
+      const dailyHoursSelf = hours / 5 || 1;
+      const dailyHoursFT = ftNorm / 5;
+
+      // Wettelijk = 4 * wekelijkse uren
+      const statutoryHours = hours * 4;
+      const statutoryDays = statutoryHours / dailyHoursSelf;
+
+      // Bovenwettelijk fulltime dagen = ftDays - 20
+      const nonStatutoryDaysFT = Math.max(0, ftDays - 20);
+      const nonStatutoryHours = nonStatutoryDaysFT * dailyHoursFT * parttimeFactor;
+      const nonStatutoryDays = nonStatutoryHours / dailyHoursSelf;
+
+      const totalHours = statutoryHours + nonStatutoryHours;
+      const totalDays = statutoryDays + nonStatutoryDays;
+      const monthlyAccrual = totalHours / 12;
+
+      resTotalHours.textContent = `${formatNumber(totalHours, 1)} uur`;
+      resTotalDays.textContent = `is gelijk aan ${formatNumber(totalDays, 1)} werkdagen`;
+      resStatutory.textContent = `${formatNumber(statutoryHours, 1)} uur (${formatNumber(statutoryDays, 1)} dagen)`;
+      resNonStatutory.textContent = `${formatNumber(nonStatutoryHours, 1)} uur (${formatNumber(nonStatutoryDays, 1)} dagen)`;
+      resParttimePct.textContent = `${formatNumber(parttimeFactor * 100, 1)}%`;
+      resMonthlyAccrual.textContent = `${formatNumber(monthlyAccrual, 1)} uur/maand`;
+    }
+
+    inputHours.addEventListener('input', () => {
+      const val = inputHours.value;
+      pills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === val));
+      calculate();
+    });
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputHours.value = pill.dataset.hours;
+        calculate();
+      });
+    });
+
+    inputFtDays.addEventListener('input', calculate);
+    radioFt36.addEventListener('change', calculate);
+    radioFt40.addEventListener('change', calculate);
+
+    btnReset.addEventListener('click', () => {
+      inputHours.value = '40';
+      inputFtDays.value = '25';
+      radioFt40.checked = true;
+      pills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '40'));
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

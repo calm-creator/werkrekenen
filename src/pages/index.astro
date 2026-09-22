@@ -1,0 +1,543 @@
+---
+// src/pages/index.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import FaqAccordion, { type FaqItem } from '../components/FaqAccordion.astro';
+import { CALCULATORS, CATEGORIES } from '../data/calculators';
+import { DUTCH_RATES } from '../data/dutchRates';
+
+const popularTools = CALCULATORS.filter(c => c.popular);
+const categories = Object.values(CATEGORIES);
+
+const homepageFaq: FaqItem[] = [
+  {
+    question: 'Wat is WerkRekenen.com?',
+    answer: 'WerkRekenen.com is een onafhankelijk Nederlands rekenplatform met snelle, betrouwbare calculators voor salaris, werkuren, overwerk, vakantiedagen en onbelaste kilometer- en thuiswerkvergoedingen.'
+  },
+  {
+    question: 'Zijn de berekeningen gebaseerd op de actuele Nederlandse wetgeving?',
+    answer: `Ja, al onze calculators hanteren de actuele officiële normen en fiscale richtlijnen van de Belastingdienst, het ministerie van Sociale Zaken en Werkgelegenheid (SZW), UWV en het CBS voor ${DUTCH_RATES.year}. Waar van toepassing vermelden we direct het wettelijke wetsartikel (zoals art. 7:634 BW voor vakantie-uren of de WML voor vakantiebijslag).`
+  },
+  {
+    question: 'Worden mijn ingevoerde salaris- en persoonsgegevens opgeslagen?',
+    answer: 'Nee. Alle berekeningen worden 100% lokaal in je eigen webbrowser uitgevoerd via lichtgewicht JavaScript. Er worden geen salarisgegevens, kilometers of contractdetails naar een server verstuurd of opgeslagen.'
+  },
+  {
+    question: 'Zijn de uitkomsten bindend?',
+    answer: 'De berekeningen op WerkRekenen.com zijn zorgvuldig opgesteld en geven een nauwkeurige indicatie volgens algemeen geldende Nederlandse normen. Omdat specifieke CAO-afspraken of individuele contracten kunnen afwijken, adviseren wij om voor definitieve besluiten altijd je officiële loonstrook, CAO of een fiscaal adviseur te raadplegen.'
+  },
+  {
+    question: 'Kan ik WerkRekenen ook gebruiken op mijn mobiele telefoon?',
+    answer: 'Ja, WerkRekenen.com is ontworpen volgens een modern mobile-first principe. Alle rekentools, invoervelden en tabellen functioneren snel en naadloos op smartphones, tablets en desktopcomputers.'
+  }
+];
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "WerkRekenen.com",
+  "url": "https://werkrekenen.com/",
+  "description": "Betrouwbare Nederlandse berekeningen voor werk, salaris en vergoedingen",
+  "inLanguage": "nl-NL"
+};
+---
+
+<BaseLayout
+  title="Werk en salaris eenvoudig berekenen | WerkRekenen.com"
+  description="Bereken eenvoudig en snel je uurloon, reiskostenvergoeding, thuiswerkvergoeding, vakantiegeld, overuren en werkdagen volgens actuele Nederlandse normen."
+  schema={websiteSchema}
+>
+  <!-- Hero Sectie -->
+  <section class="hero-section">
+    <div class="container hero-inner">
+      <div class="hero-badge">
+        <span class="badge badge-success">Actueel {DUTCH_RATES.year}</span>
+        <span class="hero-badge-text">Nederlandse normen & CAO-richtlijnen</span>
+      </div>
+      <h1 class="hero-title">Werk en salaris <span class="hero-highlight">eenvoudig berekenen</span></h1>
+      <p class="hero-subtitle">
+        Snel inzicht in je uurloon, overuren, reiskosten, thuiswerkvergoeding en vakantiedagen. Zonder registratie, direct accuraat en 100% afgestemd op de Nederlandse wetgeving.
+      </p>
+      <div class="hero-actions">
+        <a href="#populair" class="btn btn-primary">Bekijk populaire berekeningen</a>
+        <a href="/alle-berekeningen/" class="btn btn-secondary">Alle 8 calculators</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Populaire Calculators Sectie -->
+  <section id="populair" class="container section-popular">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Veelgebruikte rekentools</h2>
+        <p class="section-subtitle">Kies direct een berekening om direct aan de slag te gaan.</p>
+      </div>
+      <a href="/alle-berekeningen/" class="section-link-more">Alle rekentools &rarr;</a>
+    </div>
+
+    <div class="popular-grid">
+      {popularTools.map((tool) => (
+        <a href={`/${tool.slug}/`} class="popular-card">
+          <div class="popular-card-top">
+            <span class="popular-category">{tool.categoryTitle}</span>
+            <span class="popular-badge-pill">Populair</span>
+          </div>
+          <h3 class="popular-card-title">{tool.title}</h3>
+          <p class="popular-card-desc">{tool.description}</p>
+          <div class="popular-card-action">
+            <span class="popular-card-btn">Direct berekenen</span>
+            <svg class="arrow-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </div>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Categorieën Sectie -->
+  <section class="container section-categories">
+    <div class="section-header">
+      <div>
+        <h2 class="section-title">Berekenen per categorie</h2>
+        <p class="section-subtitle">Navigeer door onze overzichtelijke hoofdcategorieën.</p>
+      </div>
+    </div>
+
+    <div class="categories-grid">
+      {categories.map((cat) => (
+        <a href={cat.slug} class="category-card">
+          <h3 class="category-card-title">{cat.title}</h3>
+          <p class="category-card-desc">{cat.description}</p>
+          <span class="category-card-link">Bekijk categorie &rarr;</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <!-- Waarom WerkRekenen? (Trust & Transparency) -->
+  <section class="container section-trust">
+    <div class="trust-container">
+      <div class="trust-header">
+        <h2 class="trust-title">Waarom rekenen met WerkRekenen?</h2>
+        <p class="trust-intro">
+          Wij maken complexe Nederlandse loon- en arbeidsregels begrijpelijk en direct toepasbaar.
+        </p>
+      </div>
+
+      <div class="trust-grid">
+        <div class="trust-item">
+          <div class="trust-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+          </div>
+          <h3 class="trust-item-title">Officiële Nederlandse normen</h3>
+          <p class="trust-item-desc">
+            Geen vage schattingen. Onze rekenmodules zijn gebaseerd op de actuele tarieven van de Belastingdienst, Rijksoverheid en CAO-standaarden.
+          </p>
+        </div>
+
+        <div class="trust-item">
+          <div class="trust-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+          </div>
+          <h3 class="trust-item-title">Direct en realtime resultaat</h3>
+          <p class="trust-item-desc">
+            Zodra je een getal wijzigt, zie je direct de uitkomst. Geen wachttijden, geen formulieren versturen en geen accounts aanmaken.
+          </p>
+        </div>
+
+        <div class="trust-item">
+          <div class="trust-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="18" height="11" x="3" y="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+          </div>
+          <h3 class="trust-item-title">100% Privacy gegarandeerd</h3>
+          <p class="trust-item-desc">
+            Al je invoer blijft uitsluitend in je eigen browser. We slaan geen salarissen, kilometers of financiële gegevens op.
+          </p>
+        </div>
+
+        <div class="trust-item">
+          <div class="trust-icon-box">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <rect width="14" height="20" x="5" y="2" rx="2" ry="2"/>
+              <path d="M12 18h.01"/>
+            </svg>
+          </div>
+          <h3 class="trust-item-title">Geoptimaliseerd voor mobiel</h3>
+          <p class="trust-item-desc">
+            Gebouwd met een minimale voetafdruk en ultrasnelle laadtijden, zodat je ook onderweg vlekkeloos berekeningen uitvoert.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Homepage FAQ -->
+  <section class="container">
+    <div class="container-narrow">
+      <FaqAccordion
+        title="Veelgestelde vragen over WerkRekenen"
+        items={homepageFaq}
+      />
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* Hero */
+  .hero-section {
+    padding-top: 3.5rem;
+    padding-bottom: 3.5rem;
+    background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-page) 100%);
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .hero-inner {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    padding: 0.35rem 0.75rem;
+    border-radius: var(--radius-full);
+    font-size: 0.8125rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .hero-badge-text {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+
+  .hero-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.03em;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .hero-title {
+      font-size: 3.125rem;
+    }
+  }
+
+  .hero-highlight {
+    color: var(--color-primary);
+  }
+
+  .hero-subtitle {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    margin-bottom: 2rem;
+    max-width: 680px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+  }
+
+  /* Section Header */
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .section-subtitle {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    margin-top: 0.25rem;
+  }
+
+  .section-link-more {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  /* Populaire Sectie */
+  .section-popular {
+    padding-top: 4rem;
+    padding-bottom: 2rem;
+  }
+
+  .popular-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .popular-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .popular-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .popular-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .popular-card:hover {
+    border-color: var(--color-primary-border);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+    text-decoration: none;
+  }
+
+  .popular-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+  }
+
+  .popular-category {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .popular-badge-pill {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    background-color: var(--bg-subtle);
+    color: var(--text-subtle);
+    padding: 0.15rem 0.5rem;
+    border-radius: var(--radius-full);
+  }
+
+  .popular-card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+  }
+
+  .popular-card-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    flex: 1;
+    margin-bottom: 1.25rem;
+  }
+
+  .popular-card-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .popular-card-btn {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .arrow-icon {
+    color: var(--text-subtle);
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+
+  .popular-card:hover .arrow-icon {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  /* Categorieën */
+  .section-categories {
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
+
+  .categories-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+  }
+
+  @media (min-width: 768px) {
+    .categories-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .category-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+
+  .category-card:hover {
+    border-color: var(--color-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+  }
+
+  .category-card-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+  }
+
+  .category-card-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    flex: 1;
+    margin-bottom: 1rem;
+  }
+
+  .category-card-link {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  /* Trust Sectie */
+  .section-trust {
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+  }
+
+  .trust-container {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 2.25rem 1.5rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (min-width: 640px) {
+    .trust-container {
+      padding: 3rem 2.5rem;
+    }
+  }
+
+  .trust-header {
+    text-align: center;
+    max-width: 640px;
+    margin: 0 auto 2.5rem auto;
+  }
+
+  .trust-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+  }
+
+  .trust-intro {
+    font-size: 1rem;
+    color: var(--text-muted);
+  }
+
+  .trust-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  @media (min-width: 640px) {
+    .trust-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .trust-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .trust-item {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .trust-icon-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border-radius: var(--radius-md);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    margin-bottom: 1rem;
+  }
+
+  .trust-item-title {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.5rem;
+  }
+
+  .trust-item-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+</style>

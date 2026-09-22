@@ -1,0 +1,58 @@
+---
+// src/pages/privacy.astro
+import PageLayout from '../layouts/PageLayout.astro';
+
+const breadcrumbs = [
+  { label: 'Privacybeleid' }
+];
+---
+
+<PageLayout
+  title="Privacybeleid"
+  description="Privacybeleid van WerkRekenen.com. Wij respecteren je privacy: al onze berekeningen werken 100% lokaal in je browser zonder gegevensopslag."
+  breadcrumbs={breadcrumbs}
+  lastUpdated="januari 2026"
+>
+  <p>
+    Bij <strong>WerkRekenen.com</strong> hechten we het allerhoogste belang aan de bescherming van jouw privacy. In dit privacybeleid leggen we uit hoe wij omgaan met gegevens wanneer je onze website bezoekt.
+  </p>
+
+  <h2>1. Wij slaan geen salaris- of persoonsgegevens op</h2>
+  <p>
+    Alle berekeningen op WerkRekenen.com (zoals je bruto salaris, gewerkte uren, kilometers of vakantiedagen) worden <strong>volledig lokaal in jouw eigen webbrowser uitgevoerd</strong> met behulp van JavaScript.
+  </p>
+  <p>
+    De getallen die je invoert in onze rekenmodules worden op geen enkel moment verzonden naar onze servers, worden niet geregistreerd in logbestanden en worden nooit gedeeld met derden. Sluit je je browser of vernieuw je de pagina, dan verdwijnt de ingevoerde informatie direct uit het geheugen van je apparaat.
+  </p>
+
+  <h2>2. Lokale opslag (Local Storage)</h2>
+  <p>
+    Wij maken uitsluitend gebruik van de standaard <code>localStorage</code> van je browser voor één functioneel doel:
+  </p>
+  <ul>
+    <li><strong>Thema-instelling:</strong> Het onthouden van jouw voorkeur voor de lichte of donkere weergave (Light / Dark mode), zodat je bij een volgend bezoek direct de gewenste kleurmodus te zien krijgt.</li>
+  </ul>
+  <p>
+    Deze instelling bevat geen persoonsgegevens of identificerende informatie.
+  </p>
+
+  <h2>3. Hosting & Technische Serverlogs</h2>
+  <p>
+    Wanneer je een pagina bezoekt, registreert onze hostingomgeving standaard technische gegevens die noodzakelijk zijn voor een veilige en stabiele werking van de website (zoals het geanonimiseerde IP-adres, het tijdstip van het verzoek en het type webbrowser). Deze serverlogs worden uitsluitend gebruikt voor foutopsporing en beveiligingsdoeleinden en worden na korte tijd automatisch verwijderd conform de Algemene Verordening Gegevensbescherming (AVG / GDPR).
+  </p>
+
+  <h2>4. Externe links</h2>
+  <p>
+    Onze website bevat informatieve links naar officiële Nederlandse overheidswebsites, zoals de Belastingdienst, Rijksoverheid en het UWV. WerkRekenen.com is niet verantwoordelijk voor het privacybeleid of de inhoud van deze externe websites.
+  </p>
+
+  <h2>5. Jouw rechten onder de AVG</h2>
+  <p>
+    Op grond van de Europese privacywetgeving (AVG) heb je recht op inzage, rectificatie en verwijdering van persoonsgegevens. Aangezien wij geen persoonsgegevens verzamelen of opslaan, zijn er bij ons geen herleidbare gegevens over jouw persoon aanwezig.
+  </p>
+
+  <h2>6. Vragen</h2>
+  <p>
+    Heb je vragen over ons privacybeleid? Neem dan contact met ons op via <a href="mailto:privacy@werkrekenen.com">privacy@werkrekenen.com</a>.
+  </p>
+</PageLayout>

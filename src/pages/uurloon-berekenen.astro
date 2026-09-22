@@ -1,0 +1,104 @@
+---
+// src/pages/uurloon-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import UurloonCalculator from '../components/calculators/UurloonCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('uurloon-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken je het bruto uurloon vanuit een vast maandsalaris?',
+    answer: 'Het bruto uurloon bereken je door het maandsalaris te vermenigvuldigen met 12 maanden en te delen door het totale aantal werkuren per jaar. Bij een werkweek van 40 uur werk je per jaar gemiddeld 2.080 uur (52 weken × 40 uur), wat neerkomt op 173,33 uur per maand. De formule luidt: Uurloon = Maandsalaris ÷ ((Wekelijkse uren × 52) ÷ 12).'
+  },
+  {
+    question: 'Hoeveel uur heeft een maand gemiddeld bij een fulltime baan?',
+    answer: 'Een jaar heeft 52 weken. Bij een 40-urige werkweek is dat 2.080 uur per jaar. Gedeeld door 12 maanden is dat gemiddeld 173,33 uur per maand. Bij een 36-urige werkweek is dit 156,00 uur per maand, en bij 38 uur per week is dit 164,67 uur per maand.'
+  },
+  {
+    question: 'Zit vakantiegeld in het uurloon inbegrepen?',
+    answer: 'Nee, het standaard bruto uurloon is exclusief de wettelijke vakantiebijslag van minimaal 8%. Werk je als oproepkracht of via een uitzendbureau met een all-in loon? Dan wordt de 8% vakantiegeld vaak direct bovenop elk gewerkt uur uitbetaald.'
+  },
+  {
+    question: 'Wat is het verschil tussen een 4-wekenloon en een maandsalaris?',
+    answer: 'Een maandsalaris wordt 12 keer per jaar uitbetaald, terwijl een vierwekenloon 13 keer per jaar wordt uitbetaald. Om een maandsalaris om te rekenen naar een 4-wekenperiode vermenigvuldig je het maandsalaris met 12 en deel je dit door 13.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="CAO-normen & Rijksoverheid"
+>
+  <UurloonCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Hoe werkt de berekening van het uurloon?</h2>
+    <p>
+      In veel Nederlandse arbeidsovereenkomsten en salarisstroken staat alleen een vast bruto maandsalaris vermeld. Wanneer je wilt weten wat je per gewerkt uur verdient — bijvoorbeeld om overuren te controleren, salarisonderhandelingen te voeren of een vergelijking te maken met een freelance uurtarief — dien je dit om te rekenen naar een bruto uurloon.
+    </p>
+
+    <h3>De officiële rekenformule</h3>
+    <p>
+      Omdat een jaar 52 weken telt en maanden niet allemaal evenveel werkdagen hebben, hanteert de loonadministratie in Nederland de jaargrondslag als standaard:
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Rekenformule:</strong><br />
+      <code>Bruto Uurloon = (Bruto Maandsalaris × 12) ÷ (Wekelijkse contracturen × 52)</code>
+    </div>
+
+    <h3>Gemiddeld aantal werkuren per maand in Nederland</h3>
+    <p>
+      Afhankelijk van de afgesproken fulltime werkweek binnen jouw CAO (meestal 36, 38 of 40 uur), verschilt het gemiddeld aantal uren per maand:
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Werkweek</th>
+          <th>Uren per jaar (52 wk)</th>
+          <th>Gemiddeld uren per maand</th>
+          <th>Voorbeeld: bij € 3.500 maandsalaris</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>36 uur / week</strong> (o.a. Rijk, Gemeenten)</td>
+          <td>1.872 uur</td>
+          <td>156,0 uur</td>
+          <td><strong>€ 22,44</strong> per uur</td>
+        </tr>
+        <tr>
+          <td><strong>38 uur / week</strong> (o.a. Metaal, Bouw)</td>
+          <td>1.976 uur</td>
+          <td>164,7 uur</td>
+          <td><strong>€ 21,25</strong> per uur</td>
+        </tr>
+        <tr>
+          <td><strong>40 uur / week</strong> (Bedrijfsleven standaard)</td>
+          <td>2.080 uur</td>
+          <td>173,3 uur</td>
+          <td><strong>€ 20,19</strong> per uur</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Rekenvoorbeeld: Maandloon naar Uurloon</h2>
+    <p>
+      Stel: je verdient een bruto maandsalaris van <strong>€ 3.200,00</strong> op basis van een werkweek van <strong>38 uur</strong>.
+    </p>
+    <ul>
+      <li><strong>Stap 1:</strong> Bereken het jaarsalaris: € 3.200 × 12 = € 38.400,00 per jaar.</li>
+      <li><strong>Stap 2:</strong> Bereken het totaal aantal uren per jaar: 38 uur × 52 weken = 1.976 uur.</li>
+      <li><strong>Stap 3:</strong> Deel het jaarsalaris door het jaartotaal aan uren: € 38.400 ÷ 1.976 = <strong>€ 19,43 per uur</strong>.</li>
+    </ul>
+
+    <h2>Belangrijk bij het vergelijken van uurlonen</h2>
+    <p>
+      Let er bij het vergelijken van salaris altijd op of pensioenopbouw, vakantiebijslag (8%) en eventuele eindejaarsuitkeringen of dertiende maand zijn inbegrepen. Het basisuurloon geeft een zuiver beeld van je directe contractwaarde per gewerkt uur.
+    </p>
+  </div>
+</CalculatorLayout>

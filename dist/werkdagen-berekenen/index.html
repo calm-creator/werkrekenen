@@ -1,0 +1,235 @@
+<!DOCTYPE html><html lang="nl"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="icon" type="image/svg+xml" href="/favicon.svg"><link rel="manifest" href="/site.webmanifest"><meta name="theme-color" content="#1d4ed8"><!-- Inline script om themaflits (FOUT) volledig te voorkomen --><script>
+      (() => {
+        try {
+          const stored = localStorage.getItem('theme');
+          if (stored === 'dark' || stored === 'light') {
+            document.documentElement.setAttribute('data-theme', stored);
+          } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.documentElement.setAttribute('data-theme', 'dark');
+          } else {
+            document.documentElement.setAttribute('data-theme', 'light');
+          }
+        } catch (e) {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      })();
+    </script><!-- SEO & Metadata --><!-- Basis Meta --><title>Werkdagen berekenen | WerkRekenen.com</title><meta name="description" content="Bereken het aantal werkdagen tussen twee datums in Nederland. Exclusief weekenden en officiële Nederlandse feestdagen zoals Koningsdag en Hemelvaart."><link rel="canonical" href="https://werkrekenen.com/werkdagen-berekenen/"><!-- Open Graph / Facebook / LinkedIn --><meta property="og:type" content="website"><meta property="og:url" content="https://werkrekenen.com/werkdagen-berekenen/"><meta property="og:title" content="Werkdagen berekenen | WerkRekenen.com"><meta property="og:description" content="Bereken het aantal werkdagen tussen twee datums in Nederland. Exclusief weekenden en officiële Nederlandse feestdagen zoals Koningsdag en Hemelvaart."><meta property="og:site_name" content="WerkRekenen.com"><meta property="og:locale" content="nl_NL"><!-- Twitter --><meta name="twitter:card" content="summary"><meta name="twitter:url" content="https://werkrekenen.com/werkdagen-berekenen/"><meta name="twitter:title" content="Werkdagen berekenen | WerkRekenen.com"><meta name="twitter:description" content="Bereken het aantal werkdagen tussen twee datums in Nederland. Exclusief weekenden en officiële Nederlandse feestdagen zoals Koningsdag en Hemelvaart."><!-- Structured Data (Schema.org JSON-LD) --><script type="application/ld+json">[{"@context":"https://schema.org","@type":"WebApplication","name":"Werkdagen berekenen - WerkRekenen.com","url":"https://werkrekenen.com/werkdagen-berekenen/","applicationCategory":"FinanceApplication","operatingSystem":"All","browserRequirements":"Requires JavaScript. Requires HTML5.","offers":{"@type":"Offer","price":"0","priceCurrency":"EUR"},"description":"Bereken het aantal werkdagen tussen twee datums in Nederland. Exclusief weekenden en officiële Nederlandse feestdagen zoals Koningsdag en Hemelvaart."}]</script><style>.calc-section-title[data-astro-cid-e4h7cjbb]{font-size:1.25rem;font-weight:700;color:var(--text-main);margin-bottom:1.25rem}.form-actions[data-astro-cid-e4h7cjbb]{margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border-color);display:flex;justify-content:flex-end}
+.breadcrumbs[data-astro-cid-ilhxcym7]{margin-bottom:1.25rem;font-size:.875rem}.breadcrumbs-list[data-astro-cid-ilhxcym7]{display:flex;flex-wrap:wrap;align-items:center;list-style:none;gap:.35rem}.breadcrumbs-item[data-astro-cid-ilhxcym7]{display:inline-flex;align-items:center;gap:.35rem}.breadcrumbs-link[data-astro-cid-ilhxcym7]{color:var(--text-subtle);text-decoration:none;transition:color .15s ease}.breadcrumbs-link[data-astro-cid-ilhxcym7]:hover{color:var(--color-primary);text-decoration:underline}.breadcrumbs-separator[data-astro-cid-ilhxcym7]{color:var(--border-strong);font-size:.75rem}.breadcrumbs-current[data-astro-cid-ilhxcym7]{color:var(--text-muted);font-weight:500}
+</style>
+<link rel="stylesheet" href="/_astro/overuren-berekenen.Vk5VDRuk.css">
+<style>.faq-section[data-astro-cid-mhigdioq]{margin-top:2.5rem;margin-bottom:2.5rem}.faq-title[data-astro-cid-mhigdioq]{font-size:1.5rem;font-weight:700;color:var(--text-main);margin-bottom:1.25rem;letter-spacing:-.01em}.faq-list[data-astro-cid-mhigdioq]{display:flex;flex-direction:column;gap:.75rem}.faq-item[data-astro-cid-mhigdioq]{background-color:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-md);overflow:hidden;transition:border-color .15s ease}.faq-item[data-astro-cid-mhigdioq][open]{border-color:var(--border-strong)}.faq-question[data-astro-cid-mhigdioq]{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.25rem;font-size:1rem;font-weight:600;color:var(--text-main);cursor:pointer;list-style:none;user-select:none}.faq-question[data-astro-cid-mhigdioq]::-webkit-details-marker{display:none}.faq-chevron[data-astro-cid-mhigdioq]{color:var(--text-subtle);transition:transform .2s ease;flex-shrink:0;margin-left:.75rem}.faq-item[data-astro-cid-mhigdioq][open] .faq-chevron[data-astro-cid-mhigdioq]{transform:rotate(180deg)}.faq-answer[data-astro-cid-mhigdioq]{padding:0 1.25rem 1.25rem;color:var(--text-muted);font-size:.9375rem;line-height:1.6}
+.related-tools-section[data-astro-cid-3jd3xusc]{margin-top:3rem;margin-bottom:2rem;padding-top:2rem;border-top:1px solid var(--border-color)}.related-tools-heading[data-astro-cid-3jd3xusc]{font-size:1.375rem;font-weight:700;color:var(--text-main);margin-bottom:1.25rem;letter-spacing:-.01em}.related-tools-grid[data-astro-cid-3jd3xusc]{display:grid;grid-template-columns:1fr;gap:1rem}@media(min-width:640px){.related-tools-grid[data-astro-cid-3jd3xusc]{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}}.related-tool-card[data-astro-cid-3jd3xusc]{display:flex;flex-direction:column;padding:1.25rem;background-color:var(--bg-surface);border:1px solid var(--border-color);border-radius:var(--radius-lg);text-decoration:none;transition:all .15s ease}.related-tool-card[data-astro-cid-3jd3xusc]:hover{border-color:var(--color-primary-border);transform:translateY(-2px);box-shadow:var(--shadow-sm);text-decoration:none}.related-tool-header[data-astro-cid-3jd3xusc]{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}.related-tool-category[data-astro-cid-3jd3xusc]{font-size:.75rem;font-weight:600;color:var(--color-primary);text-transform:uppercase;letter-spacing:.05em}.related-tool-arrow[data-astro-cid-3jd3xusc]{color:var(--text-subtle);transition:transform .15s ease,color .15s ease}.related-tool-card[data-astro-cid-3jd3xusc]:hover .related-tool-arrow[data-astro-cid-3jd3xusc]{transform:translate(4px);color:var(--color-primary)}.related-tool-title[data-astro-cid-3jd3xusc]{font-size:1.0625rem;font-weight:600;color:var(--text-main);margin-bottom:.375rem;line-height:1.3}.related-tool-desc[data-astro-cid-3jd3xusc]{font-size:.875rem;color:var(--text-muted);line-height:1.5;margin:0}.calc-page-wrapper[data-astro-cid-wkltarji]{padding-top:1.5rem;padding-bottom:4rem}.calc-page-header[data-astro-cid-wkltarji]{margin-bottom:1.5rem}.calc-header-meta[data-astro-cid-wkltarji]{display:flex;flex-wrap:wrap;align-items:center;gap:.75rem;margin-bottom:.75rem}.calc-year-badge[data-astro-cid-wkltarji]{display:inline-flex;align-items:center;gap:.4rem;font-size:.8125rem;color:var(--text-muted);background-color:var(--bg-surface);padding:.25rem .625rem;border-radius:var(--radius-sm);border:1px solid var(--border-color)}.year-dot[data-astro-cid-wkltarji]{width:6px;height:6px;border-radius:50%;background-color:var(--color-success)}.calc-page-title[data-astro-cid-wkltarji]{font-size:2rem;font-weight:800;color:var(--text-main);letter-spacing:-.02em;line-height:1.2;margin-bottom:.5rem}@media(min-width:640px){.calc-page-title[data-astro-cid-wkltarji]{font-size:2.375rem}}.calc-page-intro[data-astro-cid-wkltarji]{font-size:1.0625rem;line-height:1.6;color:var(--text-muted);max-width:760px}.calculator-container[data-astro-cid-wkltarji]{margin-bottom:3rem}.calc-page-content[data-astro-cid-wkltarji]{margin-top:2rem;padding:0}
+</style></head> <body> <a href="#main-content" class="skip-to-content">Direct naar inhoud</a> <header class="site-header" data-astro-cid-3ef6ksr2> <div class="container header-inner" data-astro-cid-3ef6ksr2> <!-- Logo / Brand --> <a href="/" class="brand" aria-label="WerkRekenen.com Homepage" data-astro-cid-3ef6ksr2> <svg class="brand-logo" width="30" height="30" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" data-astro-cid-3ef6ksr2> <rect width="32" height="32" rx="7" fill="#1d4ed8" data-astro-cid-3ef6ksr2></rect> <path d="M7 10L11 22L16 13L21 22L25 10" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-3ef6ksr2></path> <circle cx="24" cy="9" r="2.5" fill="#10b981" data-astro-cid-3ef6ksr2></circle> </svg> <span class="brand-text" data-astro-cid-3ef6ksr2>Werk<span class="brand-accent" data-astro-cid-3ef6ksr2>Rekenen</span></span> </a> <!-- Desktop Nav --> <nav class="desktop-nav" aria-label="Hoofdnavigatie" data-astro-cid-3ef6ksr2> <ul class="nav-list" data-astro-cid-3ef6ksr2> <li data-astro-cid-3ef6ksr2> <a href="/" class="nav-link " data-astro-cid-3ef6ksr2> Home </a> </li><li data-astro-cid-3ef6ksr2> <a href="/categorie/salaris/" class="nav-link " data-astro-cid-3ef6ksr2> Salaris </a> </li><li data-astro-cid-3ef6ksr2> <a href="/categorie/werkuren/" class="nav-link " data-astro-cid-3ef6ksr2> Werkuren </a> </li><li data-astro-cid-3ef6ksr2> <a href="/categorie/vergoedingen/" class="nav-link " data-astro-cid-3ef6ksr2> Vergoedingen </a> </li><li data-astro-cid-3ef6ksr2> <a href="/alle-berekeningen/" class="nav-link " data-astro-cid-3ef6ksr2> Alle berekeningen </a> </li> </ul> </nav> <!-- Header Actions (Thema & Mobiel Menu Knop) --> <div class="header-actions" data-astro-cid-3ef6ksr2> <button type="button" id="theme-toggle" class="theme-toggle-btn" aria-label="Wissel thema tussen licht en donker" title="Thema wisselen" data-astro-cid-x3pjskd3> <!-- Zon icoon (zichtbaar in donkere modus) --> <svg class="sun-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-x3pjskd3> <circle cx="12" cy="12" r="4" data-astro-cid-x3pjskd3></circle> <path d="M12 2v2" data-astro-cid-x3pjskd3></path> <path d="M12 20v2" data-astro-cid-x3pjskd3></path> <path d="m4.93 4.93 1.41 1.41" data-astro-cid-x3pjskd3></path> <path d="m17.66 17.66 1.41 1.41" data-astro-cid-x3pjskd3></path> <path d="M2 12h2" data-astro-cid-x3pjskd3></path> <path d="M20 12h2" data-astro-cid-x3pjskd3></path> <path d="m6.34 17.66-1.41 1.41" data-astro-cid-x3pjskd3></path> <path d="m19.07 4.93-1.41 1.41" data-astro-cid-x3pjskd3></path> </svg> <!-- Maan icoon (zichtbaar in lichte modus) --> <svg class="moon-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-x3pjskd3> <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" data-astro-cid-x3pjskd3></path> </svg> </button>  <script>
+  (() => {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn) return;
+    btn.addEventListener('click', () => {
+      const current = document.documentElement.getAttribute('data-theme') || 'light';
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+    });
+  })();
+</script> <button type="button" id="mobile-menu-toggle" class="mobile-menu-btn" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav" data-astro-cid-3ef6ksr2> <svg class="menu-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-3ef6ksr2> <line x1="4" x2="20" y1="12" y2="12" data-astro-cid-3ef6ksr2></line> <line x1="4" x2="20" y1="6" y2="6" data-astro-cid-3ef6ksr2></line> <line x1="4" x2="20" y1="18" y2="18" data-astro-cid-3ef6ksr2></line> </svg> <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-3ef6ksr2> <line x1="18" y1="6" x2="6" y2="18" data-astro-cid-3ef6ksr2></line> <line x1="6" y1="6" x2="18" y2="18" data-astro-cid-3ef6ksr2></line> </svg> </button> </div> </div> <!-- Mobile Drawer Nav --> <nav id="mobile-nav" class="mobile-nav" aria-label="Mobiele navigatie" hidden data-astro-cid-3ef6ksr2> <div class="container mobile-nav-inner" data-astro-cid-3ef6ksr2> <ul class="mobile-nav-list" data-astro-cid-3ef6ksr2> <li data-astro-cid-3ef6ksr2> <a href="/" class="mobile-nav-link " data-astro-cid-3ef6ksr2> Home </a> </li><li data-astro-cid-3ef6ksr2> <a href="/categorie/salaris/" class="mobile-nav-link " data-astro-cid-3ef6ksr2> Salaris </a> </li><li data-astro-cid-3ef6ksr2> <a href="/categorie/werkuren/" class="mobile-nav-link " data-astro-cid-3ef6ksr2> Werkuren </a> </li><li data-astro-cid-3ef6ksr2> <a href="/categorie/vergoedingen/" class="mobile-nav-link " data-astro-cid-3ef6ksr2> Vergoedingen </a> </li><li data-astro-cid-3ef6ksr2> <a href="/alle-berekeningen/" class="mobile-nav-link " data-astro-cid-3ef6ksr2> Alle berekeningen </a> </li> </ul> </div> </nav> </header>  <script>
+  (() => {
+    const toggleBtn = document.getElementById('mobile-menu-toggle');
+    const nav = document.getElementById('mobile-nav');
+    if (!toggleBtn || !nav) return;
+
+    toggleBtn.addEventListener('click', () => {
+      const isExpanded = toggleBtn.getAttribute('aria-expanded') === 'true';
+      toggleBtn.setAttribute('aria-expanded', String(!isExpanded));
+      if (isExpanded) {
+        nav.setAttribute('hidden', '');
+      } else {
+        nav.removeAttribute('hidden');
+      }
+    });
+  })();
+</script> <main id="main-content">  <div class="calc-page-wrapper container" data-astro-cid-wkltarji> <nav aria-label="Kruimelpad" class="breadcrumbs" data-astro-cid-ilhxcym7> <ol class="breadcrumbs-list" data-astro-cid-ilhxcym7> <li class="breadcrumbs-item" data-astro-cid-ilhxcym7> <a href="/" class="breadcrumbs-link" data-astro-cid-ilhxcym7>Home</a> <span class="breadcrumbs-separator" aria-hidden="true" data-astro-cid-ilhxcym7>/</span> </li> <li class="breadcrumbs-item" data-astro-cid-ilhxcym7>  <a href="/categorie/werkuren/" class="breadcrumbs-link" data-astro-cid-ilhxcym7>Werkuren &amp; vakantie</a> <span class="breadcrumbs-separator" aria-hidden="true" data-astro-cid-ilhxcym7>/</span>  </li><li class="breadcrumbs-item" data-astro-cid-ilhxcym7> <span class="breadcrumbs-current" aria-current="page" data-astro-cid-ilhxcym7>Werkdagen berekenen</span> </li> </ol> </nav> <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://werkrekenen.com/"},{"@type":"ListItem","position":2,"name":"Werkuren & vakantie","item":"https://werkrekenen.com/categorie/werkuren/"},{"@type":"ListItem","position":3,"name":"Werkdagen berekenen"}]}</script>  <header class="calc-page-header" data-astro-cid-wkltarji> <div class="calc-header-meta" data-astro-cid-wkltarji> <span class="badge badge-primary" data-astro-cid-wkltarji>Werkuren &amp; vakantie</span> <span class="calc-year-badge" data-astro-cid-wkltarji> <span class="year-dot" data-astro-cid-wkltarji></span>
+Regels en tarieven 2026 (Rijksoverheid &amp; CBS)
+</span> </div> <h1 class="calc-page-title" data-astro-cid-wkltarji>Werkdagen berekenen</h1> <p class="calc-page-intro" data-astro-cid-wkltarji>Bereken het exacte aantal werkdagen en werkuren tussen twee datums, met automatische aftrek van weekenden en officiële Nederlandse feestdagen.</p> </header> <!-- Calculator Interactief Element --> <div class="calculator-container" data-astro-cid-wkltarji> <div class="calc-grid" id="werkdagen-calc" data-astro-cid-e4h7cjbb> <!-- Invoerkaart --> <div class="calc-card" data-astro-cid-e4h7cjbb> <h2 class="calc-section-title" data-astro-cid-e4h7cjbb>Periode selecteren</h2> <!-- Startdatum & Einddatum --> <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;" data-astro-cid-e4h7cjbb> <div class="form-group" data-astro-cid-e4h7cjbb> <label for="input-start-date" class="form-label" data-astro-cid-e4h7cjbb>Startdatum</label> <input type="date" id="input-start-date" class="form-input" data-astro-cid-e4h7cjbb> </div> <div class="form-group" data-astro-cid-e4h7cjbb> <label for="input-end-date" class="form-label" data-astro-cid-e4h7cjbb>Einddatum</label> <input type="date" id="input-end-date" class="form-input" data-astro-cid-e4h7cjbb> </div> </div> <!-- Feestdagen meenemen --> <div class="form-group" data-astro-cid-e4h7cjbb> <label class="form-label" data-astro-cid-e4h7cjbb>Officiële Nederlandse feestdagen</label> <div class="form-radio-group" data-astro-cid-e4h7cjbb> <div class="form-radio-card" data-astro-cid-e4h7cjbb> <input type="radio" id="holidays-exclude" name="holidays-mode" value="exclude" checked data-astro-cid-e4h7cjbb> <label for="holidays-exclude" data-astro-cid-e4h7cjbb>Feestdagen als vrije dagen meetellen (uitsluiten van werkdagen)</label> </div> <div class="form-radio-card" data-astro-cid-e4h7cjbb> <input type="radio" id="holidays-include" name="holidays-mode" value="include" data-astro-cid-e4h7cjbb> <label for="holidays-include" data-astro-cid-e4h7cjbb>Feestdagen meerekenen als gewone werkdagen</label> </div> </div> <span class="form-hint" data-astro-cid-e4h7cjbb>
+Nationale feestdagen die op doordeweekse dagen vallen (zoals Koningsdag, Hemelvaart en 2e Paasdag).
+</span> </div> <!-- Uren per werkdag --> <div class="form-group" data-astro-cid-e4h7cjbb> <label for="input-hours-per-day" class="form-label" data-astro-cid-e4h7cjbb>Werkuren per dag</label> <div class="input-wrapper" data-astro-cid-e4h7cjbb> <input type="number" id="input-hours-per-day" class="form-input input-has-suffix" value="8" min="1" max="24" step="0.5" data-astro-cid-e4h7cjbb> <span class="input-suffix" data-astro-cid-e4h7cjbb>uur / dag</span> </div> </div> <div class="form-actions" data-astro-cid-e4h7cjbb> <button type="button" id="btn-reset-werkdagen" class="btn btn-secondary btn-sm" data-astro-cid-e4h7cjbb>
+Herstellen naar standaard
+</button> </div> </div> <!-- Resultatenkaart --> <div class="calc-result-card" aria-live="polite" data-astro-cid-e4h7cjbb> <div class="result-hero" data-astro-cid-e4h7cjbb> <span class="result-hero-label" data-astro-cid-e4h7cjbb>Aantal werkdagen</span> <div class="result-hero-value" id="res-working-days" data-astro-cid-e4h7cjbb>0 dagen</div> <span class="result-hero-sub" id="res-working-hours" data-astro-cid-e4h7cjbb>0 werkuren totaal</span> </div> <div class="result-breakdown" data-astro-cid-e4h7cjbb> <div class="result-row" data-astro-cid-e4h7cjbb> <span class="result-row-label" data-astro-cid-e4h7cjbb>Totaal aantal kalenderdagen</span> <span class="result-row-value" id="res-calendar-days" data-astro-cid-e4h7cjbb>0 dagen</span> </div> <div class="result-row" data-astro-cid-e4h7cjbb> <span class="result-row-label" data-astro-cid-e4h7cjbb>Weekenddagen (za & zo)</span> <span class="result-row-value" id="res-weekend-days" data-astro-cid-e4h7cjbb>0 dagen</span> </div> <div class="result-row" data-astro-cid-e4h7cjbb> <span class="result-row-label" data-astro-cid-e4h7cjbb>Feestdagen (doordeweeks)</span> <span class="result-row-value" id="res-holidays-count" data-astro-cid-e4h7cjbb>0 dagen</span> </div> </div> <!-- Feestdagen lijst --> <div id="holidays-list-container" style="margin-top: 1rem; display: none;" data-astro-cid-e4h7cjbb> <h3 style="font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;" data-astro-cid-e4h7cjbb>
+Feestdagen in deze periode:
+</h3> <ul id="holidays-list" style="font-size: 0.8125rem; color: var(--text-muted); padding-left: 1.25rem;" data-astro-cid-e4h7cjbb></ul> </div> </div> </div>  <script>
+  (() => {
+    const calc = document.getElementById('werkdagen-calc');
+    if (!calc) return;
+
+    const inputStart = calc.querySelector('#input-start-date');
+    const inputEnd = calc.querySelector('#input-end-date');
+    const radioHolidaysExclude = calc.querySelector('#holidays-exclude');
+    const radioHolidaysInclude = calc.querySelector('#holidays-include');
+    const inputHoursPerDay = calc.querySelector('#input-hours-per-day');
+    const btnReset = calc.querySelector('#btn-reset-werkdagen');
+
+    const resWorkingDays = calc.querySelector('#res-working-days');
+    const resWorkingHours = calc.querySelector('#res-working-hours');
+    const resCalendarDays = calc.querySelector('#res-calendar-days');
+    const resWeekendDays = calc.querySelector('#res-weekend-days');
+    const resHolidaysCount = calc.querySelector('#res-holidays-count');
+    const holidaysContainer = calc.querySelector('#holidays-list-container');
+    const holidaysList = calc.querySelector('#holidays-list');
+
+    // Algoritme voor Nederlandse feestdagen
+    function getEasterSunday(year) {
+      const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+      const d = Math.floor(b / 4), e = b % 4;
+      const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4), k = c % 4;
+      const l = (32 + 2 * e + 2 * i - h - k) % 7;
+      const m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+      const day = ((h + l - 7 * m + 114) % 31) + 1;
+      return new Date(Date.UTC(year, month, day));
+    }
+
+    function addDays(date, days) {
+      const res = new Date(date);
+      res.setUTCDate(res.getUTCDate() + days);
+      return res;
+    }
+
+    function formatISO(d) {
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getHolidays(year) {
+      const easter = getEasterSunday(year);
+      const easterMonday = addDays(easter, 1);
+      const ascension = addDays(easter, 39);
+      const pentecostMonday = addDays(easter, 50);
+
+      let kingsDay = new Date(Date.UTC(year, 3, 27));
+      if (kingsDay.getUTCDay() === 0) kingsDay = new Date(Date.UTC(year, 3, 26));
+
+      return [
+        { date: `${year}-01-01`, name: 'Nieuwjaarsdag' },
+        { date: formatISO(easterMonday), name: 'Tweede Paasdag' },
+        { date: formatISO(kingsDay), name: 'Koningsdag' },
+        { date: formatISO(ascension), name: 'Hemelvaartsdag' },
+        { date: formatISO(pentecostMonday), name: 'Tweede Pinksterdag' },
+        { date: `${year}-12-25`, name: 'Eerste Kerstdag' },
+        { date: `${year}-12-26`, name: 'Tweede Kerstdag' },
+      ];
+    }
+
+    function calculate() {
+      const startVal = inputStart.value;
+      const endVal = inputEnd.value;
+      if (!startVal || !endVal) return;
+
+      const startDate = new Date(startVal + 'T00:00:00Z');
+      const endDate = new Date(endVal + 'T00:00:00Z');
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()) || startDate > endDate) {
+        resWorkingDays.textContent = '0 dagen';
+        resWorkingHours.textContent = 'Selecteer een geldige datumreeks';
+        resCalendarDays.textContent = '0 dagen';
+        resWeekendDays.textContent = '0 dagen';
+        resHolidaysCount.textContent = '0 dagen';
+        holidaysContainer.style.display = 'none';
+        return;
+      }
+
+      const excludeHolidays = radioHolidaysExclude.checked;
+      const hoursPerDay = Math.max(0, parseFloat(inputHoursPerDay.value) || 8);
+
+      const startYear = startDate.getUTCFullYear();
+      const endYear = endDate.getUTCFullYear();
+      const holidayMap = new Map();
+
+      if (excludeHolidays) {
+        for (let y = startYear; y <= endYear; y++) {
+          const list = getHolidays(y);
+          for (const h of list) holidayMap.set(h.date, h.name);
+        }
+      }
+
+      let calDays = 0;
+      let weekends = 0;
+      let holidays = 0;
+      const foundHolidays = [];
+      let workDays = 0;
+
+      const cur = new Date(startDate);
+      while (cur <= endDate) {
+        calDays++;
+        const day = cur.getUTCDay();
+        const iso = formatISO(cur);
+
+        if (day === 0 || day === 6) {
+          weekends++;
+        } else if (excludeHolidays && holidayMap.has(iso)) {
+          holidays++;
+          foundHolidays.push({ date: iso, name: holidayMap.get(iso) });
+        } else {
+          workDays++;
+        }
+
+        cur.setUTCDate(cur.getUTCDate() + 1);
+      }
+
+      resWorkingDays.textContent = `${workDays} ${workDays === 1 ? 'werkdag' : 'werkdagen'}`;
+      resWorkingHours.textContent = `${workDays * hoursPerDay} werkuren totaal`;
+      resCalendarDays.textContent = `${calDays} ${calDays === 1 ? 'dag' : 'dagen'}`;
+      resWeekendDays.textContent = `${weekends} ${weekends === 1 ? 'dag' : 'dagen'}`;
+      resHolidaysCount.textContent = `${holidays} ${holidays === 1 ? 'dag' : 'dagen'}`;
+
+      if (foundHolidays.length > 0) {
+        holidaysContainer.style.display = 'block';
+        holidaysList.innerHTML = foundHolidays.map(h => `<li>${h.name} (${h.date.split('-').reverse().join('-')})</li>`).join('');
+      } else {
+        holidaysContainer.style.display = 'none';
+        holidaysList.innerHTML = '';
+      }
+    }
+
+    // Set default dates: first and last day of current month
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    const firstDay = new Date(Date.UTC(y, m, 1));
+    const lastDay = new Date(Date.UTC(y, m + 1, 0));
+
+    inputStart.value = formatISO(firstDay);
+    inputEnd.value = formatISO(lastDay);
+
+    inputStart.addEventListener('change', calculate);
+    inputEnd.addEventListener('change', calculate);
+    radioHolidaysExclude.addEventListener('change', calculate);
+    radioHolidaysInclude.addEventListener('change', calculate);
+    inputHoursPerDay.addEventListener('input', calculate);
+
+    btnReset.addEventListener('click', () => {
+      inputStart.value = formatISO(firstDay);
+      inputEnd.value = formatISO(lastDay);
+      radioHolidaysExclude.checked = true;
+      inputHoursPerDay.value = '8';
+      calculate();
+    });
+
+    calculate();
+  })();
+</script> </div> <!-- Uitgebreide Informatie & Wetgeving --> <div class="calc-page-content container-narrow" data-astro-cid-wkltarji> <div class="prose" data-astro-cid-wkltarji> <div> <h2>Hoe bereken je het aantal werkdagen in Nederland?</h2> <p>
+Het berekenen van het aantal werkdagen tussen twee datums is essentieel voor projectplanningen, het vaststellen van opzegtermijnen, verlofplanningen en loonberekeningen. In Nederland wordt een standaard werkdag gedefinieerd als een dag van maandag tot en met vrijdag, met uitzondering van nationaal erkende feestdagen.
+</p> <h3>Erkende Nederlandse feestdagen</h3> <p>
+Onze calculator controleert automatisch op alle door de Rijksoverheid erkende nationale feestdagen:
+</p> <table> <thead> <tr> <th>Feestdag</th> <th>Wanneer</th> <th>Vrij voor de meeste werknemers?</th> </tr> </thead> <tbody> <tr> <td><strong>Nieuwjaarsdag</strong></td> <td>1 januari</td> <td>Ja, vrij volgens nagenoeg alle CAO's</td> </tr> <tr> <td><strong>Goede Vrijdag</strong></td> <td>Vrijdag voor Pasen</td> <td>Vaak niet (afhankelijk van CAO/beurs)</td> </tr> <tr> <td><strong>Tweede Paasdag</strong></td> <td>Maandag na Pasen</td> <td>Ja, officiële vrije feestdag</td> </tr> <tr> <td><strong>Koningsdag</strong></td> <td>27 april (of 26 april indien zondag)</td> <td>Ja, nationale feestdag</td> </tr> <tr> <td><strong>Bevrijdingsdag</strong></td> <td>5 mei</td> <td>Vaak 1x per 5 jaar (lustrumjaren)</td> </tr> <tr> <td><strong>Hemelvaartsdag</strong></td> <td>Donderdag (39 dagen na Pasen)</td> <td>Ja, officiële vrije feestdag</td> </tr> <tr> <td><strong>Tweede Pinksterdag</strong></td> <td>Maandag (50 dagen na Pasen)</td> <td>Ja, officiële vrije feestdag</td> </tr> <tr> <td><strong>Eerste & Tweede Kerstdag</strong></td> <td>25 & 26 december</td> <td>Ja, officiële vrije feestdagen</td> </tr> </tbody> </table> <div class="callout callout-info"> <strong>Gemiddeld aantal werkbare uren:</strong><br>
+Bij een standaard werkdag van 8 uur (40 uur per week) levert elke werkdag 8 declarabele uren op. Bij een parttime werkdag van bijvoorbeeld 7,2 uur (bij een 36-urige werkweek) kun je het aantal uren per dag naar wens aanpassen in het invoerveld.
+</div> <h2>Rekenvoorbeeld werkdagen</h2> <p>
+Stel: je wilt het aantal werkdagen berekenen in de maand <strong>april 2026</strong> (van 1 april 2026 t/m 30 april 2026):
+</p> <ul> <li><strong>Kalenderdagen:</strong> 30 dagen in totaal.</li> <li><strong>Weekenddagen:</strong> 8 dagen (4 zaterdagen en 4 zondagen).</li> <li><strong>Doordeweekse feestdagen:</strong> 2 dagen (Tweede Paasdag op 6 april en Koningsdag op maandag 27 april).</li> <li><strong>Netto aantal werkdagen:</strong> 30 - 8 weekend - 2 feestdagen = <strong>20 werkdagen</strong>.</li> <li><strong>Totaal aantal werkuren (bij 8 uur per dag):</strong> 20 × 8 = <strong>160 werkuren</strong>.</li> </ul> </div> </div> <!-- FAQ Sectie --> <section class="faq-section" aria-labelledby="faq-title" data-astro-cid-mhigdioq> <h2 id="faq-title" class="faq-title" data-astro-cid-mhigdioq>Veelgestelde vragen</h2> <div class="faq-list" data-astro-cid-mhigdioq> <details class="faq-item" id="faq-0" data-astro-cid-mhigdioq> <summary class="faq-question" data-astro-cid-mhigdioq> <span data-astro-cid-mhigdioq>Hoeveel werkdagen telt een jaar gemiddeld in Nederland?</span> <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-mhigdioq> <polyline points="6 9 12 15 18 9" data-astro-cid-mhigdioq></polyline> </svg> </summary> <div class="faq-answer" data-astro-cid-mhigdioq> <p data-astro-cid-mhigdioq>Een kalenderjaar telt meestal 260 tot 262 doordeweekse dagen (maandag t/m vrijdag). Omdat er gemiddeld 6 tot 8 officiële feestdagen op een doordeweekse dag vallen, blijven er circa 254 tot 256 potentiële werkdagen over. Na aftrek van 25 vakantiedagen (5 weken) werkt een fulltimer in Nederland gemiddeld circa 214 werkelijke werkdagen per jaar.</p> </div> </details><details class="faq-item" id="faq-1" data-astro-cid-mhigdioq> <summary class="faq-question" data-astro-cid-mhigdioq> <span data-astro-cid-mhigdioq>Welke officiële feestdagen gelden in Nederland?</span> <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-mhigdioq> <polyline points="6 9 12 15 18 9" data-astro-cid-mhigdioq></polyline> </svg> </summary> <div class="faq-answer" data-astro-cid-mhigdioq> <p data-astro-cid-mhigdioq>De officiële nationale feestdagen zijn: Nieuwjaarsdag (1 januari), Goede Vrijdag, Eerste en Tweede Paasdag, Koningsdag (27 april), Bevrijdingsdag (5 mei), Hemelvaartsdag, Eerste en Tweede Pinksterdag en Eerste en Tweede Kerstdag (25 en 26 december).</p> </div> </details><details class="faq-item" id="faq-2" data-astro-cid-mhigdioq> <summary class="faq-question" data-astro-cid-mhigdioq> <span data-astro-cid-mhigdioq>Ben je wettelijk altijd vrij op een officiële feestdag?</span> <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-mhigdioq> <polyline points="6 9 12 15 18 9" data-astro-cid-mhigdioq></polyline> </svg> </summary> <div class="faq-answer" data-astro-cid-mhigdioq> <p data-astro-cid-mhigdioq>Nee, in Nederland bestaat geen wettelijk recht op een vrije dag op officiële feestdagen. Of je vrij bent met behoud van loon, hangt af van de afspraken in jouw CAO of arbeidsovereenkomst. In de zorg, horeca en retail wordt bijvoorbeeld vaak gewoon doorgewerkt tegen een feestdagentoeslag.</p> </div> </details><details class="faq-item" id="faq-3" data-astro-cid-mhigdioq> <summary class="faq-question" data-astro-cid-mhigdioq> <span data-astro-cid-mhigdioq>Is Bevrijdingsdag (5 mei) ieder jaar een vrije dag?</span> <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-mhigdioq> <polyline points="6 9 12 15 18 9" data-astro-cid-mhigdioq></polyline> </svg> </summary> <div class="faq-answer" data-astro-cid-mhigdioq> <p data-astro-cid-mhigdioq>Nee, in de meeste Nederlandse CAO&#39;s is 5 mei alleen een betaalde vrije dag in zogeheten lustrumjaren (jaren die deelbaar zijn door 5, zoals 2025 en 2030). Sommige moderne CAO&#39;s hebben 5 mei inmiddels als jaarlijkse feestdag aangemerkt.</p> </div> </details><details class="faq-item" id="faq-4" data-astro-cid-mhigdioq> <summary class="faq-question" data-astro-cid-mhigdioq> <span data-astro-cid-mhigdioq>Hoeveel werkdagen telt een maand gemiddeld?</span> <svg class="faq-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-mhigdioq> <polyline points="6 9 12 15 18 9" data-astro-cid-mhigdioq></polyline> </svg> </summary> <div class="faq-answer" data-astro-cid-mhigdioq> <p data-astro-cid-mhigdioq>Een maand telt gemiddeld 21,67 werkdagen (260 werkdagen gedeeld door 12 maanden). Afhankelijk van de kalendermaand en weekenden schommelt het werkelijke aantal doordeweekse dagen meestal tussen de 20 en 23 dagen.</p> </div> </details> </div> </section> <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Hoeveel werkdagen telt een jaar gemiddeld in Nederland?","acceptedAnswer":{"@type":"Answer","text":"Een kalenderjaar telt meestal 260 tot 262 doordeweekse dagen (maandag t/m vrijdag). Omdat er gemiddeld 6 tot 8 officiële feestdagen op een doordeweekse dag vallen, blijven er circa 254 tot 256 potentiële werkdagen over. Na aftrek van 25 vakantiedagen (5 weken) werkt een fulltimer in Nederland gemiddeld circa 214 werkelijke werkdagen per jaar."}},{"@type":"Question","name":"Welke officiële feestdagen gelden in Nederland?","acceptedAnswer":{"@type":"Answer","text":"De officiële nationale feestdagen zijn: Nieuwjaarsdag (1 januari), Goede Vrijdag, Eerste en Tweede Paasdag, Koningsdag (27 april), Bevrijdingsdag (5 mei), Hemelvaartsdag, Eerste en Tweede Pinksterdag en Eerste en Tweede Kerstdag (25 en 26 december)."}},{"@type":"Question","name":"Ben je wettelijk altijd vrij op een officiële feestdag?","acceptedAnswer":{"@type":"Answer","text":"Nee, in Nederland bestaat geen wettelijk recht op een vrije dag op officiële feestdagen. Of je vrij bent met behoud van loon, hangt af van de afspraken in jouw CAO of arbeidsovereenkomst. In de zorg, horeca en retail wordt bijvoorbeeld vaak gewoon doorgewerkt tegen een feestdagentoeslag."}},{"@type":"Question","name":"Is Bevrijdingsdag (5 mei) ieder jaar een vrije dag?","acceptedAnswer":{"@type":"Answer","text":"Nee, in de meeste Nederlandse CAO's is 5 mei alleen een betaalde vrije dag in zogeheten lustrumjaren (jaren die deelbaar zijn door 5, zoals 2025 en 2030). Sommige moderne CAO's hebben 5 mei inmiddels als jaarlijkse feestdag aangemerkt."}},{"@type":"Question","name":"Hoeveel werkdagen telt een maand gemiddeld?","acceptedAnswer":{"@type":"Answer","text":"Een maand telt gemiddeld 21,67 werkdagen (260 werkdagen gedeeld door 12 maanden). Afhankelijk van de kalendermaand en weekenden schommelt het werkelijke aantal doordeweekse dagen meestal tussen de 20 en 23 dagen."}}]}</script>  <!-- Gerelateerde Calculators --> <section class="related-tools-section" aria-labelledby="related-tools-title" data-astro-cid-3jd3xusc> <h2 id="related-tools-title" class="related-tools-heading" data-astro-cid-3jd3xusc>Gerelateerde berekeningen</h2> <div class="related-tools-grid" data-astro-cid-3jd3xusc> <a href="/reiskostenvergoeding-berekenen/" class="related-tool-card" data-astro-cid-3jd3xusc> <div class="related-tool-header" data-astro-cid-3jd3xusc> <span class="related-tool-category" data-astro-cid-3jd3xusc>Reiskosten &amp; vergoedingen</span> <svg class="related-tool-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-3jd3xusc> <line x1="5" y1="12" x2="19" y2="12" data-astro-cid-3jd3xusc></line> <polyline points="12 5 19 12 12 19" data-astro-cid-3jd3xusc></polyline> </svg> </div> <h3 class="related-tool-title" data-astro-cid-3jd3xusc>Reiskostenvergoeding berekenen</h3> <p class="related-tool-desc" data-astro-cid-3jd3xusc>Bereken je maandelijkse en jaarlijkse kilometervergoeding voor woon-werkverkeer volgens de maximale onbelaste norm van € 0,23 per km.</p> </a><a href="/thuiswerkvergoeding-berekenen/" class="related-tool-card" data-astro-cid-3jd3xusc> <div class="related-tool-header" data-astro-cid-3jd3xusc> <span class="related-tool-category" data-astro-cid-3jd3xusc>Reiskosten &amp; vergoedingen</span> <svg class="related-tool-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-3jd3xusc> <line x1="5" y1="12" x2="19" y2="12" data-astro-cid-3jd3xusc></line> <polyline points="12 5 19 12 12 19" data-astro-cid-3jd3xusc></polyline> </svg> </div> <h3 class="related-tool-title" data-astro-cid-3jd3xusc>Thuiswerkvergoeding berekenen</h3> <p class="related-tool-desc" data-astro-cid-3jd3xusc>Bereken de onbelaste vergoeding voor je thuiswerkdagen per maand en per jaar op basis van het officiële Belastingdienst-tarief van € 2,40 per dag.</p> </a><a href="/vakantie-uren-berekenen/" class="related-tool-card" data-astro-cid-3jd3xusc> <div class="related-tool-header" data-astro-cid-3jd3xusc> <span class="related-tool-category" data-astro-cid-3jd3xusc>Werkuren &amp; vakantie</span> <svg class="related-tool-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-astro-cid-3jd3xusc> <line x1="5" y1="12" x2="19" y2="12" data-astro-cid-3jd3xusc></line> <polyline points="12 5 19 12 12 19" data-astro-cid-3jd3xusc></polyline> </svg> </div> <h3 class="related-tool-title" data-astro-cid-3jd3xusc>Vakantie-uren berekenen</h3> <p class="related-tool-desc" data-astro-cid-3jd3xusc>Bereken je wettelijke en bovenwettelijke vakantiedagen en uren op basis van je wekelijkse arbeidsduur en parttime percentage.</p> </a> </div> </section>  </div> </div>  </main> <footer class="site-footer" data-astro-cid-sz7xmlte> <div class="container footer-content" data-astro-cid-sz7xmlte> <div class="footer-grid" data-astro-cid-sz7xmlte> <!-- Kolom 1: Merk & Missie --> <div class="footer-col footer-brand-col" data-astro-cid-sz7xmlte> <a href="/" class="footer-brand" data-astro-cid-sz7xmlte> <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" data-astro-cid-sz7xmlte> <rect width="32" height="32" rx="7" fill="#1d4ed8" data-astro-cid-sz7xmlte></rect> <path d="M7 10L11 22L16 13L21 22L25 10" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" data-astro-cid-sz7xmlte></path> <circle cx="24" cy="9" r="2.5" fill="#10b981" data-astro-cid-sz7xmlte></circle> </svg> <span data-astro-cid-sz7xmlte>Werk<span class="brand-accent" data-astro-cid-sz7xmlte>Rekenen</span>.com</span> </a> <p class="footer-tagline" data-astro-cid-sz7xmlte>
+Eenvoudige, betrouwbare en actuele rekentools voor werkenden, werkgevers en zzp'ers in Nederland.
+</p> <div class="footer-trust-badge" data-astro-cid-sz7xmlte> <span class="trust-indicator" data-astro-cid-sz7xmlte></span> <span data-astro-cid-sz7xmlte>Gebaseerd op officiële normen van Rijksoverheid & Belastingdienst (2025/2026)</span> </div> </div> <!-- Kolom 2: Populaire Rekentools --> <div class="footer-col" data-astro-cid-sz7xmlte> <h3 class="footer-heading" data-astro-cid-sz7xmlte>Populaire berekeningen</h3> <ul class="footer-links" data-astro-cid-sz7xmlte> <li data-astro-cid-sz7xmlte> <a href="/uurloon-berekenen/" data-astro-cid-sz7xmlte>Uurloon berekenen</a> </li><li data-astro-cid-sz7xmlte> <a href="/reiskostenvergoeding-berekenen/" data-astro-cid-sz7xmlte>Reiskostenvergoeding berekenen</a> </li><li data-astro-cid-sz7xmlte> <a href="/thuiswerkvergoeding-berekenen/" data-astro-cid-sz7xmlte>Thuiswerkvergoeding berekenen</a> </li><li data-astro-cid-sz7xmlte> <a href="/vakantiegeld-berekenen/" data-astro-cid-sz7xmlte>Vakantiegeld berekenen</a> </li><li data-astro-cid-sz7xmlte> <a href="/overuren-berekenen/" data-astro-cid-sz7xmlte>Overuren berekenen</a> </li> <li data-astro-cid-sz7xmlte> <a href="/alle-berekeningen/" class="footer-more-link" data-astro-cid-sz7xmlte>Bekijk alle rekentools &rarr;</a> </li> </ul> </div> <!-- Kolom 3: Categorieën --> <div class="footer-col" data-astro-cid-sz7xmlte> <h3 class="footer-heading" data-astro-cid-sz7xmlte>Categorieën</h3> <ul class="footer-links" data-astro-cid-sz7xmlte> <li data-astro-cid-sz7xmlte><a href="/categorie/salaris/" data-astro-cid-sz7xmlte>Salaris & loon</a></li> <li data-astro-cid-sz7xmlte><a href="/categorie/werkuren/" data-astro-cid-sz7xmlte>Werkuren & vakantie</a></li> <li data-astro-cid-sz7xmlte><a href="/categorie/vergoedingen/" data-astro-cid-sz7xmlte>Reiskosten & vergoedingen</a></li> <li data-astro-cid-sz7xmlte><a href="/werkdagen-berekenen/" data-astro-cid-sz7xmlte>Werkdagen & feestdagen</a></li> </ul> </div> <!-- Kolom 4: Informatie & Juridisch --> <div class="footer-col" data-astro-cid-sz7xmlte> <h3 class="footer-heading" data-astro-cid-sz7xmlte>Informatie & Contact</h3> <ul class="footer-links" data-astro-cid-sz7xmlte> <li data-astro-cid-sz7xmlte><a href="/over-ons/" data-astro-cid-sz7xmlte>Over WerkRekenen</a></li> <li data-astro-cid-sz7xmlte><a href="/contact/" data-astro-cid-sz7xmlte>Contact & feedback</a></li> <li data-astro-cid-sz7xmlte><a href="/privacy/" data-astro-cid-sz7xmlte>Privacybeleid</a></li> <li data-astro-cid-sz7xmlte><a href="/voorwaarden/" data-astro-cid-sz7xmlte>Algemene voorwaarden & disclaimer</a></li> </ul> </div> </div> <!-- Onderste balk --> <div class="footer-bottom" data-astro-cid-sz7xmlte> <p class="footer-disclaimer" data-astro-cid-sz7xmlte>
+Disclaimer: De berekeningen op WerkRekenen.com zijn indicatief en zorgvuldig samengesteld op basis van actuele Nederlandse wet- en regelgeving. Aan de uitkomsten kunnen geen rechten worden ontleend. Raadpleeg voor specifiek fiscaal advies altijd een adviseur of de Belastingdienst.
+</p> <div class="footer-copy" data-astro-cid-sz7xmlte>
+&copy; 2026 WerkRekenen.com. Alle rechten voorbehouden.
+</div> </div> </div> </footer>  </body></html> 

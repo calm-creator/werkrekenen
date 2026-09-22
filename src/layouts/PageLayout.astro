@@ -1,0 +1,76 @@
+---
+// src/layouts/PageLayout.astro
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs, { type BreadcrumbItem } from '../components/Breadcrumbs.astro';
+
+export interface Props {
+  title: string;
+  description: string;
+  breadcrumbs?: BreadcrumbItem[];
+  canonicalUrl?: string;
+  schema?: Record<string, any> | Record<string, any>[];
+  lastUpdated?: string;
+}
+
+const {
+  title,
+  description,
+  breadcrumbs,
+  canonicalUrl,
+  schema,
+  lastUpdated
+} = Astro.props;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  canonicalUrl={canonicalUrl}
+  schema={schema}
+>
+  <div class="page-container container-narrow">
+    {breadcrumbs && <Breadcrumbs items={breadcrumbs} />}
+
+    <header class="page-header">
+      <h1 class="page-title">{title}</h1>
+      {lastUpdated && <p class="page-updated">Laatst bijgewerkt: {lastUpdated}</p>}
+    </header>
+
+    <article class="prose page-content">
+      <slot />
+    </article>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-container {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  @media (min-width: 640px) {
+    .page-title {
+      font-size: 2.25rem;
+    }
+  }
+
+  .page-updated {
+    font-size: 0.875rem;
+    color: var(--text-subtle);
+    margin-top: 0.5rem;
+  }
+</style>

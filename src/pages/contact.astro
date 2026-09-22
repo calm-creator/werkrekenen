@@ -1,0 +1,36 @@
+---
+// src/pages/contact.astro
+import PageLayout from '../layouts/PageLayout.astro';
+
+const breadcrumbs = [
+  { label: 'Contact' }
+];
+---
+
+<PageLayout
+  title="Contact & Feedback"
+  description="Heb je een vraag over een berekening of een verbetersuggestie voor WerkRekenen.com? Neem contact met ons op."
+  breadcrumbs={breadcrumbs}
+>
+  <p>
+    Heb je een vraag over een van onze rekenmodules, klopt er volgens jou een tarief niet na een recente CAO- of wetswijziging, of mis je een handige berekening op WerkRekenen.com? We waarderen feedback van onze gebruikers zeer.
+  </p>
+
+  <div class="callout callout-info" style="margin-top: 1.5rem; margin-bottom: 2rem;">
+    <strong>Let op:</strong> WerkRekenen.com is een onafhankelijk informatief rekenplatform. Wij kunnen helaas geen persoonlijk juridisch of fiscaal maatwerkadvies verstrekken over individuele arbeidsovereenkomsten of belastingaangiften. Neem daarvoor contact op met je vakbond, rechtsbijstandverzekering of de Belastingdienst.
+  </div>
+
+  <h2>Bereikbaarheid</h2>
+  <p>
+    Je kunt ons redactieteam bereiken via onderstaande kanalen:
+  </p>
+  <ul>
+    <li><strong>E-mail algemeen & feedback:</strong> <a href="mailto:contact@werkrekenen.com">contact@werkrekenen.com</a></li>
+    <li><strong>Fiscale & CAO-correcties:</strong> <a href="mailto:redactie@werkrekenen.com">redactie@werkrekenen.com</a></li>
+  </ul>
+
+  <h2>Veelgestelde vragen</h2>
+  <p>
+    Veel antwoorden op vragen over hoe de formules exact tot stand komen, kun je direct vinden op de toelichtingssectie onder de desbetreffende calculator of via onze <a href="/#populair">veelgestelde vragen op de homepage</a>.
+  </p>
+</PageLayout>

@@ -1,0 +1,148 @@
+---
+// src/pages/404.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CALCULATORS } from '../data/calculators';
+
+const popularTools = CALCULATORS.filter(c => c.popular).slice(0, 4);
+---
+
+<BaseLayout
+  title="Pagina niet gevonden (404) | WerkRekenen.com"
+  description="De opgevraagde pagina op WerkRekenen.com kon niet worden gevonden. Keer terug naar de homepage of kies een van onze populaire Nederlandse rekentools."
+  noindex={true}
+>
+  <div class="container not-found-wrapper">
+    <div class="not-found-card">
+      <span class="error-code">404</span>
+      <h1 class="error-title">Pagina niet gevonden</h1>
+      <p class="error-message">
+        De pagina die je zoekt bestaat helaas niet (meer) of is verplaatst naar een andere locatie.
+      </p>
+
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">Terug naar homepage</a>
+        <a href="/alle-berekeningen/" class="btn btn-secondary">Bekijk alle rekentools</a>
+      </div>
+
+      <div class="suggested-tools">
+        <h2 class="suggested-title">Populaire berekeningen</h2>
+        <div class="suggested-grid">
+          {popularTools.map((t) => (
+            <a href={`/${t.slug}/`} class="suggested-card">
+              <span class="suggested-name">{t.title}</span>
+              <svg class="suggested-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .not-found-wrapper {
+    padding-top: 4rem;
+    padding-bottom: 5rem;
+    display: flex;
+    justify-content: center;
+  }
+
+  .not-found-card {
+    text-align: center;
+    max-width: 600px;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 3rem 2rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .error-code {
+    display: inline-block;
+    font-size: 4rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--color-primary);
+    margin-bottom: 0.5rem;
+  }
+
+  .error-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 0.75rem;
+  }
+
+  .error-message {
+    font-size: 1rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 2rem;
+  }
+
+  .error-actions {
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 2.5rem;
+  }
+
+  .suggested-tools {
+    border-top: 1px solid var(--border-color);
+    padding-top: 2rem;
+    text-align: left;
+  }
+
+  .suggested-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    text-align: center;
+  }
+
+  .suggested-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  @media (min-width: 480px) {
+    .suggested-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .suggested-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--text-main);
+    transition: all 0.15s ease;
+  }
+
+  .suggested-card:hover {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  .suggested-arrow {
+    color: var(--text-subtle);
+  }
+
+  .suggested-card:hover .suggested-arrow {
+    color: var(--color-primary);
+  }
+</style>

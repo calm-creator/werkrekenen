@@ -1,0 +1,203 @@
+---
+// src/components/Footer.astro
+import { CALCULATORS } from '../data/calculators';
+
+const currentYear = new Date().getFullYear();
+const popularCalculators = CALCULATORS.filter(c => c.popular).slice(0, 5);
+---
+
+<footer class="site-footer">
+  <div class="container footer-content">
+    <div class="footer-grid">
+      <!-- Kolom 1: Merk & Missie -->
+      <div class="footer-col footer-brand-col">
+        <a href="/" class="footer-brand">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect width="32" height="32" rx="7" fill="#1d4ed8"/>
+            <path d="M7 10L11 22L16 13L21 22L25 10" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="24" cy="9" r="2.5" fill="#10b981"/>
+          </svg>
+          <span>Werk<span class="brand-accent">Rekenen</span>.com</span>
+        </a>
+        <p class="footer-tagline">
+          Eenvoudige, betrouwbare en actuele rekentools voor werkenden, werkgevers en zzp'ers in Nederland.
+        </p>
+        <div class="footer-trust-badge">
+          <span class="trust-indicator"></span>
+          <span>Gebaseerd op officiële normen van Rijksoverheid & Belastingdienst (2025/2026)</span>
+        </div>
+      </div>
+
+      <!-- Kolom 2: Populaire Rekentools -->
+      <div class="footer-col">
+        <h3 class="footer-heading">Populaire berekeningen</h3>
+        <ul class="footer-links">
+          {popularCalculators.map((c) => (
+            <li>
+              <a href={`/${c.slug}/`}>{c.title}</a>
+            </li>
+          ))}
+          <li>
+            <a href="/alle-berekeningen/" class="footer-more-link">Bekijk alle rekentools &rarr;</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Kolom 3: Categorieën -->
+      <div class="footer-col">
+        <h3 class="footer-heading">Categorieën</h3>
+        <ul class="footer-links">
+          <li><a href="/categorie/salaris/">Salaris & loon</a></li>
+          <li><a href="/categorie/werkuren/">Werkuren & vakantie</a></li>
+          <li><a href="/categorie/vergoedingen/">Reiskosten & vergoedingen</a></li>
+          <li><a href="/werkdagen-berekenen/">Werkdagen & feestdagen</a></li>
+        </ul>
+      </div>
+
+      <!-- Kolom 4: Informatie & Juridisch -->
+      <div class="footer-col">
+        <h3 class="footer-heading">Informatie & Contact</h3>
+        <ul class="footer-links">
+          <li><a href="/over-ons/">Over WerkRekenen</a></li>
+          <li><a href="/contact/">Contact & feedback</a></li>
+          <li><a href="/privacy/">Privacybeleid</a></li>
+          <li><a href="/voorwaarden/">Algemene voorwaarden & disclaimer</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Onderste balk -->
+    <div class="footer-bottom">
+      <p class="footer-disclaimer">
+        Disclaimer: De berekeningen op WerkRekenen.com zijn indicatief en zorgvuldig samengesteld op basis van actuele Nederlandse wet- en regelgeving. Aan de uitkomsten kunnen geen rechten worden ontleend. Raadpleeg voor specifiek fiscaal advies altijd een adviseur of de Belastingdienst.
+      </p>
+      <div class="footer-copy">
+        &copy; {currentYear} WerkRekenen.com. Alle rechten voorbehouden.
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+    margin-top: 4rem;
+    padding-top: 3.5rem;
+    padding-bottom: 2.5rem;
+    color: var(--text-muted);
+    font-size: 0.875rem;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .footer-grid {
+      grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    }
+  }
+
+  .footer-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.125rem;
+    font-weight: 700;
+    color: var(--text-main);
+    text-decoration: none;
+    margin-bottom: 0.75rem;
+  }
+
+  .brand-accent {
+    color: var(--color-primary);
+  }
+
+  .footer-tagline {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text-subtle);
+    margin-bottom: 1rem;
+    max-width: 320px;
+  }
+
+  .footer-trust-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    background-color: var(--bg-subtle);
+    padding: 0.375rem 0.625rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+  }
+
+  .trust-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-success);
+    display: inline-block;
+  }
+
+  .footer-heading {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .footer-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .footer-links a {
+    color: var(--text-muted);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .footer-links a:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .footer-more-link {
+    font-weight: 600;
+    color: var(--color-primary) !important;
+  }
+
+  .footer-bottom {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .footer-disclaimer {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    line-height: 1.5;
+  }
+
+  .footer-copy {
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+  }
+</style>

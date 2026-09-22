@@ -1,0 +1,203 @@
+---
+// src/pages/alle-berekeningen.astro
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { CALCULATORS, CATEGORIES } from '../data/calculators';
+
+const breadcrumbs = [
+  { label: 'Alle berekeningen' }
+];
+
+const categoryList = Object.values(CATEGORIES);
+---
+
+<BaseLayout
+  title="Alle berekeningen voor werk en salaris | WerkRekenen.com"
+  description="Compleet overzicht van alle Nederlandse calculators voor loon, uurloon, overuren, reiskosten, thuiswerken, vakantie en werkdagen."
+>
+  <div class="container page-container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="hub-header">
+      <h1 class="hub-title">Alle berekeningen</h1>
+      <p class="hub-intro">
+        Vind snel en overzichtelijk de juiste Nederlandse rekentool voor jouw werk, salaris en secundaire arbeidsvoorwaarden.
+      </p>
+    </header>
+
+    <div class="category-sections">
+      {categoryList.map((cat) => {
+        const tools = CALCULATORS.filter(c => c.category === cat.id);
+        return (
+          <section class="cat-section" aria-labelledby={`sec-${cat.id}`}>
+            <div class="cat-section-header">
+              <h2 id={`sec-${cat.id}`} class="cat-section-title">{cat.title}</h2>
+              <a href={cat.slug} class="cat-view-all">Bekijk categorie &rarr;</a>
+            </div>
+            <p class="cat-section-desc">{cat.description}</p>
+
+            <div class="tools-grid">
+              {tools.map((tool) => (
+                <a href={`/${tool.slug}/`} class="tool-card">
+                  <div class="tool-card-head">
+                    <span class="tool-category-badge">{tool.categoryTitle}</span>
+                    <svg class="tool-card-arrow" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
+                  </div>
+                  <h3 class="tool-card-title">{tool.title}</h3>
+                  <p class="tool-card-desc">{tool.description}</p>
+                </a>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page-container {
+    padding-top: 2rem;
+    padding-bottom: 4rem;
+  }
+
+  .hub-header {
+    margin-bottom: 2.5rem;
+    max-width: 760px;
+  }
+
+  .hub-title {
+    font-size: 2.25rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 0.75rem;
+  }
+
+  .hub-intro {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .category-sections {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+  }
+
+  .cat-section {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.75rem;
+    box-shadow: var(--shadow-sm);
+  }
+
+  @media (min-width: 640px) {
+    .cat-section {
+      padding: 2.25rem;
+    }
+  }
+
+  .cat-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .cat-section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .cat-view-all {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary);
+  }
+
+  .cat-section-desc {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    max-width: 680px;
+  }
+
+  .tools-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .tools-grid {
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+  }
+
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.25rem;
+    background-color: var(--bg-page);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: all 0.15s ease;
+  }
+
+  .tool-card:hover {
+    border-color: var(--color-primary-border);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+    text-decoration: none;
+  }
+
+  .tool-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .tool-category-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .tool-card-arrow {
+    color: var(--text-subtle);
+    transition: transform 0.15s ease, color 0.15s ease;
+  }
+
+  .tool-card:hover .tool-card-arrow {
+    transform: translateX(4px);
+    color: var(--color-primary);
+  }
+
+  .tool-card-title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.375rem;
+  }
+
+  .tool-card-desc {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin: 0;
+  }
+</style>

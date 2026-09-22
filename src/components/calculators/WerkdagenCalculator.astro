@@ -1,0 +1,286 @@
+---
+// src/components/calculators/WerkdagenCalculator.astro
+---
+
+<div class="calc-grid" id="werkdagen-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Periode selecteren</h2>
+
+    <!-- Startdatum & Einddatum -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+      <div class="form-group">
+        <label for="input-start-date" class="form-label">Startdatum</label>
+        <input
+          type="date"
+          id="input-start-date"
+          class="form-input"
+        />
+      </div>
+      <div class="form-group">
+        <label for="input-end-date" class="form-label">Einddatum</label>
+        <input
+          type="date"
+          id="input-end-date"
+          class="form-input"
+        />
+      </div>
+    </div>
+
+    <!-- Feestdagen meenemen -->
+    <div class="form-group">
+      <label class="form-label">Officiële Nederlandse feestdagen</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="holidays-exclude" name="holidays-mode" value="exclude" checked />
+          <label for="holidays-exclude">Feestdagen als vrije dagen meetellen (uitsluiten van werkdagen)</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="holidays-include" name="holidays-mode" value="include" />
+          <label for="holidays-include">Feestdagen meerekenen als gewone werkdagen</label>
+        </div>
+      </div>
+      <span class="form-hint">
+        Nationale feestdagen die op doordeweekse dagen vallen (zoals Koningsdag, Hemelvaart en 2e Paasdag).
+      </span>
+    </div>
+
+    <!-- Uren per werkdag -->
+    <div class="form-group">
+      <label for="input-hours-per-day" class="form-label">Werkuren per dag</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-hours-per-day"
+          class="form-input input-has-suffix"
+          value="8"
+          min="1"
+          max="24"
+          step="0.5"
+        />
+        <span class="input-suffix">uur / dag</span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-werkdagen" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Aantal werkdagen</span>
+      <div class="result-hero-value" id="res-working-days">0 dagen</div>
+      <span class="result-hero-sub" id="res-working-hours">0 werkuren totaal</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Totaal aantal kalenderdagen</span>
+        <span class="result-row-value" id="res-calendar-days">0 dagen</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Weekenddagen (za & zo)</span>
+        <span class="result-row-value" id="res-weekend-days">0 dagen</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Feestdagen (doordeweeks)</span>
+        <span class="result-row-value" id="res-holidays-count">0 dagen</span>
+      </div>
+    </div>
+
+    <!-- Feestdagen lijst -->
+    <div id="holidays-list-container" style="margin-top: 1rem; display: none;">
+      <h3 style="font-size: 0.8125rem; font-weight: 600; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 0.5rem;">
+        Feestdagen in deze periode:
+      </h3>
+      <ul id="holidays-list" style="font-size: 0.8125rem; color: var(--text-muted); padding-left: 1.25rem;"></ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('werkdagen-calc');
+    if (!calc) return;
+
+    const inputStart = calc.querySelector('#input-start-date');
+    const inputEnd = calc.querySelector('#input-end-date');
+    const radioHolidaysExclude = calc.querySelector('#holidays-exclude');
+    const radioHolidaysInclude = calc.querySelector('#holidays-include');
+    const inputHoursPerDay = calc.querySelector('#input-hours-per-day');
+    const btnReset = calc.querySelector('#btn-reset-werkdagen');
+
+    const resWorkingDays = calc.querySelector('#res-working-days');
+    const resWorkingHours = calc.querySelector('#res-working-hours');
+    const resCalendarDays = calc.querySelector('#res-calendar-days');
+    const resWeekendDays = calc.querySelector('#res-weekend-days');
+    const resHolidaysCount = calc.querySelector('#res-holidays-count');
+    const holidaysContainer = calc.querySelector('#holidays-list-container');
+    const holidaysList = calc.querySelector('#holidays-list');
+
+    // Algoritme voor Nederlandse feestdagen
+    function getEasterSunday(year) {
+      const a = year % 19, b = Math.floor(year / 100), c = year % 100;
+      const d = Math.floor(b / 4), e = b % 4;
+      const f = Math.floor((b + 8) / 25), g = Math.floor((b - f + 1) / 3);
+      const h = (19 * a + b - d - g + 15) % 30;
+      const i = Math.floor(c / 4), k = c % 4;
+      const l = (32 + 2 * e + 2 * i - h - k) % 7;
+      const m = Math.floor((a + 11 * h + 22 * l) / 451);
+      const month = Math.floor((h + l - 7 * m + 114) / 31) - 1;
+      const day = ((h + l - 7 * m + 114) % 31) + 1;
+      return new Date(Date.UTC(year, month, day));
+    }
+
+    function addDays(date, days) {
+      const res = new Date(date);
+      res.setUTCDate(res.getUTCDate() + days);
+      return res;
+    }
+
+    function formatISO(d) {
+      const y = d.getUTCFullYear();
+      const m = String(d.getUTCMonth() + 1).padStart(2, '0');
+      const day = String(d.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    }
+
+    function getHolidays(year) {
+      const easter = getEasterSunday(year);
+      const easterMonday = addDays(easter, 1);
+      const ascension = addDays(easter, 39);
+      const pentecostMonday = addDays(easter, 50);
+
+      let kingsDay = new Date(Date.UTC(year, 3, 27));
+      if (kingsDay.getUTCDay() === 0) kingsDay = new Date(Date.UTC(year, 3, 26));
+
+      return [
+        { date: `${year}-01-01`, name: 'Nieuwjaarsdag' },
+        { date: formatISO(easterMonday), name: 'Tweede Paasdag' },
+        { date: formatISO(kingsDay), name: 'Koningsdag' },
+        { date: formatISO(ascension), name: 'Hemelvaartsdag' },
+        { date: formatISO(pentecostMonday), name: 'Tweede Pinksterdag' },
+        { date: `${year}-12-25`, name: 'Eerste Kerstdag' },
+        { date: `${year}-12-26`, name: 'Tweede Kerstdag' },
+      ];
+    }
+
+    function calculate() {
+      const startVal = inputStart.value;
+      const endVal = inputEnd.value;
+      if (!startVal || !endVal) return;
+
+      const startDate = new Date(startVal + 'T00:00:00Z');
+      const endDate = new Date(endVal + 'T00:00:00Z');
+
+      if (isNaN(startDate.getTime()) || isNaN(endDate.getTime()) || startDate > endDate) {
+        resWorkingDays.textContent = '0 dagen';
+        resWorkingHours.textContent = 'Selecteer een geldige datumreeks';
+        resCalendarDays.textContent = '0 dagen';
+        resWeekendDays.textContent = '0 dagen';
+        resHolidaysCount.textContent = '0 dagen';
+        holidaysContainer.style.display = 'none';
+        return;
+      }
+
+      const excludeHolidays = radioHolidaysExclude.checked;
+      const hoursPerDay = Math.max(0, parseFloat(inputHoursPerDay.value) || 8);
+
+      const startYear = startDate.getUTCFullYear();
+      const endYear = endDate.getUTCFullYear();
+      const holidayMap = new Map();
+
+      if (excludeHolidays) {
+        for (let y = startYear; y <= endYear; y++) {
+          const list = getHolidays(y);
+          for (const h of list) holidayMap.set(h.date, h.name);
+        }
+      }
+
+      let calDays = 0;
+      let weekends = 0;
+      let holidays = 0;
+      const foundHolidays = [];
+      let workDays = 0;
+
+      const cur = new Date(startDate);
+      while (cur <= endDate) {
+        calDays++;
+        const day = cur.getUTCDay();
+        const iso = formatISO(cur);
+
+        if (day === 0 || day === 6) {
+          weekends++;
+        } else if (excludeHolidays && holidayMap.has(iso)) {
+          holidays++;
+          foundHolidays.push({ date: iso, name: holidayMap.get(iso) });
+        } else {
+          workDays++;
+        }
+
+        cur.setUTCDate(cur.getUTCDate() + 1);
+      }
+
+      resWorkingDays.textContent = `${workDays} ${workDays === 1 ? 'werkdag' : 'werkdagen'}`;
+      resWorkingHours.textContent = `${workDays * hoursPerDay} werkuren totaal`;
+      resCalendarDays.textContent = `${calDays} ${calDays === 1 ? 'dag' : 'dagen'}`;
+      resWeekendDays.textContent = `${weekends} ${weekends === 1 ? 'dag' : 'dagen'}`;
+      resHolidaysCount.textContent = `${holidays} ${holidays === 1 ? 'dag' : 'dagen'}`;
+
+      if (foundHolidays.length > 0) {
+        holidaysContainer.style.display = 'block';
+        holidaysList.innerHTML = foundHolidays.map(h => `<li>${h.name} (${h.date.split('-').reverse().join('-')})</li>`).join('');
+      } else {
+        holidaysContainer.style.display = 'none';
+        holidaysList.innerHTML = '';
+      }
+    }
+
+    // Set default dates: first and last day of current month
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = now.getMonth();
+    const firstDay = new Date(Date.UTC(y, m, 1));
+    const lastDay = new Date(Date.UTC(y, m + 1, 0));
+
+    inputStart.value = formatISO(firstDay);
+    inputEnd.value = formatISO(lastDay);
+
+    inputStart.addEventListener('change', calculate);
+    inputEnd.addEventListener('change', calculate);
+    radioHolidaysExclude.addEventListener('change', calculate);
+    radioHolidaysInclude.addEventListener('change', calculate);
+    inputHoursPerDay.addEventListener('input', calculate);
+
+    btnReset.addEventListener('click', () => {
+      inputStart.value = formatISO(firstDay);
+      inputEnd.value = formatISO(lastDay);
+      radioHolidaysExclude.checked = true;
+      inputHoursPerDay.value = '8';
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

@@ -1,0 +1,100 @@
+---
+// src/components/Breadcrumbs.astro
+export interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+export interface Props {
+  items: BreadcrumbItem[];
+}
+
+const { items } = Astro.props;
+
+const schemaData = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    {
+      "@type": "ListItem",
+      "position": 1,
+      "name": "Home",
+      "item": "https://werkrekenen.com/"
+    },
+    ...items.map((item, index) => ({
+      "@type": "ListItem",
+      "position": index + 2,
+      "name": item.label,
+      ...(item.href ? { "item": `https://werkrekenen.com${item.href}` } : {})
+    }))
+  ]
+};
+---
+
+<nav aria-label="Kruimelpad" class="breadcrumbs">
+  <ol class="breadcrumbs-list">
+    <li class="breadcrumbs-item">
+      <a href="/" class="breadcrumbs-link">Home</a>
+      <span class="breadcrumbs-separator" aria-hidden="true">/</span>
+    </li>
+    {items.map((item, index) => {
+      const isLast = index === items.length - 1;
+      return (
+        <li class="breadcrumbs-item">
+          {!isLast && item.href ? (
+            <>
+              <a href={item.href} class="breadcrumbs-link">{item.label}</a>
+              <span class="breadcrumbs-separator" aria-hidden="true">/</span>
+            </>
+          ) : (
+            <span class="breadcrumbs-current" aria-current="page">{item.label}</span>
+          )}
+        </li>
+      );
+    })}
+  </ol>
+</nav>
+
+<script type="application/ld+json" set:html={JSON.stringify(schemaData)} />
+
+<style>
+  .breadcrumbs {
+    margin-bottom: 1.25rem;
+    font-size: 0.875rem;
+  }
+
+  .breadcrumbs-list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    list-style: none;
+    gap: 0.35rem;
+  }
+
+  .breadcrumbs-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .breadcrumbs-link {
+    color: var(--text-subtle);
+    text-decoration: none;
+    transition: color 0.15s ease;
+  }
+
+  .breadcrumbs-link:hover {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+
+  .breadcrumbs-separator {
+    color: var(--border-strong);
+    font-size: 0.75rem;
+  }
+
+  .breadcrumbs-current {
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+</style>

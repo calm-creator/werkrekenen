@@ -1,0 +1,97 @@
+---
+// src/pages/overuren-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import OverurenCalculator from '../components/calculators/OverurenCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('overuren-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat is een gebruikelijke overurentoeslag in een Nederlandse CAO?',
+    answer: 'In Nederland zijn toeslagen afhankelijk van je CAO of arbeidscontract. Veelvoorkomende normen zijn: 125% voor doordeweekse overuren na reguliere werktijd, 150% voor zaterdagen en avonduren, en 200% voor werk op zondagen en officiële feestdagen.'
+  },
+  {
+    question: 'Worden overuren zwaarder belast dan normaal salaris?',
+    answer: 'Nee, overuren vallen onder hetzelfde progressieve belastingtarief in box 1 als je gewone loon. Wel wordt er op je loonstrook vooraf een voorheffing ingehouden tegen het "bijzonder tarief" (vaak circa 48% tot 56% inclusief afbouw heffingskortingen). Als blijkt dat er te veel is ingehouden, krijg je dit terug bij je jaarlijkse belastingaangifte.'
+  },
+  {
+    question: 'Wat is tijd-voor-tijd (TvT)?',
+    answer: 'Bij de tijd-voor-tijd regeling worden je gewerkte overuren niet in geld uitbetaald, maar omgezet in extra vrije uren of vakantie-uren die je later kunt opnemen. Afhankelijk van de CAO kan hier ook het toeslagpercentage in uren worden bijgeschreven (bijvoorbeeld 10 overuren à 150% = 15 uur compensatieverlof).'
+  },
+  {
+    question: 'Bouw je vakantiegeld op over overuren?',
+    answer: 'Ja, sinds de herziening van de Wet minimumloon en minimumvakantiebijslag (WML) hebben werknemers in Nederland wettelijk recht op 8% vakantiebijslag over uitbetaalde overuren, tenzij de toepasselijke CAO een vervangende regeling bevat die ten minste gelijkwaardig is.'
+  },
+  {
+    question: 'Hoeveel uur mag je maximaal overwerken volgens de Arbeidstijdenwet?',
+    answer: 'Volgens de Nederlandse Arbeidstijdenwet mag je maximaal 12 uur per dienst werken en ten hoogste 60 uur in één afzonderlijke week. Over een periode van 16 weken mag je gemiddeld niet meer dan 48 uur per week werken.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="CAO-afspraken & Arbeidstijdenwet"
+>
+  <OverurenCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat zijn overuren en hoe worden ze berekend?</h2>
+    <p>
+      Overuren zijn alle gewerkte uren die uitgaan boven de contractueel vastgelegde arbeidsduur per dag of per week. In tegenstelling tot reguliere contracturen gelden voor overwerk in de meeste Nederlandse sectoren toeslagpercentages die zijn afgesproken in de collectieve arbeidsovereenkomst (CAO).
+    </p>
+
+    <h3>Veelvoorkomende toeslagpercentages in Nederland</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Situatie / Tijdstip</th>
+          <th>Uitbetalingspercentage</th>
+          <th>Toelichting</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Doordeweeks overwerk</strong></td>
+          <td>125% van het bruto uurloon</td>
+          <td>100% basisuurloon + 25% overwerktoeslag</td>
+        </tr>
+        <tr>
+          <td><strong>Zaterdag & avonddienst</strong></td>
+          <td>150% van het bruto uurloon</td>
+          <td>100% basisuurloon + 50% overwerktoeslag</td>
+        </tr>
+        <tr>
+          <td><strong>Zon- en feestdagen</strong></td>
+          <td>200% van het bruto uurloon</td>
+          <td>100% basisuurloon + 100% toeslag (dubbel loon)</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout callout-info">
+      <strong>Uitbetalen of Tijd-voor-tijd (TvT):</strong><br />
+      Veel werkgevers bieden de keuze tussen directe uitbetaling op de salarisstrook of tijd-voor-tijd compensatie. Bij tijd-voor-tijd spaar je extra vrije uren op die je op een later moment kunt opnemen zonder dat je vakantiedagensaldo wordt aangesproken.
+    </div>
+
+    <h2>Rekenvoorbeeld overwerk</h2>
+    <p>
+      Stel: je basis bruto uurloon bedraagt <strong>€ 20,00</strong> en je hebt deze maand in overleg <strong>8 overuren</strong> gemaakt op een zaterdag (toeslag 150%):
+    </p>
+    <ul>
+      <li><strong>Basisvergoeding (100%):</strong> 8 uur × € 20,00 = € 160,00.</li>
+      <li><strong>Overwerktoeslag (50% extra):</strong> 8 uur × € 10,00 = € 80,00.</li>
+      <li><strong>Totale bruto vergoeding:</strong> € 160,00 + € 80,00 = <strong>€ 240,00 bruto</strong>.</li>
+      <li><strong>Tijd-voor-tijd alternatief:</strong> 8 uur × 150% = <strong>12 uur compensatieverlof</strong>.</li>
+      <li><strong>Wettelijke vakantiebijslag (8%):</strong> € 240,00 × 0,08 = <strong>€ 19,20 extra vakantiegeld</strong>.</li>
+    </ul>
+
+    <h2>De wettelijke kaders: De Arbeidstijdenwet (ATW)</h2>
+    <p>
+      Overwerk mag nooit leiden tot structurele overbelasting. De Arbeidstijdenwet stelt strikte grenzen aan werk- en rusttijden: na een werkdag heb je recht op minimaal 11 aaneengesloten uren nachtrust, en per werkweek moet minimaal 36 uur aaneengesloten rust worden gegarandeerd.
+    </p>
+  </div>
+</CalculatorLayout>

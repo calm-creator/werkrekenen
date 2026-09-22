@@ -1,0 +1,281 @@
+---
+// src/components/calculators/ReiskostenCalculator.astro
+import { DUTCH_RATES } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="reiskosten-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Reisgegevens invoeren</h2>
+
+    <!-- Afstand -->
+    <div class="form-group">
+      <label for="input-distance" class="form-label">Afstand woon-werk</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-distance"
+          class="form-input input-has-suffix"
+          value="25"
+          min="0"
+          max="500"
+          step="0.5"
+        />
+        <span class="input-suffix">km</span>
+      </div>
+      <div class="form-radio-group" style="margin-top: 0.5rem;">
+        <div class="form-radio-card">
+          <input type="radio" id="dist-mode-single" name="dist-mode" value="single" checked />
+          <label for="dist-mode-single">Enkele reis</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="dist-mode-round" name="dist-mode" value="round" />
+          <label for="dist-mode-round">Heen en terug (retour)</label>
+        </div>
+      </div>
+      <span class="form-hint">De kortste of meest gebruikelijke route volgens de routeplanner.</span>
+    </div>
+
+    <!-- Aantal reisdagen per week -->
+    <div class="form-group">
+      <label for="input-travel-days" class="form-label">Reisdagen naar kantoor per week</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-travel-days"
+          class="form-input input-has-suffix"
+          value="4"
+          min="1"
+          max="7"
+          step="1"
+        />
+        <span class="input-suffix">dagen / week</span>
+      </div>
+      <div class="quick-days-pills">
+        <button type="button" class="day-pill" data-days="1">1 dag</button>
+        <button type="button" class="day-pill" data-days="2">2 dagen</button>
+        <button type="button" class="day-pill" data-days="3">3 dagen</button>
+        <button type="button" class="day-pill is-active" data-days="4">4 dagen</button>
+        <button type="button" class="day-pill" data-days="5">5 dagen</button>
+      </div>
+    </div>
+
+    <!-- Vergoeding per kilometer -->
+    <div class="form-group">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <label for="input-rate-km" class="form-label">Vergoeding per kilometer</label>
+        <span class="rate-status-tag" id="rate-tag">Wettelijk onbelast (€ 0,23)</span>
+      </div>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-rate-km"
+          class="form-input input-has-prefix"
+          value={DUTCH_RATES.travelAllowancePerKm}
+          min="0"
+          max="2.00"
+          step="0.01"
+        />
+      </div>
+      <span class="form-hint">
+        De maximale fiscaal onbelaste kilometervergoeding van de Belastingdienst is <strong>€ 0,23</strong> per km.
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-reiskosten" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Netto vergoeding per maand</span>
+      <div class="result-hero-value" id="res-monthly-allowance">€ 164,07</div>
+      <span class="result-hero-sub" id="res-hero-sub">op basis van de 214-dagenregeling</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Totale afstand per dag</span>
+        <span class="result-row-value" id="res-daily-km">50 km</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding per dag</span>
+        <span class="result-row-value" id="res-daily-allowance">€ 11,50</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding per week</span>
+        <span class="result-row-value" id="res-weekly-allowance">€ 46,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding per jaar</span>
+        <span class="result-row-value" id="res-annual-allowance">€ 1.968,80</span>
+      </div>
+      <div class="result-row" id="row-untaxed">
+        <span class="result-row-label">Onbelast deel (per maand)</span>
+        <span class="result-row-value" style="color: var(--color-success);" id="res-untaxed">€ 164,07</span>
+      </div>
+      <div class="result-row" id="row-taxable" style="display: none;">
+        <span class="result-row-label">Belast deel (boven € 0,23)</span>
+        <span class="result-row-value" style="color: var(--color-warning);" id="res-taxable">€ 0,00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-days-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .day-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+  }
+
+  .day-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .day-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .rate-status-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-success);
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('reiskosten-calc');
+    if (!calc) return;
+
+    const inputDistance = calc.querySelector('#input-distance');
+    const radioSingle = calc.querySelector('#dist-mode-single');
+    const radioRound = calc.querySelector('#dist-mode-round');
+    const inputDays = calc.querySelector('#input-travel-days');
+    const dayPills = calc.querySelectorAll('.day-pill');
+    const inputRate = calc.querySelector('#input-rate-km');
+    const rateTag = calc.querySelector('#rate-tag');
+    const btnReset = calc.querySelector('#btn-reset-reiskosten');
+
+    const resMonthly = calc.querySelector('#res-monthly-allowance');
+    const resHeroSub = calc.querySelector('#res-hero-sub');
+    const resDailyKm = calc.querySelector('#res-daily-km');
+    const resDailyAllowance = calc.querySelector('#res-daily-allowance');
+    const resWeeklyAllowance = calc.querySelector('#res-weekly-allowance');
+    const resAnnualAllowance = calc.querySelector('#res-annual-allowance');
+    const rowTaxable = calc.querySelector('#row-taxable');
+    const resTaxable = calc.querySelector('#res-taxable');
+    const resUntaxed = calc.querySelector('#res-untaxed');
+
+    const OFFICIAL_RATE = 0.23;
+
+    const formatCurrency = (val) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+    const formatNumber = (val, dec = 1) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function calculate() {
+      const rawDistance = Math.max(0, parseFloat(inputDistance.value) || 0);
+      const isRound = radioRound.checked;
+      const dailyKm = isRound ? rawDistance : rawDistance * 2;
+      const travelDays = Math.min(7, Math.max(0, parseFloat(inputDays.value) || 0));
+      const rate = Math.max(0, parseFloat(inputRate.value) || 0);
+
+      // Belastingdienst 214-dagen regeling: (reisdagen / 5) * 214 dagen per jaar
+      const annualDays = (travelDays / 5) * 214;
+      const dailyAllowance = dailyKm * rate;
+      const weeklyAllowance = dailyAllowance * travelDays;
+      const annualAllowance = dailyAllowance * annualDays;
+      const monthlyAllowance = annualAllowance / 12;
+
+      // Belast vs Onbelast
+      const untaxedDaily = dailyKm * Math.min(rate, OFFICIAL_RATE);
+      const untaxedMonthly = (untaxedDaily * annualDays) / 12;
+      const taxableMonthly = Math.max(0, monthlyAllowance - untaxedMonthly);
+
+      resMonthly.textContent = formatCurrency(monthlyAllowance);
+      resHeroSub.textContent = `op basis van ${(Math.round(annualDays * 10) / 10).toString().replace('.', ',')} reisdagen per jaar`;
+      resDailyKm.textContent = `${formatNumber(dailyKm, 1)} km`;
+      resDailyAllowance.textContent = formatCurrency(dailyAllowance);
+      resWeeklyAllowance.textContent = formatCurrency(weeklyAllowance);
+      resAnnualAllowance.textContent = formatCurrency(annualAllowance);
+
+      resUntaxed.textContent = formatCurrency(untaxedMonthly);
+      if (rate > OFFICIAL_RATE) {
+        rowTaxable.style.display = 'flex';
+        resTaxable.textContent = formatCurrency(taxableMonthly);
+        rateTag.textContent = `Deels belast (boven € 0,23)`;
+        rateTag.style.color = 'var(--color-warning)';
+      } else {
+        rowTaxable.style.display = 'none';
+        rateTag.textContent = `100% onbelast`;
+        rateTag.style.color = 'var(--color-success)';
+      }
+    }
+
+    inputDistance.addEventListener('input', calculate);
+    radioSingle.addEventListener('change', calculate);
+    radioRound.addEventListener('change', calculate);
+    inputDays.addEventListener('input', () => {
+      const val = inputDays.value;
+      dayPills.forEach(p => p.classList.toggle('is-active', p.dataset.days === val));
+      calculate();
+    });
+    inputRate.addEventListener('input', calculate);
+
+    dayPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        dayPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputDays.value = pill.dataset.days;
+        calculate();
+      });
+    });
+
+    btnReset.addEventListener('click', () => {
+      inputDistance.value = '25';
+      radioSingle.checked = true;
+      inputDays.value = '4';
+      inputRate.value = '0.23';
+      dayPills.forEach(p => p.classList.toggle('is-active', p.dataset.days === '4'));
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

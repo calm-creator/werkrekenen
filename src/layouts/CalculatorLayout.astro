@@ -1,0 +1,159 @@
+---
+// src/layouts/CalculatorLayout.astro
+import BaseLayout from './BaseLayout.astro';
+import Breadcrumbs, { type BreadcrumbItem } from '../components/Breadcrumbs.astro';
+import FaqAccordion, { type FaqItem } from '../components/FaqAccordion.astro';
+import RelatedTools from '../components/RelatedTools.astro';
+import { getRelatedCalculators, type CalculatorMeta } from '../data/calculators';
+import { DUTCH_RATES } from '../data/dutchRates';
+
+export interface Props {
+  calculator: CalculatorMeta;
+  faqItems: FaqItem[];
+  applicableYear?: number;
+  officialSource?: string;
+}
+
+const {
+  calculator,
+  faqItems,
+  applicableYear = DUTCH_RATES.year,
+  officialSource = 'Belastingdienst / Rijksoverheid'
+} = Astro.props;
+
+const relatedTools = getRelatedCalculators(calculator.slug);
+
+const breadcrumbs: BreadcrumbItem[] = [
+  { label: calculator.categoryTitle, href: `/categorie/${calculator.category}/` },
+  { label: calculator.title }
+];
+
+const webAppSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": `${calculator.title} - WerkRekenen.com`,
+  "url": `https://werkrekenen.com/${calculator.slug}/`,
+  "applicationCategory": "FinanceApplication",
+  "operatingSystem": "All",
+  "browserRequirements": "Requires JavaScript. Requires HTML5.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "EUR"
+  },
+  "description": calculator.metaDescription
+};
+---
+
+<BaseLayout
+  title={calculator.title}
+  description={calculator.metaDescription}
+  schema={webAppSchema}
+>
+  <div class="calc-page-wrapper container">
+    <Breadcrumbs items={breadcrumbs} />
+
+    <header class="calc-page-header">
+      <div class="calc-header-meta">
+        <span class="badge badge-primary">{calculator.categoryTitle}</span>
+        <span class="calc-year-badge">
+          <span class="year-dot"></span>
+          Regels en tarieven {applicableYear} ({officialSource})
+        </span>
+      </div>
+      <h1 class="calc-page-title">{calculator.title}</h1>
+      <p class="calc-page-intro">{calculator.description}</p>
+    </header>
+
+    <!-- Calculator Interactief Element -->
+    <div class="calculator-container">
+      <slot name="calculator" />
+    </div>
+
+    <!-- Uitgebreide Informatie & Wetgeving -->
+    <div class="calc-page-content container-narrow">
+      <div class="prose">
+        <slot name="explanation" />
+      </div>
+
+      <!-- FAQ Sectie -->
+      {faqItems && faqItems.length > 0 && (
+        <FaqAccordion items={faqItems} />
+      )}
+
+      <!-- Gerelateerde Calculators -->
+      {relatedTools.length > 0 && (
+        <RelatedTools tools={relatedTools} />
+      )}
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .calc-page-wrapper {
+    padding-top: 1.5rem;
+    padding-bottom: 4rem;
+  }
+
+  .calc-page-header {
+    margin-bottom: 1.5rem;
+  }
+
+  .calc-header-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .calc-year-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    background-color: var(--bg-surface);
+    padding: 0.25rem 0.625rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+  }
+
+  .year-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-success);
+  }
+
+  .calc-page-title {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-main);
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+
+  @media (min-width: 640px) {
+    .calc-page-title {
+      font-size: 2.375rem;
+    }
+  }
+
+  .calc-page-intro {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+    max-width: 760px;
+  }
+
+  .calculator-container {
+    margin-bottom: 3rem;
+  }
+
+  .calc-page-content {
+    margin-top: 2rem;
+    padding: 0;
+  }
+</style>

@@ -1,0 +1,237 @@
+---
+// src/components/calculators/ParttimeSalarisCalculator.astro
+---
+
+<div class="calc-grid" id="parttime-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Salaris & uren invoeren</h2>
+
+    <!-- Fulltime maandsalaris -->
+    <div class="form-group">
+      <label for="input-pt-salary" class="form-label">Fulltime bruto maandsalaris (100%)</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-pt-salary"
+          class="form-input input-has-prefix"
+          value="4000"
+          min="0"
+          step="50"
+        />
+      </div>
+      <span class="form-hint">Het brutosalaris dat in de salarisschaal staat voor een fulltime werkweek.</span>
+    </div>
+
+    <!-- Fulltime werkweek norm -->
+    <div class="form-group">
+      <label class="form-label">Fulltime werkweek van jouw werkgever/CAO</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="pt-ft-36" name="pt-ft-norm" value="36" />
+          <label for="pt-ft-36">36 uur</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="pt-ft-38" name="pt-ft-norm" value="38" />
+          <label for="pt-ft-38">38 uur</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="pt-ft-40" name="pt-ft-norm" value="40" checked />
+          <label for="pt-ft-40">40 uur</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Jouw parttime uren -->
+    <div class="form-group">
+      <label for="input-pt-hours" class="form-label">Jouw parttime uren per week</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-pt-hours"
+          class="form-input input-has-suffix"
+          value="32"
+          min="1"
+          max="60"
+          step="1"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-hours-pills">
+        <button type="button" class="pt-pill" data-hours="16">16 uur</button>
+        <button type="button" class="pt-pill" data-hours="24">24 uur</button>
+        <button type="button" class="pt-pill" data-hours="28">28 uur</button>
+        <button type="button" class="pt-pill is-active" data-hours="32">32 uur</button>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-parttime" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Parttime bruto maandsalaris</span>
+      <div class="result-hero-value" id="res-pt-salary">€ 3.200,00</div>
+      <span class="result-hero-sub" id="res-pt-sub">bij 32 uur (80,0% van fulltime)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Deeltijdpercentage</span>
+        <span class="result-row-value" id="res-pt-pct">80,0%</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto uurloon</span>
+        <span class="result-row-value" id="res-pt-hourly">€ 23,08</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Verschil t.o.v. fulltime</span>
+        <span class="result-row-value" style="color: var(--color-warning);" id="res-pt-diff">- € 800,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto jaarsalaris (12 mnd)</span>
+        <span class="result-row-value" id="res-pt-annual">€ 38.400,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Jaarsalaris incl. 8% vakantiegeld</span>
+        <span class="result-row-value" style="color: var(--color-success);" id="res-pt-annual-vacation">€ 41.472,00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-hours-pills {
+    display: flex;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .pt-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+  }
+
+  .pt-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .pt-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('parttime-calc');
+    if (!calc) return;
+
+    const inputSalary = calc.querySelector('#input-pt-salary');
+    const inputHours = calc.querySelector('#input-pt-hours');
+    const pills = calc.querySelectorAll('.pt-pill');
+    const ftRadios = calc.querySelectorAll('input[name="pt-ft-norm"]');
+    const btnReset = calc.querySelector('#btn-reset-parttime');
+
+    const resSalary = calc.querySelector('#res-pt-salary');
+    const resSub = calc.querySelector('#res-pt-sub');
+    const resPct = calc.querySelector('#res-pt-pct');
+    const resHourly = calc.querySelector('#res-pt-hourly');
+    const resDiff = calc.querySelector('#res-pt-diff');
+    const resAnnual = calc.querySelector('#res-pt-annual');
+    const resAnnualVacation = calc.querySelector('#res-pt-annual-vacation');
+
+    const formatCurrency = (val) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+    const formatNumber = (val, dec = 1) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function getSelectedFtNorm() {
+      for (const r of ftRadios) {
+        if (r.checked) return parseFloat(r.value) || 40;
+      }
+      return 40;
+    }
+
+    function calculate() {
+      const ftSalary = Math.max(0, parseFloat(inputSalary.value) || 0);
+      const ptHours = Math.max(0, parseFloat(inputHours.value) || 0);
+      const ftNorm = getSelectedFtNorm();
+
+      const factor = ptHours / ftNorm;
+      const ptSalary = ftSalary * factor;
+      const diff = ftSalary - ptSalary;
+
+      const monthlyHoursFT = (ftNorm * 52) / 12;
+      const hourlyWage = monthlyHoursFT > 0 ? ftSalary / monthlyHoursFT : 0;
+      const annualPt = ptSalary * 12;
+      const annualPtVacation = annualPt * 1.08;
+
+      const pctFormatted = `${formatNumber(factor * 100, 1)}%`;
+
+      resSalary.textContent = formatCurrency(ptSalary);
+      resSub.textContent = `bij ${ptHours} uur (${pctFormatted} van fulltime)`;
+      resPct.textContent = pctFormatted;
+      resHourly.textContent = formatCurrency(hourlyWage);
+      resDiff.textContent = `- ${formatCurrency(diff)}`;
+      resAnnual.textContent = formatCurrency(annualPt);
+      resAnnualVacation.textContent = formatCurrency(annualPtVacation);
+    }
+
+    inputSalary.addEventListener('input', calculate);
+    inputHours.addEventListener('input', () => {
+      const val = inputHours.value;
+      pills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === val));
+      calculate();
+    });
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputHours.value = pill.dataset.hours;
+        calculate();
+      });
+    });
+
+    ftRadios.forEach(r => r.addEventListener('change', calculate));
+
+    btnReset.addEventListener('click', () => {
+      inputSalary.value = '4000';
+      inputHours.value = '32';
+      calc.querySelector('#pt-ft-40').checked = true;
+      pills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '32'));
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

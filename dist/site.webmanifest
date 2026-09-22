@@ -1,0 +1,16 @@
+{
+  "name": "WerkRekenen.com",
+  "short_name": "WerkRekenen",
+  "description": "Betrouwbare Nederlandse berekeningen voor werk, salaris en vergoedingen",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

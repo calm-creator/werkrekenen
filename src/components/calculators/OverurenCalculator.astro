@@ -1,0 +1,183 @@
+---
+// src/components/calculators/OverurenCalculator.astro
+---
+
+<div class="calc-grid" id="overuren-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Overuren invoeren</h2>
+
+    <!-- Bruto uurloon -->
+    <div class="form-group">
+      <label for="input-over-wage" class="form-label">Bruto uurloon</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-over-wage"
+          class="form-input input-has-prefix"
+          value="22.50"
+          min="0"
+          step="0.25"
+        />
+      </div>
+      <span class="form-hint">Je basisloon per gewerkt uur (exclusief overwerktoeslagen).</span>
+    </div>
+
+    <!-- Aantal overuren -->
+    <div class="form-group">
+      <label for="input-over-hours" class="form-label">Aantal overuren</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-over-hours"
+          class="form-input input-has-suffix"
+          value="10"
+          min="0"
+          step="0.5"
+        />
+        <span class="input-suffix">uur</span>
+      </div>
+    </div>
+
+    <!-- Toeslagpercentage -->
+    <div class="form-group">
+      <label class="form-label">Toeslagpercentage volgens je CAO</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="surcharge-100" name="surcharge" value="100" />
+          <label for="surcharge-100">100%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Geen toeslag</small></label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="surcharge-125" name="surcharge" value="125" checked />
+          <label for="surcharge-125">125%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Doordeweeks</small></label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="surcharge-150" name="surcharge" value="150" />
+          <label for="surcharge-150">150%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Zaterdag/avond</small></label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="surcharge-200" name="surcharge" value="200" />
+          <label for="surcharge-200">200%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Zon- & feestdag</small></label>
+        </div>
+      </div>
+      <span class="form-hint">Het totale percentage van de uitbetaling (125% betekent 100% basisloon + 25% toeslag).</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-overuren" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Totale bruto vergoeding</span>
+      <div class="result-hero-value" id="res-over-total">€ 281,25</div>
+      <span class="result-hero-sub" id="res-over-sub">bij 10 uur à 125% uitbetaling</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Basisloon (100%)</span>
+        <span class="result-row-value" id="res-over-base">€ 225,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Overwerktoeslag (extra)</span>
+        <span class="result-row-value" style="color: var(--color-success);" id="res-over-surcharge">+ € 56,25</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Effectief uurtarief overuren</span>
+        <span class="result-row-value" id="res-over-effective-rate">€ 28,13 / uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Tijd-voor-tijd alternatief (TVT)</span>
+        <span class="result-row-value" id="res-over-tvt">12,5 uur vrije tijd</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Belasting op overuren:</strong> Overwerk wordt bij de loonadministratie afgerekend tegen het zogeheten bijzonder tarief. Bij de jaarlijkse belastingaangifte wordt dit echter verrekend met je werkelijke jaarinkomen in box 1.
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('overuren-calc');
+    if (!calc) return;
+
+    const inputWage = calc.querySelector('#input-over-wage');
+    const inputHours = calc.querySelector('#input-over-hours');
+    const surchargeRadios = calc.querySelectorAll('input[name="surcharge"]');
+    const btnReset = calc.querySelector('#btn-reset-overuren');
+
+    const resTotal = calc.querySelector('#res-over-total');
+    const resSub = calc.querySelector('#res-over-sub');
+    const resBase = calc.querySelector('#res-over-base');
+    const resSurcharge = calc.querySelector('#res-over-surcharge');
+    const resEffectiveRate = calc.querySelector('#res-over-effective-rate');
+    const resTvt = calc.querySelector('#res-over-tvt');
+
+    const formatCurrency = (val) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+    const formatNumber = (val, dec = 1) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function getSelectedSurcharge() {
+      for (const r of surchargeRadios) {
+        if (r.checked) return parseFloat(r.value) || 125;
+      }
+      return 125;
+    }
+
+    function calculate() {
+      const wage = Math.max(0, parseFloat(inputWage.value) || 0);
+      const hours = Math.max(0, parseFloat(inputHours.value) || 0);
+      const surcharge = getSelectedSurcharge();
+
+      const basePay = wage * hours;
+      const totalGross = basePay * (surcharge / 100);
+      const surchargePay = totalGross - basePay;
+      const effectiveRate = hours > 0 ? totalGross / hours : 0;
+      const tvtHours = hours * (surcharge / 100);
+
+      resTotal.textContent = formatCurrency(totalGross);
+      resSub.textContent = `bij ${formatNumber(hours, 1)} uur à ${surcharge}% uitbetaling`;
+      resBase.textContent = formatCurrency(basePay);
+      resSurcharge.textContent = `+ ${formatCurrency(surchargePay)}`;
+      resEffectiveRate.textContent = `${formatCurrency(effectiveRate)} / uur`;
+      resTvt.textContent = `${formatNumber(tvtHours, 1)} uur vrije tijd`;
+    }
+
+    inputWage.addEventListener('input', calculate);
+    inputHours.addEventListener('input', calculate);
+    surchargeRadios.forEach(r => r.addEventListener('change', calculate));
+
+    btnReset.addEventListener('click', () => {
+      inputWage.value = '22.50';
+      inputHours.value = '10';
+      calc.querySelector('#surcharge-125').checked = true;
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

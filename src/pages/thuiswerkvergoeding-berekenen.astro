@@ -1,0 +1,107 @@
+---
+// src/pages/thuiswerkvergoeding-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import ThuiswerkCalculator from '../components/calculators/ThuiswerkCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+import { DUTCH_RATES } from '../data/dutchRates';
+
+const meta = getCalculatorBySlug('thuiswerkvergoeding-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat is de officiële thuiswerkvergoeding per dag in Nederland?',
+    answer: `De maximale gerichte vrijstelling voor de onbelaste thuiswerkvergoeding bedraagt € ${DUTCH_RATES.homeWorkAllowancePerDay.toFixed(2).replace('.', ',')} per thuiswerkdag (Belastingdienst norm 2025/2026). Werkgevers mogen dit bedrag belastingvrij aan werknemers uitkeren.`
+  },
+  {
+    question: 'Welke kosten dekt de thuiswerkvergoeding?',
+    answer: 'De thuiswerkvergoeding is bedoeld als tegemoetkoming in de extra kosten die je thuis maakt tijdens werktijd. Denk hierbij aan elektriciteitsverbruik (laptop, monitor, verlichting), gas en verwarming, water, koffie, thee en toiletpapier.'
+  },
+  {
+    question: 'Mag ik op dezelfde dag zowel reiskosten als thuiswerkvergoeding krijgen?',
+    answer: 'Nee, de Belastingdienst staat niet toe dat je voor dezelfde werkdag zowel de onbelaste thuiswerkvergoeding als een reiskostenvergoeding voor woon-werkverkeer ontvangt. Werk je een halve dag thuis en ga je daarna naar kantoor? Dan mag je werkgever slechts één van beide vergoedingen toekennen.'
+  },
+  {
+    question: 'Is mijn werkgever verplicht om een thuiswerkvergoeding te betalen?',
+    answer: 'Nee, er is geen wettelijke verplichting opgenomen in het Burgerlijk Wetboek. Het recht op een thuiswerkvergoeding vloeit meestal voort uit de toepasselijke CAO, een personeelsregeling of individuele afspraken in de arbeidsovereenkomst.'
+  },
+  {
+    question: 'Hoe wordt de vaste maandelijkse thuiswerkvergoeding berekend?',
+    answer: 'Net als bij reiskosten mag de werkgever gebruikmaken van de 214-dagenregeling pro rata. Werk je structureel 2 dagen per week thuis, dan geldt: 214 × (2 ÷ 5) = 85,6 dagen per jaar. Vermenigvuldigd met € 2,40 levert dat € 205,44 per jaar op, oftewel € 17,12 netto per maand.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Belastingdienst & Nibud"
+>
+  <ThuiswerkCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is de fiscale thuiswerkvergoeding?</h2>
+    <p>
+      Sinds de opkomst van structureel hybride werken heeft het ministerie van Financiën in overleg met het Nibud een specifieke gerichte vrijstelling in het leven geroepen binnen de werkkostenregeling (WKR). Werkgevers kunnen hiermee werknemers onbelast compenseren voor de dagelijkse onkosten van het werken vanuit de eigen woning.
+    </p>
+
+    <h3>Het officiële Belastingdienst-tarief (€ 2,40 per dag)</h3>
+    <p>
+      Voor 2025 en 2026 bedraagt de wettelijke norm <strong>€ 2,40 per thuiswerkdag</strong>. Dit bedrag is gebaseerd op onafhankelijk onderzoek van het Nibud naar de werkelijke meeruitgaven aan gas, water, elektriciteit en verbruiksartikelen tijdens kantooruren thuis.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Vaste maandelijkse uitbetaling:</strong><br />
+      Als je een vast aantal dagen per week thuiswerkt, hoef je niet elke thuiswerkdag handmatig in te dienen. De werkgever mag de vergoeding maandelijks als vast vastgesteld nettobedrag via de salarisstrook uitkeren op basis van de 214-dagenregel.
+    </div>
+
+    <h3>Overzicht thuiswerkvergoeding per aantal dagen</h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Thuiswerkdagen per week</th>
+          <th>Dagen per jaar (214 norm)</th>
+          <th>Netto vergoeding per maand</th>
+          <th>Netto vergoeding per jaar</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>1 dag per week</strong></td>
+          <td>42,8 dagen</td>
+          <td><strong>€ 8,56</strong> / mnd</td>
+          <td>€ 102,72 / jr</td>
+        </tr>
+        <tr>
+          <td><strong>2 dagen per week</strong> (populair)</td>
+          <td>85,6 dagen</td>
+          <td><strong>€ 17,12</strong> / mnd</td>
+          <td>€ 205,44 / jr</td>
+        </tr>
+        <tr>
+          <td><strong>3 dagen per week</strong></td>
+          <td>128,4 dagen</td>
+          <td><strong>€ 25,68</strong> / mnd</td>
+          <td>€ 308,16 / jr</td>
+        </tr>
+        <tr>
+          <td><strong>4 dagen per week</strong></td>
+          <td>171,2 dagen</td>
+          <td><strong>€ 34,24</strong> / mnd</td>
+          <td>€ 410,88 / jr</td>
+        </tr>
+        <tr>
+          <td><strong>5 dagen per week</strong> (volledig thuis)</td>
+          <td>214,0 dagen</td>
+          <td><strong>€ 42,80</strong> / mnd</td>
+          <td>€ 513,60 / jr</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Inrichting van de thuiswerkplek</h2>
+    <p>
+      Naast de dagelijkse thuiswerkvergoeding voor verbruikskosten regelt de Nederlandse Arbowet dat werkgevers zorg moeten dragen voor een ergonomisch verantwoorde thuiswerkplek. Kosten voor een beeldscherm, bureaustoel en verstelbaar bureau kunnen door de werkgever via de Arbo-vrijstelling apart onbelast ter beschikking worden gesteld of worden vergoed.
+    </p>
+  </div>
+</CalculatorLayout>

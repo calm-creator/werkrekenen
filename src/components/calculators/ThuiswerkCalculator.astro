@@ -1,0 +1,215 @@
+---
+// src/components/calculators/ThuiswerkCalculator.astro
+import { DUTCH_RATES } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="thuiswerk-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Thuiswerkdagen invoeren</h2>
+
+    <!-- Aantal thuiswerkdagen per week -->
+    <div class="form-group">
+      <label for="input-home-days" class="form-label">Aantal thuiswerkdagen per week</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-home-days"
+          class="form-input input-has-suffix"
+          value="2"
+          min="1"
+          max="7"
+          step="1"
+        />
+        <span class="input-suffix">dagen / week</span>
+      </div>
+      <div class="quick-days-pills">
+        <button type="button" class="home-day-pill" data-days="1">1 dag</button>
+        <button type="button" class="home-day-pill is-active" data-days="2">2 dagen</button>
+        <button type="button" class="home-day-pill" data-days="3">3 dagen</button>
+        <button type="button" class="home-day-pill" data-days="4">4 dagen</button>
+        <button type="button" class="home-day-pill" data-days="5">5 dagen</button>
+      </div>
+      <span class="form-hint">Het aantal vaste dagen dat je volgens afspraak per week vanuit huis werkt.</span>
+    </div>
+
+    <!-- Vergoeding per dag -->
+    <div class="form-group">
+      <div style="display: flex; justify-content: space-between; align-items: baseline;">
+        <label for="input-home-rate" class="form-label">Vergoeding per thuiswerkdag</label>
+        <span class="rate-status-tag">Wettelijk onbelast (€ 2,40)</span>
+      </div>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-home-rate"
+          class="form-input input-has-prefix"
+          value={DUTCH_RATES.homeWorkAllowancePerDay.toFixed(2)}
+          min="0"
+          max="10.00"
+          step="0.05"
+        />
+      </div>
+      <span class="form-hint">
+        De officiële onbelaste thuiswerkvergoeding van de Belastingdienst is <strong>€ 2,40</strong> per dag (2025/2026).
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-thuiswerk" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Netto vergoeding per maand</span>
+      <div class="result-hero-value" id="res-home-monthly">€ 17,12</div>
+      <span class="result-hero-sub" id="res-home-sub">bij 2 thuiswerkdagen per week</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding per dag</span>
+        <span class="result-row-value" id="res-home-daily">€ 2,40</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding per week</span>
+        <span class="result-row-value" id="res-home-weekly">€ 4,80</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Geschat aantal thuiswerkdagen/jaar</span>
+        <span class="result-row-value" id="res-home-annual-days">85,6 dagen</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totale onbelaste jaarvergoeding</span>
+        <span class="result-row-value" style="color: var(--color-success);" id="res-home-annual">€ 205,44</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Let op:</strong> Je mag van de Belastingdienst op één en dezelfde werkdag niet tegelijkertijd een onbelaste thuiswerkvergoeding én een reiskostenvergoeding voor woon-werkverkeer ontvangen.
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-days-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .home-day-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+  }
+
+  .home-day-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .home-day-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .rate-status-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-success);
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('thuiswerk-calc');
+    if (!calc) return;
+
+    const inputDays = calc.querySelector('#input-home-days');
+    const dayPills = calc.querySelectorAll('.home-day-pill');
+    const inputRate = calc.querySelector('#input-home-rate');
+    const btnReset = calc.querySelector('#btn-reset-thuiswerk');
+
+    const resMonthly = calc.querySelector('#res-home-monthly');
+    const resSub = calc.querySelector('#res-home-sub');
+    const resDaily = calc.querySelector('#res-home-daily');
+    const resWeekly = calc.querySelector('#res-home-weekly');
+    const resAnnualDays = calc.querySelector('#res-home-annual-days');
+    const resAnnual = calc.querySelector('#res-home-annual');
+
+    const formatCurrency = (val) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+    const formatNumber = (val, dec = 1) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function calculate() {
+      const days = Math.min(7, Math.max(0, parseFloat(inputDays.value) || 0));
+      const rate = Math.max(0, parseFloat(inputRate.value) || 0);
+
+      // Belastingdienst 214-dagen norm pro rata
+      const annualDays = (days / 5) * 214;
+      const weekly = days * rate;
+      const annual = annualDays * rate;
+      const monthly = annual / 12;
+
+      resMonthly.textContent = formatCurrency(monthly);
+      resSub.textContent = `bij ${days} ${days === 1 ? 'thuiswerkdag' : 'thuiswerkdagen'} per week`;
+      resDaily.textContent = formatCurrency(rate);
+      resWeekly.textContent = formatCurrency(weekly);
+      resAnnualDays.textContent = `${formatNumber(annualDays, 1)} dagen`;
+      resAnnual.textContent = formatCurrency(annual);
+    }
+
+    inputDays.addEventListener('input', () => {
+      const val = inputDays.value;
+      dayPills.forEach(p => p.classList.toggle('is-active', p.dataset.days === val));
+      calculate();
+    });
+    inputRate.addEventListener('input', calculate);
+
+    dayPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        dayPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputDays.value = pill.dataset.days;
+        calculate();
+      });
+    });
+
+    btnReset.addEventListener('click', () => {
+      inputDays.value = '2';
+      inputRate.value = '2.40';
+      dayPills.forEach(p => p.classList.toggle('is-active', p.dataset.days === '2'));
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>
