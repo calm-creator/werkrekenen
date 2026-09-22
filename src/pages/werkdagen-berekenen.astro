@@ -9,23 +9,43 @@ const meta = getCalculatorBySlug('werkdagen-berekenen')!;
 const faqItems = [
   {
     question: 'Hoeveel werkdagen telt een jaar gemiddeld in Nederland?',
-    answer: 'Een kalenderjaar telt meestal 260 tot 262 doordeweekse dagen (maandag t/m vrijdag). Omdat er gemiddeld 6 tot 8 officiële feestdagen op een doordeweekse dag vallen, blijven er circa 254 tot 256 potentiële werkdagen over. Na aftrek van 25 vakantiedagen (5 weken) werkt een fulltimer in Nederland gemiddeld circa 214 werkelijke werkdagen per jaar.'
+    answer: 'Een kalenderjaar telt 260 tot 262 doordeweekse dagen (maandag t/m vrijdag). Omdat er gemiddeld 6 tot 8 officiële feestdagen op een doordeweekse dag vallen, blijven er circa 254 tot 256 potentiële werkdagen over. Na aftrek van gemiddeld 25 vakantiedagen (5 weken verlof) werkt een voltijdse werknemer in Nederland gemiddeld circa 214 werkelijke werkdagen per jaar.'
   },
   {
-    question: 'Welke officiële feestdagen gelden in Nederland?',
-    answer: 'De officiële nationale feestdagen zijn: Nieuwjaarsdag (1 januari), Goede Vrijdag, Eerste en Tweede Paasdag, Koningsdag (27 april), Bevrijdingsdag (5 mei), Hemelvaartsdag, Eerste en Tweede Pinksterdag en Eerste en Tweede Kerstdag (25 en 26 december).'
+    question: 'Hoe bereken je het aantal werkdagen tussen twee datums?',
+    answer: 'Het aantal werkdagen bereken je door te starten met het totale aantal kalenderdagen tussen de begin- en einddatum. Vervolgens trek je alle weekenddagen (zaterdagen en zondagen) af, en daarna alle officiële Nederlandse feestdagen die in die specifieke periode op een doordeweekse dag vallen.'
   },
   {
-    question: 'Ben je wettelijk altijd vrij op een officiële feestdag?',
-    answer: 'Nee, in Nederland bestaat geen wettelijk recht op een vrije dag op officiële feestdagen. Of je vrij bent met behoud van loon, hangt af van de afspraken in jouw CAO of arbeidsovereenkomst. In de zorg, horeca en retail wordt bijvoorbeeld vaak gewoon doorgewerkt tegen een feestdagentoeslag.'
+    question: 'Welke officiële feestdagen gelden als vrije dag in Nederland?',
+    answer: 'Nederland kent de volgende officiële feestdagen: Nieuwjaarsdag (1 januari), Goede Vrijdag, Eerste en Tweede Paasdag, Koningsdag (27 april), Bevrijdingsdag (5 mei), Hemelvaartsdag, Eerste en Tweede Pinksterdag en Eerste en Tweede Kerstdag (25 en 26 december). Of je vrij hebt met behoud van loon hangt af van je CAO of arbeidscontract.'
   },
   {
-    question: 'Is Bevrijdingsdag (5 mei) ieder jaar een vrije dag?',
-    answer: 'Nee, in de meeste Nederlandse CAO\'s is 5 mei alleen een betaalde vrije dag in zogeheten lustrumjaren (jaren die deelbaar zijn door 5, zoals 2025 en 2030). Sommige moderne CAO\'s hebben 5 mei inmiddels als jaarlijkse feestdag aangemerkt.'
+    question: 'Waarom is Bevrijdingsdag (5 mei) niet ieder jaar een vrije dag?',
+    answer: 'In de meeste Nederlandse CAO\'s en personeelsregelingen is 5 mei alleen een betaalde vrije dag in zogeheten lustrumjaren (jaren die deelbaar zijn door 5, zoals 2025 en 2030). Slechts in een beperkt aantal CAO\'s (zoals bij de Rijksoverheid) is 5 mei een jaarlijks terugkerende vrije feestdag.'
+  },
+  {
+    question: 'Is Goede Vrijdag een officiële vrije werkdag in Nederland?',
+    answer: 'Goede Vrijdag is een officiële feestdag van de Rijksoverheid, maar voor de meeste werknemers in het bedrijfsleven geen verplichte vrije dag. Ambtenaren, banken en beurzen zijn vaak wel gesloten, maar in het particuliere bedrijfsleven wordt doorgaans gewoon gewerkt, tenzij de CAO anders bepaalt.'
   },
   {
     question: 'Hoeveel werkdagen telt een maand gemiddeld?',
-    answer: 'Een maand telt gemiddeld 21,67 werkdagen (260 werkdagen gedeeld door 12 maanden). Afhankelijk van de kalendermaand en weekenden schommelt het werkelijke aantal doordeweekse dagen meestal tussen de 20 en 23 dagen.'
+    answer: 'Een gemiddelde kalendermaand telt 21,67 werkdagen (260 werkdagen per jaar gedeeld door 12 maanden). In de praktijk varieert dit per maand: de kortste maanden (zoals februari) tellen 20 werkdagen, terwijl lange maanden zonder feestdagen (zoals maart of oktober) tot 23 werkdagen kunnen tellen.'
+  },
+  {
+    question: 'Wat is de 214-dagenregeling van de Belastingdienst?',
+    answer: 'De Belastingdienst hanteert de forfaitaire 214-dagenregeling voor vaste reiskosten- en thuiswerkvergoedingen. Er wordt vanuit gegaan dat een fulltimer na aftrek van weekenden, feestdagen, verlof en kort verzuim gemiddeld 214 dagen per jaar werkt (ongeveer 4,11 dagen per werkweek van 52 weken).'
+  },
+  {
+    question: 'Hoe bereken je werkdagen bij een parttime werkweek (bijv. 32 of 24 uur)?',
+    answer: 'Bij een deeltijdcontract vermenigvuldig je het fulltime aantal werkdagen met je deeltijdfactor (bijvoorbeeld 32 ÷ 40 = 0,80 of 24 ÷ 40 = 0,60). Je kunt ook direct tellen welke vaste werkdagen van jouw rooster (bijvoorbeeld maandag, dinsdag en donderdag) binnen de gekozen periode vallen.'
+  },
+  {
+    question: 'Wat is het verschil tussen kalenderdagen, werkdagen en werkbare dagen?',
+    answer: 'Kalenderdagen zijn alle dagen van het jaar (365 of 366). Werkdagen zijn de doordeweekse dagen minus feestdagen. Werkbare dagen (vooral gebruikt in de bouw en infra) zijn werkdagen waarop de weersomstandigheden (vorst, storm, overvloedige regen) het werk niet stilleggen.'
+  },
+  {
+    question: 'Heb je automatisch wettelijk recht op een vrije dag op een feestdag?',
+    answer: 'Nee, in de Nederlandse wet bestaat geen algemeen recht op vrijaf tijdens feestdagen. In vitale sectoren zoals de zorg, horeca, openbaar vervoer, politie en beveiliging wordt gewoon gewerkt. Wel geldt in die sectoren vaak een feestdagentoeslag (zoals 150% of 200%) conform de CAO.'
   }
 ];
 ---
@@ -41,81 +61,152 @@ const faqItems = [
   <div slot="explanation">
     <h2>Hoe bereken je het aantal werkdagen in Nederland?</h2>
     <p>
-      Het berekenen van het aantal werkdagen tussen twee datums is essentieel voor projectplanningen, het vaststellen van opzegtermijnen, verlofplanningen en loonberekeningen. In Nederland wordt een standaard werkdag gedefinieerd als een dag van maandag tot en met vrijdag, met uitzondering van nationaal erkende feestdagen.
+      Het exact berekenen van het aantal werkdagen tussen twee datums is essentieel voor uiteenlopende doeleinden in Nederland: van projectplanningen en salarisverwerking tot het bepalen van de wettelijke opzegtermijn en het plannen van vakantiedagen.
     </p>
-
-    <h3>Erkende Nederlandse feestdagen</h3>
     <p>
-      Onze calculator controleert automatisch op alle door de Rijksoverheid erkende nationale feestdagen:
+      In Nederland wordt een standaard werkdag gedefinieerd als een dag van <strong>maandag tot en met vrijdag</strong>, met uitzondering van nationaal erkende feestdagen. Om het netto aantal werkbare dagen tussen een start- en einddatum te bepalen, trek je van het totale aantal kalenderdagen eerst de weekenddagen af en vervolgens de officiële doordeweekse feestdagen.
     </p>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Feestdag</th>
-          <th>Wanneer</th>
-          <th>Vrij voor de meeste werknemers?</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Nieuwjaarsdag</strong></td>
-          <td>1 januari</td>
-          <td>Ja, vrij volgens nagenoeg alle CAO's</td>
-        </tr>
-        <tr>
-          <td><strong>Goede Vrijdag</strong></td>
-          <td>Vrijdag voor Pasen</td>
-          <td>Vaak niet (afhankelijk van CAO/beurs)</td>
-        </tr>
-        <tr>
-          <td><strong>Tweede Paasdag</strong></td>
-          <td>Maandag na Pasen</td>
-          <td>Ja, officiële vrije feestdag</td>
-        </tr>
-        <tr>
-          <td><strong>Koningsdag</strong></td>
-          <td>27 april (of 26 april indien zondag)</td>
-          <td>Ja, nationale feestdag</td>
-        </tr>
-        <tr>
-          <td><strong>Bevrijdingsdag</strong></td>
-          <td>5 mei</td>
-          <td>Vaak 1x per 5 jaar (lustrumjaren)</td>
-        </tr>
-        <tr>
-          <td><strong>Hemelvaartsdag</strong></td>
-          <td>Donderdag (39 dagen na Pasen)</td>
-          <td>Ja, officiële vrije feestdag</td>
-        </tr>
-        <tr>
-          <td><strong>Tweede Pinksterdag</strong></td>
-          <td>Maandag (50 dagen na Pasen)</td>
-          <td>Ja, officiële vrije feestdag</td>
-        </tr>
-        <tr>
-          <td><strong>Eerste & Tweede Kerstdag</strong></td>
-          <td>25 & 26 december</td>
-          <td>Ja, officiële vrije feestdagen</td>
-        </tr>
-      </tbody>
-    </table>
 
     <div class="callout callout-info">
-      <strong>Gemiddeld aantal werkbare uren:</strong><br />
-      Bij een standaard werkdag van 8 uur (40 uur per week) levert elke werkdag 8 declarabele uren op. Bij een parttime werkdag van bijvoorbeeld 7,2 uur (bij een 36-urige werkweek) kun je het aantal uren per dag naar wens aanpassen in het invoerveld.
+      <strong>De basisformule voor netto werkdagen:</strong><br />
+      <code>Netto Werkdagen = Totale Kalenderdagen - Weekenddagen (za + zo) - Officiële Doordeweekse Feestdagen</code>
+      <br /><br />
+      <em>Voorbeeld:</em> Een periode van 30 kalenderdagen met 8 weekenddagen en 2 doordeweekse feestdagen levert <code>30 - 8 - 2 = 20 netto werkdagen</code> op. Bij 8 uur per dag is dat precies 160 werkuren.
     </div>
 
-    <h2>Rekenvoorbeeld werkdagen</h2>
+    <h2>Officiële Nederlandse feestdagen en CAO-regels</h2>
     <p>
-      Stel: je wilt het aantal werkdagen berekenen in de maand <strong>april 2026</strong> (van 1 april 2026 t/m 30 april 2026):
+      Nederland kent een relatief bescheiden aantal officiële nationale feestdagen in vergelijking met andere Europese landen. De Rijksoverheid wijst jaarlijks de officiële feestdagen aan, maar de wet verplicht werkgevers niet automatisch om werknemers betaald vrij te geven; dit wordt geregeld via jouw CAO of arbeidsovereenkomst:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Overzicht officiële Nederlandse feestdagen en vrije dagen">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Feestdag</th>
+            <th>Datum / Periode</th>
+            <th>Vrij voor Meeste Werknemers?</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Nieuwjaarsdag</strong></td>
+            <td>1 januari</td>
+            <td>Ja, vrij in vrijwel alle sectoren</td>
+          </tr>
+          <tr>
+            <td><strong>Goede Vrijdag</strong></td>
+            <td>Vrijdag vóór Pasen</td>
+            <td>Alleen bij Rijksoverheid, banken en gemeenten</td>
+          </tr>
+          <tr>
+            <td><strong>Tweede Paasdag</strong></td>
+            <td>Maandag na Pasen</td>
+            <td>Ja, officiële vrije feestdag</td>
+          </tr>
+          <tr>
+            <td><strong>Koningsdag</strong></td>
+            <td>27 april (26 april indien op zondag)</td>
+            <td>Ja, nationale feestdag met vrijaf</td>
+          </tr>
+          <tr>
+            <td><strong>Bevrijdingsdag</strong></td>
+            <td>5 mei</td>
+            <td>Meestal 1× per 5 jaar (lustrumjaren zoals 2025/2030)</td>
+          </tr>
+          <tr>
+            <td><strong>Hemelvaartsdag</strong></td>
+            <td>Donderdag (40e dag na Pasen)</td>
+            <td>Ja, officiële vrije feestdag</td>
+          </tr>
+          <tr>
+            <td><strong>Tweede Pinksterdag</strong></td>
+            <td>Maandag (50e dag na Pasen)</td>
+            <td>Ja, officiële vrije feestdag</td>
+          </tr>
+          <tr>
+            <td><strong>Eerste en Tweede Kerstdag</strong></td>
+            <td>25 & 26 december</td>
+            <td>Ja, officiële vrije feestdagen</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Hoeveel werkdagen telt een jaar en een maand gemiddeld?</h2>
+    <p>
+      In de loonadministratie en bedrijfsvoering wordt veel gewerkt met jaargemiddelden:
     </p>
     <ul>
-      <li><strong>Kalenderdagen:</strong> 30 dagen in totaal.</li>
-      <li><strong>Weekenddagen:</strong> 8 dagen (4 zaterdagen en 4 zondagen).</li>
-      <li><strong>Doordeweekse feestdagen:</strong> 2 dagen (Tweede Paasdag op 6 april en Koningsdag op maandag 27 april).</li>
-      <li><strong>Netto aantal werkdagen:</strong> 30 - 8 weekend - 2 feestdagen = <strong>20 werkdagen</strong>.</li>
-      <li><strong>Totaal aantal werkuren (bij 8 uur per dag):</strong> 20 × 8 = <strong>160 werkuren</strong>.</li>
+      <li><strong>Werkdagen per jaar:</strong> Een standaardjaar telt 260 of 261 doordeweekse dagen (schrikkeljaren kunnen 262 werkdagen tellen). Omdat er jaarlijks gemiddeld 6 tot 8 feestdagen op een werkdag vallen, blijven er circa <strong>254 potentiële werkdagen</strong> over.</li>
+      <li><strong>Werkdagen per maand:</strong> Het kalendergemiddelde is <code>260 ÷ 12 = 21,67 werkdagen per maand</code>. In werkelijkheid varieert dit per maand tussen 20 dagen (februari) en 23 dagen (maanden van 31 dagen zonder feestdagen, zoals maart of oktober).</li>
+      <li><strong>Werkuren per maand (fulltime):</strong> Bij een 40-urige werkweek telt een maand gemiddeld <code>173,33 werkuren</code>. Bij een 36-urige werkweek is dit gemiddeld <code>156 werkuren</code>. Bereken jouw exacte uurtarief via <a href="/uurloon-berekenen/">uurloon berekenen</a>.</li>
+    </ul>
+
+    <h2>De 214-dagenregeling van de Belastingdienst</h2>
+    <p>
+      Voor vaste, onbelaste reiskostenvergoedingen en thuiswerkvergoedingen heeft de Belastingdienst de praktische <strong>214-dagenregeling</strong> ingesteld.
+    </p>
+    <p>
+      De fiscus gaat ervan uit dat een voltijdse werknemer na aftrek van weekenden, 25 vakantiedagen, officiële feestdagen en incidenteel ziekteverzuim gemiddeld <strong>214 dagen per jaar</strong> daadwerkelijk werkt. Werk je op ten minste 128 dagen naar een vaste werkplek of thuis? Dan mag je werkgever een vaste maandelijkse vergoeding uitkeren. Bereken jouw specifieke vergoedingen direct met onze modules voor <a href="/reiskostenvergoeding-berekenen/">reiskostenvergoeding berekenen</a> en <a href="/thuiswerkvergoeding-berekenen/">thuiswerkvergoeding berekenen</a>.
+    </p>
+
+    <h2>Brugdagen en slim verlof plannen rond feestdagen</h2>
+    <p>
+      Door handig gebruik te maken van doordeweekse feestdagen kun je met een minimum aan vakantie-uren een lange aaneengesloten periode vrij zijn:
+    </p>
+    <ul>
+      <li><strong>Hemelvaartsdag (donderdag):</strong> Neem de aansluitende vrijdag op als vakantiedag voor een 4-daags miniverlof tegen inzet van slechts 8 vakantie-uren.</li>
+      <li><strong>Pasen en Pinksteren:</strong> Doordat Tweede Paasdag en Tweede Pinksterdag altijd op een maandag vallen, heb je automatisch een lang weekend van 3 dagen. Neem 4 vakantiedagen op en geniet van 9 aaneengesloten dagen vrij.</li>
+      <li><strong>Kerstmis en Oud & Nieuw:</strong> Vallen kerstdagen gunstig doordeweeks? Met slechts 3 vakantiedagen tussen Kerst en 1 januari overbrug je vaak een periode van 10 dagen vrijaf. Bereken je vakantiesaldo via onze calculator voor <a href="/vakantie-uren-berekenen/">vakantie-uren berekenen</a>.</li>
+    </ul>
+
+    <h2>Werkdagen berekenen voor parttimers en wisselende roosters</h2>
+    <p>
+      Werk je in deeltijd, bijvoorbeeld 3 of 4 dagen per week? Dan is het aantal gewerkte dagen afhankelijk van jouw specifieke werkdagen:
+    </p>
+    <p>
+      Als jouw vaste vrije dag op maandag valt, profiteer je minder van feestdagen zoals Tweede Paasdag en Tweede Pinksterdag. Veel moderne CAO's lossen dit op met een <em>jaarurenmodel</em> of pro-rata feestdagencompensatie, zodat parttimers naar evenredigheid hetzelfde voordeel genieten als fulltimers. Reken jouw deeltijdfactor en loonverhouding na via <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+    </p>
+
+    <h2>Twee concrete rekenvoorbeelden van werkdagen berekenen</h2>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 1: Werkdagen in mei (een maand met veel feestdagen)</h3>
+      <p>
+        In mei 2026 telt de kalender 31 dagen. Er zijn 9 weekenddagen. Daarnaast vallen Hemelvaartsdag (donderdag 14 mei) en Tweede Pinksterdag (maandag 25 mei) op doordeweekse dagen:
+      </p>
+      <ul>
+        <li><strong>Totale kalenderdagen:</strong> 31 dagen.</li>
+        <li><strong>Weekenddagen:</strong> 9 dagen.</li>
+        <li><strong>Doordeweekse feestdagen:</strong> 2 dagen.</li>
+        <li><strong>Netto werkdagen:</strong> 31 - 9 - 2 = <strong>20 werkdagen</strong>.</li>
+        <li><strong>Bij 8 uur per werkdag:</strong> 20 × 8 = <strong>160 declarabele uren</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 2: Een projectkwartaal van 1 september tot en met 30 november</h3>
+      <p>
+        In het najaar vallen er in Nederland traditiegetrouw geen officiële feestdagen:
+      </p>
+      <ul>
+        <li><strong>September (30 dagen):</strong> 8 weekenddagen, 0 feestdagen = <strong>22 werkdagen</strong>.</li>
+        <li><strong>Oktober (31 dagen):</strong> 9 weekenddagen, 0 feestdagen = <strong>22 werkdagen</strong>.</li>
+        <li><strong>November (30 dagen):</strong> 9 weekenddagen, 0 feestdagen = <strong>21 werkdagen</strong>.</li>
+        <li><strong>Totaal voor het kwartaal:</strong> 22 + 22 + 21 = <strong>65 netto werkdagen</strong> (520 werkuren bij fulltime 40 uur).</li>
+      </ul>
+    </div>
+
+    <h2>Verschil tussen kalenderdagen, werkdagen en werkbare dagen</h2>
+    <p>
+      Let bij contracten en planningen goed op de juiste terminologie:
+    </p>
+    <ul>
+      <li><strong>Kalenderdagen:</strong> Alle opeenvolgende dagen van de kalender, inclusief zaterdagen, zondagen en feestdagen. Een termijn van '30 kalenderdagen' loopt altijd door.</li>
+      <li><strong>Werkdagen:</strong> Reguliere werkdagen van maandag tot en met vrijdag, exclusief erkende feestdagen.</li>
+      <li><strong>Werkbare dagen:</strong> Werkdagen waarop weersomstandigheden (zoals vorst, hevige neerslag of storm) het niet onmogelijk maken om te werken. Deze term is met name van groot belang in de bouw en groenvoorziening (CAO Bouw & Infra).</li>
     </ul>
   </div>
 </CalculatorLayout>
+

@@ -8,20 +8,44 @@ const meta = getCalculatorBySlug('uurloon-berekenen')!;
 
 const faqItems = [
   {
-    question: 'Hoe bereken je het bruto uurloon vanuit een vast maandsalaris?',
-    answer: 'Het bruto uurloon bereken je door het maandsalaris te vermenigvuldigen met 12 maanden en te delen door het totale aantal werkuren per jaar. Bij een werkweek van 40 uur werk je per jaar gemiddeld 2.080 uur (52 weken × 40 uur), wat neerkomt op 173,33 uur per maand. De formule luidt: Uurloon = Maandsalaris ÷ ((Wekelijkse uren × 52) ÷ 12).'
+    question: 'Hoe bereken je het bruto uurloon vanuit een maandsalaris?',
+    answer: 'Het bruto uurloon bereken je door je bruto maandsalaris met 12 te vermenigvuldigen (jaarsalaris) en dat bedrag te delen door het totale aantal contracturen per jaar (wekelijkse contracturen × 52 weken). De officiële formule luidt: Uurloon = (Maandsalaris × 12) ÷ (Wekelijkse uren × 52).'
   },
   {
-    question: 'Hoeveel uur heeft een maand gemiddeld bij een fulltime baan?',
-    answer: 'Een jaar heeft 52 weken. Bij een 40-urige werkweek is dat 2.080 uur per jaar. Gedeeld door 12 maanden is dat gemiddeld 173,33 uur per maand. Bij een 36-urige werkweek is dit 156,00 uur per maand, en bij 38 uur per week is dit 164,67 uur per maand.'
+    question: 'Waarom mag je het maandsalaris niet delen door 4 weken (160 uur)?',
+    answer: 'Een kalendermaand duurt gemiddeld 4,33 weken (30 of 31 dagen), niet precies 4 weken (28 dagen). Als je het maandsalaris deelt door 4 weken of 160 uur, ga je uit van slechts 48 werkweken per jaar en mis je 4 weken aan loon. Je uurloon zou dan kunstmatig 8,3% te hoog uitvallen.'
   },
   {
-    question: 'Zit vakantiegeld in het uurloon inbegrepen?',
-    answer: 'Nee, het standaard bruto uurloon is exclusief de wettelijke vakantiebijslag van minimaal 8%. Werk je als oproepkracht of via een uitzendbureau met een all-in loon? Dan wordt de 8% vakantiegeld vaak direct bovenop elk gewerkt uur uitbetaald.'
+    question: 'Hoeveel werkuren telt een maand gemiddeld bij een fulltime baan?',
+    answer: 'Bij een 40-urige werkweek telt een maand gemiddeld 173,33 uur ((40 × 52) ÷ 12). Bij een 36-urige werkweek is dit gemiddeld 156,00 uur per maand, en bij een 38-urige werkweek gemiddeld 164,67 uur per maand.'
   },
   {
-    question: 'Wat is het verschil tussen een 4-wekenloon en een maandsalaris?',
-    answer: 'Een maandsalaris wordt 12 keer per jaar uitbetaald, terwijl een vierwekenloon 13 keer per jaar wordt uitbetaald. Om een maandsalaris om te rekenen naar een 4-wekenperiode vermenigvuldig je het maandsalaris met 12 en deel je dit door 13.'
+    question: 'Zit de 8% wettelijke vakantiebijslag in het uurloon inbegrepen?',
+    answer: 'Nee. Het standaard bruto uurloon in een arbeidsovereenkomst is exclusief vakantiegeld. Bij een all-in loon (veelvoorkomend bij studentenbanen, seizoenswerk en uitzendkrachten) wordt de 8% vakantiebijslag wel direct per gewerkt uur bovenop het basisloon uitbetaald.'
+  },
+  {
+    question: 'Wat is het wettelijk minimumuurloon in Nederland?',
+    answer: 'Sinds 1 januari 2024 kent Nederland één uniform wettelijk minimumuurloon voor alle werknemers van 21 jaar en ouder. Er is geen vast minimummaandloon meer; werkenden met een 36-, 38- of 40-urige werkweek ontvangen minimaal hetzelfde wettelijke bedrag per gewerkt uur.'
+  },
+  {
+    question: 'Waarom verschilt het uurloon tussen een 36-urige en 40-urige werkweek?',
+    answer: 'Als twee werknemers hetzelfde maandsalaris van bijvoorbeeld € 3.500 verdienen, werkt degene met een 36-urige werkweek per jaar 208 uur minder dan degene met een 40-urige werkweek. Daardoor ligt het bruto uurloon bij 36 uur (€ 22,44) aanzienlijk hoger dan bij 40 uur (€ 20,19).'
+  },
+  {
+    question: 'Hoe reken je een bruto uurloon om naar een netto uurloon?',
+    answer: 'Je netto uurloon hangt af van je totale jaarinkomen, de belastingschijven in box 1 en je heffingskortingen (zoals de algemene heffingskorting en arbeidskorting). Als vuistregel houden werkenden met een modaal inkomen netto circa 65% tot 75% van hun bruto uurloon over.'
+  },
+  {
+    question: 'Hoe bereken je je uurloon bij een parttime dienstverband?',
+    answer: 'Het bruto uurloon van een parttimer is identiek aan dat van een fulltimer in dezelfde salarisschaal. Je deelt je parttime maandsalaris door je eigen gemiddelde maanduren ((parttime contracturen × 52) ÷ 12), wat exact hetzelfde uurloon oplevert als de fulltime berekening.'
+  },
+  {
+    question: 'Telt een dertiende maand of eindejaarsuitkering mee voor je uurloon?',
+    answer: 'In het basisuurloon op je salarisstrook telt een eindejaarsuitkering niet mee. Wil je echter je totale arbeidsvoorwaardenpakket of all-in uurloon vergelijken, dan tel je de dertiende maand (vaak 8,33%) en het vakantiegeld (8%) op bij je jaargrondslag alvorens te delen door je jaaruren.'
+  },
+  {
+    question: 'Welk zzp-uurtarief staat gelijk aan een bruto uurloon in loondienst?',
+    answer: 'Als zelfstandige moet je uurtarief doorgaans 2 tot 2,5 keer zo hoog zijn als je bruto uurloon in loondienst. Als zzp\'er factureer je immers niet al je werkuren (acquisitie, administratie) en betaal je zelf je pensioenopbouw, arbeidsongeschiktheidsverzekering (AOV), vakantiedagen en bedrijfskosten.'
   }
 ];
 ---
@@ -35,70 +59,128 @@ const faqItems = [
   <UurloonCalculator slot="calculator" />
 
   <div slot="explanation">
-    <h2>Hoe werkt de berekening van het uurloon?</h2>
+    <h2>Wat is een uurloon en waarom is het belangrijk om dit te weten?</h2>
     <p>
-      In veel Nederlandse arbeidsovereenkomsten en salarisstroken staat alleen een vast bruto maandsalaris vermeld. Wanneer je wilt weten wat je per gewerkt uur verdient — bijvoorbeeld om overuren te controleren, salarisonderhandelingen te voeren of een vergelijking te maken met een freelance uurtarief — dien je dit om te rekenen naar een bruto uurloon.
+      In de meeste Nederlandse arbeidsovereenkomsten en op salarisstroken staat standaard een vast <strong>bruto maandsalaris</strong> vermeld. Toch is het in veel situaties onmisbaar om exact te weten wat je <strong>bruto uurloon</strong> is. Je uurloon vormt namelijk de exacte financiële waardering van ieder gewerkt uur en is de basis voor vrijwel alle secundaire loonberekeningen.
     </p>
-
-    <h3>De officiële rekenformule</h3>
     <p>
-      Omdat een jaar 52 weken telt en maanden niet allemaal evenveel werkdagen hebben, hanteert de loonadministratie in Nederland de jaargrondslag als standaard:
+      Het nauwkeurig berekenen van je uurloon is vooral belangrijk wanneer je:
+    </p>
+    <ul>
+      <li><strong>Arbeidsvoorwaarden vergelijkt:</strong> Een salaris van € 3.400 bij een werkweek van 36 uur betaalt per uur aanzienlijk beter dan € 3.500 bij een werkweek van 40 uur.</li>
+      <li><strong>Overuren controleert:</strong> De uitbetaling van overuren en eventuele CAO-toeslagen (zoals 125%, 150% of 200%) wordt altijd berekend over je basisuurloon. Bekijk ook onze calculator voor <a href="/overuren-berekenen/">overuren berekenen</a>.</li>
+      <li><strong>Parttime gaat werken:</strong> Wil je minder uren werken via een deeltijdcontract? Reken dan je nieuwe inkomen door met onze module voor <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.</li>
+      <li><strong>De overstap maakt naar zzp of freelance:</strong> Om een realistisch commercieel uurtarief te bepalen, moet je weten wat je huidige contractuele uurwaarde in loondienst is.</li>
+    </ul>
+
+    <h2>Hoe bereken je het bruto uurloon vanuit een maandsalaris?</h2>
+    <p>
+      Een veelgemaakte fout is om het maandsalaris simpelweg te delen door 4 werkweken of door 160 uur. Een kalenderjaar telt immers geen 48 weken (12 maanden × 4 weken), maar precies <strong>52 weken</strong> (en op schrikkeljaren zelfs 52 weken en 2 dagen). Eén kalendermaand telt gemiddeld circa 4,33 weken.
+    </p>
+    <p>
+      Om een wiskundig en juridisch zuiver uurloon te bepalen, hanteert de Nederlandse loonadministratie daarom altijd de <strong>jaargrondslag</strong>:
     </p>
 
     <div class="callout callout-info">
-      <strong>Rekenformule:</strong><br />
+      <strong>De officiële rekenformule voor uurloon:</strong><br />
       <code>Bruto Uurloon = (Bruto Maandsalaris × 12) ÷ (Wekelijkse contracturen × 52)</code>
     </div>
 
-    <h3>Gemiddeld aantal werkuren per maand in Nederland</h3>
     <p>
-      Afhankelijk van de afgesproken fulltime werkweek binnen jouw CAO (meestal 36, 38 of 40 uur), verschilt het gemiddeld aantal uren per maand:
+      Je berekent eerst het totale bruto jaarsalaris (maandsalaris vermenigvuldigd met 12 maanden) en deelt dit vervolgens door het totale aantal contractuele werkuren per jaar (jouw wekelijkse werkweek vermenigvuldigd met 52 weken).
     </p>
 
-    <table>
-      <thead>
-        <tr>
-          <th>Werkweek</th>
-          <th>Uren per jaar (52 wk)</th>
-          <th>Gemiddeld uren per maand</th>
-          <th>Voorbeeld: bij € 3.500 maandsalaris</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>36 uur / week</strong> (o.a. Rijk, Gemeenten)</td>
-          <td>1.872 uur</td>
-          <td>156,0 uur</td>
-          <td><strong>€ 22,44</strong> per uur</td>
-        </tr>
-        <tr>
-          <td><strong>38 uur / week</strong> (o.a. Metaal, Bouw)</td>
-          <td>1.976 uur</td>
-          <td>164,7 uur</td>
-          <td><strong>€ 21,25</strong> per uur</td>
-        </tr>
-        <tr>
-          <td><strong>40 uur / week</strong> (Bedrijfsleven standaard)</td>
-          <td>2.080 uur</td>
-          <td>173,3 uur</td>
-          <td><strong>€ 20,19</strong> per uur</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2>Rekenvoorbeeld: Maandloon naar Uurloon</h2>
+    <h2>De invloed van de CAO-werkweek (36, 38 of 40 uur)</h2>
     <p>
-      Stel: je verdient een bruto maandsalaris van <strong>€ 3.200,00</strong> op basis van een werkweek van <strong>38 uur</strong>.
+      Wat in Nederland als een ‘fulltime dienstverband’ geldt, verschilt sterk per sector en collectieve arbeidsovereenkomst (CAO). Bij de Rijksoverheid, gemeenten, banken en verzekeraars is een fulltime werkweek veelal <strong>36 uur</strong>. In de metaal-, techniek- en zorgsector is <strong>38 uur</strong> gangbaar, terwijl in de zakelijke dienstverlening, ICT en bouw vaak <strong>40 uur</strong> de standaard is.
+    </p>
+    <p>
+      Dit verschil heeft een directe impact op de waarde van je gewerkte uren. Verdien je € 3.500 bruto per maand? Dan levert een kortere werkweek een direct hoger uurloon op:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Gemiddeld aantal werkuren per maand in Nederland">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Werkweek</th>
+            <th>Uren per jaar (52 wk)</th>
+            <th>Gemiddeld uren per maand</th>
+            <th>Voorbeeld: bij € 3.500 maandsalaris</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>36 uur / week</strong> (o.a. Rijk, Gemeenten)</td>
+            <td>1.872 uur</td>
+            <td>156,0 uur</td>
+            <td><strong>€ 22,44</strong> per uur</td>
+          </tr>
+          <tr>
+            <td><strong>38 uur / week</strong> (o.a. Metaal, Bouw)</td>
+            <td>1.976 uur</td>
+            <td>164,7 uur</td>
+            <td><strong>€ 21,25</strong> per uur</td>
+          </tr>
+          <tr>
+            <td><strong>40 uur / week</strong> (Bedrijfsleven standaard)</td>
+            <td>2.080 uur</td>
+            <td>173,3 uur</td>
+            <td><strong>€ 20,19</strong> per uur</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>All-in uurloon: Vakantiegeld en eindejaarsuitkering</h2>
+    <p>
+      Het reguliere contractuele uurloon is altijd een <em>basisloon</em>. Het houdt nog geen rekening met aanvullende wettelijke of bovenwettelijke looncomponenten. Wanneer je je totale uurwaarde wilt berekenen, spelen de volgende onderdelen een rol:
     </p>
     <ul>
-      <li><strong>Stap 1:</strong> Bereken het jaarsalaris: € 3.200 × 12 = € 38.400,00 per jaar.</li>
-      <li><strong>Stap 2:</strong> Bereken het totaal aantal uren per jaar: 38 uur × 52 weken = 1.976 uur.</li>
-      <li><strong>Stap 3:</strong> Deel het jaarsalaris door het jaartotaal aan uren: € 38.400 ÷ 1.976 = <strong>€ 19,43 per uur</strong>.</li>
+      <li><strong>Vakantiegeld (8%):</strong> Iedere werknemer in Nederland heeft wettelijk recht op minimaal 8% vakantiebijslag over het bruto jaarsalaris. Bereken het exacte bedrag met onze tool voor <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.</li>
+      <li><strong>Vakantiedagen:</strong> Volgens art. 7:634 van het Burgerlijk Wetboek bouw je minimaal viermaal je wekelijkse arbeidsduur aan vakantie-uren op. Controleer je opbouw via <a href="/vakantie-uren-berekenen/">vakantie-uren berekenen</a>.</li>
+      <li><strong>Dertiende maand of eindejaarsuitkering:</strong> Veel CAO's kennen een vaste dertiende maand (8,33%) of een prestatiegebonden eindejaarsuitkering toe.</li>
     </ul>
 
-    <h2>Belangrijk bij het vergelijken van uurlonen</h2>
     <p>
-      Let er bij het vergelijken van salaris altijd op of pensioenopbouw, vakantiebijslag (8%) en eventuele eindejaarsuitkeringen of dertiende maand zijn inbegrepen. Het basisuurloon geeft een zuiver beeld van je directe contractwaarde per gewerkt uur.
+      In sectoren zoals de horeca, uitzendbranche en detailhandel werken oproepkrachten en studenten regelmatig met een zogeheten <strong>all-in uurloon</strong>. Hierbij worden het basisuurloon, de 8% vakantiebijslag en de geldwaarde van de vakantiedagen (doorgaans circa 9,6% tot 10%) maandelijks direct uitbetaald. Het all-in uurloon ligt daardoor circa 18% tot 20% hoger dan het kale basisuurloon.
+    </p>
+
+    <h2>Bruto versus Netto uurloon: Hoe zit het met de belasting?</h2>
+    <p>
+      Het omrekenen van een bruto uurloon naar een <strong>netto uurloon</strong> is minder eenduidig dan de brutoberekening. In Nederland wordt de loonheffing namelijk berekend over je <em>totale belastbare jaarinkomen</em> in box 1, rekening houdend met heffingskortingen:
+    </p>
+    <ol>
+      <li><strong>Schijventarief inkomstenbelasting:</strong> Je inkomen valt in schijf 1 (basistarief) of schijf 2 (toptarief voor inkomens boven de grens).</li>
+      <li><strong>Algemene heffingskorting:</strong> Een wettelijke korting op je belasting die geleidelijk afbouwt naarmate je jaarinkomen stijgt.</li>
+      <li><strong>Arbeidskorting:</strong> Een specifieke fiscale stimulans voor werkenden die oploopt bij een stijgend arbeidsinkomen en vervolgens weer afbouwt.</li>
+      <li><strong>Pensioenpremie:</strong> De werknemersbijdrage voor pensioen wordt vóór de belastingheffing op je brutoloon ingehouden, waardoor je belastbaar loon lager uitvalt.</li>
+    </ol>
+    <p>
+      Hierdoor levert een bruto uurloon van bijvoorbeeld € 22,00 bij een parttimer met een laag jaarinkomen netto procentueel meer op (vaak rond de 75% tot 80%) dan bij een fulltimer met een hoog jaarinkomen (waar door afbouw van heffingskortingen netto circa 60% tot 65% overblijft).
+    </p>
+
+    <h2>Stap-voor-stap rekenvoorbeeld: Maandsalaris naar Uurloon</h2>
+    <p>
+      Stel: je treedt in dienst bij een organisatie met een CAO-werkweek van <strong>36 uur</strong> en je ontvangt een bruto maandsalaris van <strong>€ 3.600,00</strong>.
+    </p>
+    <ul>
+      <li><strong>Stap 1: Bereken het bruto jaarsalaris:</strong> € 3.600 × 12 maanden = <strong>€ 43.200,00</strong> per jaar.</li>
+      <li><strong>Stap 2: Bereken de jaarlijkse contracturen:</strong> 36 uur per week × 52 weken = <strong>1.872 uur</strong> per jaar.</li>
+      <li><strong>Stap 3: Bereken het bruto uurloon:</strong> € 43.200 ÷ 1.872 uur = <strong>€ 23,08 per uur</strong>.</li>
+      <li><strong>Stap 4: Uurloon incl. 8% vakantiebijslag:</strong> € 23,08 × 1,08 = <strong>€ 24,93 per uur</strong>.</li>
+    </ul>
+
+    <h2>Uurloon vergelijken met een zzp- of freelance tarief</h2>
+    <p>
+      Veel werknemers die overwegen om als zzp'er aan de slag te gaan, maken de denkfout hun huidige bruto uurloon in loondienst direct te vergelijken met een freelance uurtarief. Als zelfstandige zonder personeel draag je echter alle werkgeversrisico's en zakelijke lasten zelf:
+    </p>
+    <ul>
+      <li><strong>Niet-declarabele uren:</strong> Als zzp'er kun je gemiddeld slechts 60% tot 70% van je werktijd daadwerkelijk aan klanten factureren. De rest gaat op aan acquisitie, offertes, administratie en scholing. Bereken de beschikbare werkdagen met onze tool voor <a href="/werkdagen-berekenen/">werkdagen berekenen</a>.</li>
+      <li><strong>Onbetaald verlof & feestdagen:</strong> Bij ziekte of vakantie stopt de omzet direct, terwijl een werknemer in loondienst wordt doorbetaald.</li>
+      <li><strong>Verzekeringen en pensioen:</strong> Een arbeidsongeschiktheidsverzekering (AOV), aansprakelijkheidsverzekering en zelfstandige pensioenopbouw kosten al snel honderden euro's per maand.</li>
+    </ul>
+    <p>
+      Als vuistregel moet een zzp-uurtarief daarom minimaal <strong>2 tot 2,5 keer het bruto uurloon in loondienst</strong> bedragen om onder de streep een gelijkwaardig netto besteedbaar inkomen en vangnet te realiseren. Verdien je in loondienst € 25,00 per uur? Dan ligt een vergelijkbaar zzp-starttarief rond de € 55,00 tot € 65,00 per uur exclusief btw.
     </p>
   </div>
 </CalculatorLayout>

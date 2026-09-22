@@ -9,24 +9,44 @@ const meta = getCalculatorBySlug('vakantiegeld-berekenen')!;
 
 const faqItems = [
   {
-    question: 'Hoeveel vakantiegeld krijg je wettelijk in Nederland?',
-    answer: 'In Nederland heb je volgens de Wet minimumloon en minimumvakantiebijslag (WML) recht op minimaal 8% vakantiegeld over je bruto jaarsalaris. Dit geldt voor iedereen in loondienst, zowel fulltime, parttime als met een nulurencontract.'
+    question: 'Hoe bereken je hoeveel vakantiegeld je krijgt?',
+    answer: 'Je berekent je bruto vakantiegeld door je bruto maandsalaris te vermenigvuldigen met het aantal gewerkte maanden in het opbouwjaar en daar 8% over te berekenen. Bij een volledig opbouwjaar van 12 maanden vermenigvuldig je simpelweg je totale bruto jaarloon met 0,08. Dit bedraagt 96% van één bruto maandsalaris.'
   },
   {
-    question: 'Wanneer wordt het vakantiegeld uitbetaald?',
-    answer: 'In de meeste gevallen wordt het vakantiegeld eenmaal per jaar uitbetaald in de maand mei (of uiterlijk juni). Het opbouwjaar loopt doorgaans van 1 juni van het voorgaande kalenderjaar tot en met 31 mei van het lopende jaar.'
+    question: 'Waarom wordt er zoveel belasting ingehouden op vakantiegeld?',
+    answer: 'Vakantiegeld wordt belast volgens het "bijzonder tarief" voor incidentele beloningen. Omdat dit bedrag bovenop je reguliere jaarinkomen komt, wordt direct het toptarief van je belastingschijf ingehouden, vermeerderd met een correctie voor de afbouw van heffingskortingen (algemene heffingskorting en arbeidskorting). Hierdoor bedraagt de inhouding vaak tussen de 40% en 56%.'
   },
   {
-    question: 'Waarom hou ik netto minder over van mijn vakantiegeld dan van mijn maandsalaris?',
-    answer: 'Vakantiegeld wordt belast volgens het "bijzonder tarief" voor incidentele beloningen. Omdat dit bedrag bovenop je reguliere jaarinkomen komt, wordt direct het hoogste van toepassing zijnde belastingtarief ingehouden, vermeerderd met een correctie voor de afbouw van de algemene heffingskorting en arbeidskorting. Hierdoor blijft er netto gemiddeld 50% tot 55% over.'
+    question: 'Wanneer wordt het vakantiegeld uitbetaald in Nederland?',
+    answer: 'In Nederland wordt het vakantiegeld doorgaans eenmaal per jaar uitbetaald bij het salaris van mei (of uiterlijk juni). Het opbouwjaar loopt in de meeste sectoren van 1 juni van het voorgaande jaar tot en met 31 mei van het lopende jaar.'
   },
   {
-    question: 'Krijg je vakantiegeld over overuren en toeslagen?',
-    answer: 'Ja, sinds een wetswijziging in de WML bouw je in Nederland ook wettelijk 8% vakantiegeld op over uitbetaalde overuren en vaste prestatietoeslagen, tenzij in je CAO een afwijkende regeling is overeengekomen die ten minste gelijkwaardig is aan het wettelijk minimum.'
+    question: 'Bouw je ook vakantiegeld op over overuren en toeslagen?',
+    answer: 'Ja. Sinds een herziening van de Wet minimumloon en minimumvakantiebijslag (WML) hebben werknemers in Nederland ook wettelijk recht op 8% vakantiebijslag over uitbetaalde overuren, prestatietoeslagen, ploegentoeslagen en provisie.'
   },
   {
-    question: 'Wat gebeurt er met opgebouwd vakantiegeld bij ontslag?',
-    answer: 'Als je uit dienst treedt, wordt het tot dan toe opgebouwde vakantiegeld in de eindafrekening direct bruto aan je uitbetaald bij je laatste salarisstrook.'
+    question: 'Krijg je vakantiegeld als je parttime werkt of een nulurencontract hebt?',
+    answer: 'Ja, iedere werknemer in loondienst heeft recht op minimaal 8% vakantiegeld, ongeacht of je fulltime, parttime of op een oproepcontract werkt. Bij flexwerkers en studentenbanen wordt het vakantiegeld soms direct maandelijks als all-in loon uitbetaald.'
+  },
+  {
+    question: 'Wat gebeurt er met je vakantiegeld als je uit dienst gaat of ontslag neemt?',
+    answer: 'Wanneer je arbeidsovereenkomst eindigt, wordt het tot die datum opgebouwde vakantiegeld waar je nog geen uitbetaling over hebt ontvangen, volledig bruto verrekend in je eindafrekening bij je laatste salarisbetaling.'
+  },
+  {
+    question: 'Bouw je vakantiegeld op tijdens ziekte of re-integratie?',
+    answer: 'Ja. Zolang je werkgever wettelijk of volgens de CAO verplicht is om je loon door te betalen tijdens ziekte (minimaal 70% van het loon), bouw je over het daadwerkelijk doorbetaalde loon gewoon vakantiegeld op.'
+  },
+  {
+    question: 'Mag een werkgever vakantiegeld maandelijks uitbetalen in plaats van in mei?',
+    answer: 'Ja, mits dit schriftelijk is vastgelegd in de CAO of in de individuele arbeidsovereenkomst. Dit zogeheten all-in salaris of maandelijks gereserveerde vakantiebijslag komt veel voor bij flexcontracten, uitzendkrachten en bijbanen.'
+  },
+  {
+    question: 'Is vakantiegeld wettelijk verplicht voor iedere werknemer in Nederland?',
+    answer: 'Ja, volgens artikel 15 van de WML is minimaal 8% vakantiebijslag wettelijk verplicht. Alleen bij werknemers die meer dan driemaal het minimumloon verdienen, mag bij schriftelijke overeenkomst worden afgesproken dat er geen of minder vakantiegeld wordt uitgekeerd.'
+  },
+  {
+    question: 'Krijg je te veel ingehouden belasting op je vakantiegeld terug via de belastingaangifte?',
+    answer: 'Ja. Het bijzonder tarief op je loonstrook is een voorheffing van de werkgever. Bij je jaarlijkse aangifte inkomstenbelasting berekent de Belastingdienst je definitieve belasting over je totale werkelijke jaarinkomen. Is er via het bijzonder tarief te veel loonheffing ingehouden, dan ontvang je dat verschil automatisch terug.'
   }
 ];
 ---
@@ -40,44 +60,158 @@ const faqItems = [
   <VakantiegeldCalculator slot="calculator" />
 
   <div slot="explanation">
-    <h2>Wat is vakantiegeld en hoe wordt het berekend?</h2>
+    <h2>Wat is vakantiegeld en wat is de wettelijke basis?</h2>
     <p>
-      Vakantiegeld — officieel <em>vakantiebijslag</em> genoemd — is een wettelijk verplichte jaarlijkse toeslag die werknemers in staat stelt om vakantie op te nemen zonder financieel in de knel te komen. De hoogte bedraagt volgens artikel 15 van de Wet minimumloon en minimumvakantiebijslag minimaal <strong>8% van het bruto jaarsalaris</strong>.
+      In Nederland is vakantiegeld — officieel aangeduid als <strong>vakantiebijslag</strong> — een wettelijk verplichte jaarlijkse uitkering bovenop je normale salaris. Het doel van deze regeling is om werknemers financieel in staat te stellen om daadwerkelijk op vakantie te gaan en te ontspannen zonder dat dit ten koste gaat van het huishoudbudget.
+    </p>
+    <p>
+      Het recht op vakantiebijslag is verankerd in de <strong>Wet minimumloon en minimumvakantiebijslag (WML)</strong>. Volgens artikel 15 van deze wet heeft iedere werknemer in loondienst recht op een vakantiebijslag van <strong>ten minste 8% van het bruto jaarloon</strong>. Veel collectieve arbeidsovereenkomsten (CAO's) volgen deze wettelijke norm, al zijn er sectoren waarin via de CAO een hoger percentage is afgesproken (bijvoorbeeld 8,2% of 8,33%).
+    </p>
+    <p>
+      Let op het onderscheid tussen vakantiegeld en vakantiedagen: vakantiegeld is een financiële toeslag in euro's, terwijl vakantiedagen gaan over betaalde vrije uren. Controleer je wettelijke en bovenwettelijke verlofuren via onze calculator voor <a href="/vakantie-uren-berekenen/">vakantie-uren berekenen</a>.
     </p>
 
-    <h3>De rekenformule voor vakantiebijslag</h3>
+    <h2>De opbouwperiode van vakantiegeld (1 juni t/m 31 mei)</h2>
     <p>
-      Voor elke gewerkte maand bouw je 8% op over je brutoloon en vaste toeslagen:
+      Vakantiegeld wordt niet per kalenderjaar berekend, maar over een specifiek <strong>opbouwjaar</strong>. In het overgrote deel van het Nederlandse bedrijfsleven loopt deze periode traditioneel van <strong>1 juni tot en met 31 mei</strong> van het daaropvolgende jaar.
+    </p>
+    <p>
+      Werk je een volledig jaar bij dezelfde werkgever? Dan bouw je in 12 maanden een compleet jaarbedrag aan vakantiegeld op, dat doorgaans wordt uitbetaald bij het salaris van de <strong>maand mei</strong> (of uiterlijk in juni).
+    </p>
+    <p>
+      Wanneer je later in het jaar in dienst treedt — bijvoorbeeld per 1 november — bouw je vakantiegeld op over de werkelijk gewerkte maanden (in dit geval 7 maanden, van november tot en met mei). Je ontvangt in mei dan een pro-rata uitkering over die periode.
+    </p>
+
+    <h2>De officiële rekenformule voor vakantiebijslag</h2>
+    <p>
+      De basisberekening van bruto vakantiegeld is transparant en eenvoudig toe te passen:
     </p>
 
     <div class="callout callout-info">
-      <strong>Rekenformule:</strong><br />
-      <code>Bruto Vakantiegeld = Bruto Maandsalaris × Aantal gewerkte maanden × 8%</code>
+      <strong>Rekenformule vakantiegeld:</strong><br />
+      <code>Bruto Vakantiegeld = Bruto Maandloon × Aantal gewerkte maanden in opbouwjaar × 8%</code>
     </div>
 
     <p>
-      Bij een heel werkjaar van 12 maanden is het bruto vakantiegeld gelijk aan <strong>96% van één maandsalaris</strong> (12 × 8% = 0,96 × maandsalaris). Het is dus nét iets minder dan een compleet extra bruto maandsalaris.
+      Bij een ongewijzigd maandsalaris over een compleet werkjaar van 12 maanden komt dit exact neer op <strong>96% van één bruto maandsalaris</strong> (12 maanden × 8% = 0,96 × maandloon). Het bedrag is dus nét iets minder dan een dertiende maand of een volledig extra maandsalaris.
     </p>
 
-    <h2>Waarom is de belastinginhouding hoger (Bijzonder Tarief)?</h2>
+    <h2>Welke inkomenscomponenten tellen mee voor de opbouw?</h2>
     <p>
-      Veel werknemers zijn verrast wanneer ze het nettobedrag op hun salarisstrook in mei zien. Dit komt door het <strong>bijzonder tarief voor loonheffing</strong>:
+      Niet ieder bedrag op je salarisstrook telt mee voor de berekening van je vakantiebijslag. De wet maakt hier een duidelijk onderscheid in:
     </p>
+
+    <h3>Wel meegerekend in de grondslag:</h3>
     <ul>
-      <li><strong>Toptarief inkomstenbelasting:</strong> Je reguliere maandsalaris profiteert maandelijks van heffingskortingen (de algemene heffingskorting en de arbeidskorting).</li>
-      <li><strong>Afbouw heffingskortingen:</strong> In Nederland nemen heffingskortingen af naarmate je totale jaarinkomen stijgt. Het vakantiegeld zorgt voor een hoger jaarinkomen, waardoor met terugwerkende kracht minder heffingskorting overblijft.</li>
-      <li><strong>Inhoudingspercentage:</strong> Afhankelijk van je jaarinkomen ligt de inhouding op de salarisstrook in mei meestal tussen <strong>36,97% en 49,50%</strong>, verhoogd met het verrekeningspercentage van de heffingskortingen.</li>
+      <li><strong>Vast bruto basissalaris:</strong> Je contractuele loon voor de overeengekomen arbeidsduur. Bereken desgewenst ook je <a href="/uurloon-berekenen/">bruto uurloon</a>.</li>
+      <li><strong>Overuren:</strong> Sinds een belangrijke modernisering van de WML bouw je in Nederland ook wettelijk 8% vakantiegeld op over uitbetaalde overuren. Bereken je overwerkvergoeding met onze module voor <a href="/overuren-berekenen/">overuren berekenen</a>.</li>
+      <li><strong>Structurele toeslagen:</strong> Denk aan vaste onregelmatigheidstoeslagen (ORT), ploegentoeslagen, gevarengeld en vaste provisies.</li>
+      <li><strong>Loon tijdens ziekte:</strong> Over het loon dat tijdens ziekte door je werkgever wordt doorbetaald, blijft de opbouw van vakantiegeld gewoon doorlopen.</li>
     </ul>
 
-    <h2>Rekenvoorbeeld vakantiegeld</h2>
+    <h3>Niet meegerekend in de grondslag:</h3>
+    <ul>
+      <li><strong>Onkostenvergoedingen:</strong> Gerichte fiscale vergoedingen zoals de onbelaste kilometervergoeding (bekijk onze rekentool voor <a href="/reiskostenvergoeding-berekenen/">reiskostenvergoeding berekenen</a>) of de dagelijkse thuiswerkvergoeding.</li>
+      <li><strong>Eindejaarsuitkering of dertiende maand:</strong> Over een dertiende maand wordt volgens de standaardregels geen vakantiegeld opgebouwd, tenzij je CAO dit uitdrukkelijk voorschrijft.</li>
+      <li><strong>Eenmalige uitkeringen:</strong> Winstdelingen, jubileumgratificaties of eenmalige prestatiebonussen vallen buiten de grondslag.</li>
+    </ul>
+
+    <h2>Indicatieve tabel: Opbouw en uitbetaling per maandsalaris</h2>
     <p>
-      Stel: je hebt een bruto maandsalaris van <strong>€ 3.500,00</strong> en je bent het volledige opbouwjaar (12 maanden) in dienst geweest:
+      In onderstaande tabel zie je wat een werknemer bij verschillende bruto salarissen opbouwt bij een 8% vakantiebijslag en wat de geschatte netto uitbetaling is op de bankrekening:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Indicatieve opbouw en uitbetaling vakantiegeld">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Bruto maandsalaris</th>
+            <th>Bruto vakantiegeld per jaar (8%)</th>
+            <th>Maandelijkse opbouw</th>
+            <th>Geschatte netto uitbetaling</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>€ 2.500,00</strong></td>
+            <td>€ 2.400,00</td>
+            <td>€ 200,00 / mnd</td>
+            <td><strong>~ € 1.250,00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>€ 3.000,00</strong></td>
+            <td>€ 2.880,00</td>
+            <td>€ 240,00 / mnd</td>
+            <td><strong>~ € 1.500,00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>€ 3.500,00</strong></td>
+            <td>€ 3.360,00</td>
+            <td>€ 280,00 / mnd</td>
+            <td><strong>~ € 1.750,00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>€ 4.000,00</strong></td>
+            <td>€ 3.840,00</td>
+            <td>€ 320,00 / mnd</td>
+            <td><strong>~ € 1.995,00</strong></td>
+          </tr>
+          <tr>
+            <td><strong>€ 4.500,00</strong></td>
+            <td>€ 4.320,00</td>
+            <td>€ 360,00 / mnd</td>
+            <td><strong>~ € 2.245,00</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Waarom is de belastinginhouding op vakantiegeld zo hoog?</h2>
+    <p>
+      Het is een van de meest gestelde vragen in de maand mei: <em>"Waarom hou ik netto maar de helft over van mijn vakantiegeld?"</em> Veel mensen denken dat vakantiegeld extra zwaar belast wordt met een speciale ‘pretbelasting’. Dat is een fabeltje: vakantiegeld wordt volgens exact dezelfde belastingtarieven van box 1 belast als je reguliere salaris.
+    </p>
+    <p>
+      De reden dat de inhouding op de salarisstrook toch veel forser aanvoelt, ligt aan de toepassing van het <strong>bijzonder tarief voor loonheffing</strong>:
+    </p>
+    <ol>
+      <li><strong>Toptarief loonbelasting:</strong> Je gewone maandsalaris wordt maandelijks gelijkmatig gespreid belast en profiteert direct van de algemene heffingskorting en de arbeidskorting. Vakantiegeld is echter een extra beloning die <em>bovenop</em> je normale jaarinkomen komt, waardoor deze direct in het hoogste toepasselijke tarief van je belastingschijf valt.</li>
+      <li><strong>Verrekeningspercentage heffingskortingen:</strong> Zowel de algemene heffingskorting als de arbeidskorting bouwen geleidelijk af naarmate je jaarinkomen stijgt. Doordat het vakantiegeld je totale fiscale jaarloon verhoogt, heb je over het hele jaar bezien recht op minder heffingskorting. Werkgevers zijn wettelijk verplicht om deze afbouw direct via het bijzonder tarief op je vakantiegeld in te houden.</li>
+      <li><strong>Eindafrekening via inkomstenbelasting:</strong> Het percentage dat op je loonstrook wordt ingehouden (vaak tussen 40% en 56%) is een voorheffing. Blijkt bij je jaarlijkse belastingaangifte in het voorjaar dat je werkgever te veel heeft ingehouden? Dan verrekent de Belastingdienst dit automatisch en ontvang je het teveel betaalde bedrag terug.</li>
+    </ol>
+
+    <h2>Vakantiegeld bij parttime werk en flexibele contracten</h2>
+    <p>
+      Werk je in deeltijd (bijvoorbeeld 24, 28 of 32 uur per week)? Dan heb je op grond van de wet exact dezelfde rechten op vakantiebijslag. De 8% wordt eenvoudig berekend over jouw werkelijke parttime brutoloon. Wil je weten wat minder werken betekent voor je inkomen? Raadpleeg onze calculator voor <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+    </p>
+    <p>
+      Bij studentenbijbanen, oproepkrachten met een nulurencontract en flexibele uitzendkrachten wordt vakantiegeld vaak niet opgespaard tot mei, maar maandelijks direct uitbetaald als onderdeel van een <strong>all-in salaris</strong>. Op je loonstrook zie je dan elke maand een aparte regel staan met 8% vakantietoeslag bovenop je gewerkte uren.
+    </p>
+
+    <h2>Stap-voor-stap rekenvoorbeelden vakantiegeld</h2>
+
+    <h3>Voorbeeld 1: Volledig werkjaar bij een vast salaris</h3>
+    <p>
+      Stel: je verdient een vast maandsalaris van <strong>€ 3.200,00 bruto</strong> en bent het volledige opbouwjaar (12 maanden) in dienst geweest zonder extra toeslagen:
     </p>
     <ul>
-      <li><strong>Bruto jaargrondslag:</strong> € 3.500 × 12 = € 42.000,00.</li>
-      <li><strong>Bruto vakantiegeld (8%):</strong> € 42.000 × 0,08 = <strong>€ 3.360,00 bruto</strong>.</li>
-      <li><strong>Geschatte inhouding bijzonder tarief (~48%):</strong> € 3.360 × 0,48 = € 1.612,80.</li>
-      <li><strong>Geschatte netto uitbetaling op je bankrekening:</strong> € 3.360 - € 1.612,80 = <strong>~ € 1.747,20 netto</strong>.</li>
+      <li><strong>Jaargrondslag:</strong> € 3.200 × 12 = € 38.400,00.</li>
+      <li><strong>Bruto vakantiegeld (8%):</strong> € 38.400 × 0,08 = <strong>€ 3.072,00 bruto</strong>.</li>
+      <li><strong>Inhouding bijzonder tarief (~48%):</strong> € 3.072 × 0,48 = € 1.474,56.</li>
+      <li><strong>Geschatte netto bijschrijving op je bankrekening:</strong> € 3.072 - € 1.474,56 = <strong>~ € 1.597,44 netto</strong>.</li>
     </ul>
+
+    <h3>Voorbeeld 2: Tussentijds in dienst getreden</h3>
+    <p>
+      Stel: je bent op 1 januari gestart bij een nieuwe werkgever met een bruto salaris van <strong>€ 4.000,00 per maand</strong>. In de periode tot en met mei werk je 5 maanden en verdien je daarnaast <strong>€ 600,00 aan overuren</strong>:
+    </p>
+    <ul>
+      <li><strong>Totale opbouwgrondslag:</strong> (5 maanden × € 4.000) + € 600 overwerk = € 20.600,00.</li>
+      <li><strong>Bruto vakantiegeld in mei:</strong> € 20.600 × 0,08 = <strong>€ 1.648,00 bruto</strong>.</li>
+    </ul>
+
+    <h2>Wat gebeurt er met je vakantiegeld bij ontslag?</h2>
+    <p>
+      Wanneer je dienstverband eindigt — of je nu zelf ontslag neemt, met wederzijds goedvinden vertrekt of wordt ontslagen — vervalt je recht op opgebouwd vakantiegeld nooit. De werkgever stelt bij het einde van het contract een <strong>eindafrekening</strong> op. Hierin wordt het exact opgebouwde vakantiegeld sinds de vorige peildatum (1 juni) tot aan je laatste werkdag berekend en samen met eventueel niet-opgenomen vakantie-uren aan je uitbetaald.
+    </p>
   </div>
 </CalculatorLayout>

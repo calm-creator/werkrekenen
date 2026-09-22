@@ -8,24 +8,44 @@ const meta = getCalculatorBySlug('parttime-salaris-berekenen')!;
 
 const faqItems = [
   {
-    question: 'Hoe bereken je het parttime salaris vanuit een fulltime salaris?',
-    answer: 'Het parttime salaris bereken je door het fulltime salaris te vermenigvuldigen met de deeltijdfactor. De deeltijdfactor is het aantal parttime contracturen gedeeld door de fulltime contracturen. Bijvoorbeeld: 32 uur ÷ 40 uur = 0,80 (80%). Bij een fulltime salaris van € 4.000 bedraagt het parttime salaris € 4.000 × 0,80 = € 3.200 bruto per maand.'
+    question: 'Hoe bereken je een parttime salaris naar rato vanuit een fulltime salaris?',
+    answer: 'Je berekent het parttime salaris door het fulltime brutosalaris te vermenigvuldigen met de deeltijdfactor. De deeltijdfactor is jouw wekelijkse contracturen gedeeld door de fulltime norm van je werkgever (bijvoorbeeld 36 of 40 uur). Bijvoorbeeld: werk je 32 uur bij een 40-urige norm en een fulltime salaris van € 4.000, dan is je parttime salaris € 4.000 × (32 ÷ 40) = € 3.200 bruto per maand.'
   },
   {
-    question: 'Is het netto verschil bij minder werken kleiner dan het bruto verschil?',
-    answer: 'Ja, door het progressieve Nederlandse belastingstelsel en de afbouw van heffingskortingen (zoals de algemene heffingskorting en arbeidskorting) ga je bij minder uren werken procentueel minder inkomstenbelasting betalen. Daardoor lever je netto minder salaris in dan bruto.'
+    question: 'Waarom lever je netto minder in dan bruto als je parttime gaat werken?',
+    answer: 'Door het progressieve Nederlandse belastingstelsel (box 1) en de inkomensafhankelijke heffingskortingen betaal je bij een lager inkomen procentueel minder inkomstenbelasting. Daarnaast bouw je bij een lager inkomen minder heffingskortingen af (zoals de algemene heffingskorting en arbeidskorting). Hierdoor is de netto inkomensdaling vaak 20% tot 35% kleiner dan het bruto salarisverlies.'
   },
   {
-    question: 'Heb ik wettelijk het recht om parttime te gaan werken?',
-    answer: 'Ja, op grond van de Wet flexibel werken (Wfw) heeft iedere werknemer die minimaal een half jaar in dienst is het wettelijke recht om een schriftelijk verzoek in te dienen voor vermindering (of vermeerdering) van de arbeidsduur. Een werkgever mag dit alleen weigeren wegens zwaarwegende bedrijfs- of dienstbelangen.'
+    question: 'Heb je in Nederland wettelijk het recht om parttime te gaan werken?',
+    answer: 'Ja. Op grond van de Wet flexibel werken (Wfw) heeft iedere werknemer die minimaal zes maanden in dienst is het recht om schriftelijk een verzoek in te dienen voor vermindering of vermeerdering van de arbeidsduur. Een werkgever mag dit verzoek alleen schriftelijk en gemotiveerd weigeren wanneer er sprake is van een zwaarwegend bedrijfs- of dienstbelang (zoals ernstige roosterproblemen of veiligheidsrisico\'s).'
   },
   {
-    question: 'Wat gebeurt er met mijn pensioenopbouw als ik parttime ga werken?',
-    answer: 'Je pensioenopbouw daalt evenredig mee met je deeltijdfactor. Omdat de AOW-franchise (het deel van je salaris waarover geen pensioen wordt opgebouwd) niet altijd evenredig daalt, kan de pensioenopbouw bij minder uren relatief iets harder dalen dan je salaris. Controleer dit altijd in je Uniform Pensioenoverzicht (UPO).'
+    question: 'Wat is het verschil tussen een 36-urige en een 40-urige fulltime norm voor je parttime loon?',
+    answer: 'De fulltime norm in je CAO bepaalt jouw deeltijdpercentage. Werk je 32 uur per week? Bij een 40-urige norm werk je 80% (deeltijdfactor 0,80). Geldt in jouw CAO echter een 36-urige werkweek (zoals bij de Rijksoverheid of gemeenten), dan werk je voor 32 ÷ 36 = 88,89% van het fulltime salaris. Je uurloon en maandsalaris liggen bij een kortere norm dus aanzienlijk hoger.'
   },
   {
-    question: 'Hoeveel vakantiegeld krijg je bij een parttime baan?',
-    answer: 'Bij parttime werk behoud je exact hetzelfde wettelijke recht op 8% vakantiebijslag. De 8% wordt berekend over jouw werkelijke parttime bruto jaarsalaris.'
+    question: 'Hoeveel vakantiegeld en vakantiedagen krijg je bij een deeltijdbaan?',
+    answer: 'Als parttimer heb je exact dezelfde rechten als een voltijder. Je ontvangt minimaal 8% wettelijk vakantiegeld over je werkelijke bruto parttime jaarsalaris. Ook bouw je naar rato wettelijke vakantie-uren op: minimaal 4 keer je wekelijkse arbeidsduur per jaar (bij 24 uur per week heb je dus recht op 96 vakantie-uren per jaar, wat neerkomt op exact 4 vrije werkweken).'
+  },
+  {
+    question: 'Wat gebeurt er met je pensioenopbouw als je minder gaat werken?',
+    answer: 'Je pensioenopbouw daalt evenredig mee met je deeltijdpercentage, maar kan door de AOW-franchise relatief iets harder dalen dan je salaris. Omdat over het eerste deel van je salaris (de franchise) geen pensioen wordt opgebouwd, weegt deze aftrek zwaarder op een kleiner salaris. Controleer je Uniform Pensioenoverzicht (UPO) om het precieze effect op je ouderdomspensioen te zien.'
+  },
+  {
+    question: 'Wat is het verschil tussen meeruren en overuren voor een parttimer?',
+    answer: 'Meeruren zijn uren die je als parttimer extra werkt boven je contracturen tot aan de fulltime norm van het bedrijf (bijvoorbeeld tot 36 of 40 uur). Deze uren worden uitbetaald tegen 100% van je normale uurloon plus opbouw van vakantiegeld en verlof. Overuren zijn alle gewerkte uren boven de voltijdse werkweek; hiervoor geldt volgens de CAO vaak een overwerktoeslag (zoals 125% of 150%).'
+  },
+  {
+    question: 'Heb je als deeltijdwerker recht op dezelfde secundaire arbeidsvoorwaarden?',
+    answer: 'Ja. Artikel 7:648 van het Burgerlijk Wetboek verbiedt discriminatie op grond van arbeidsduur. Als parttimer heb je naar rato recht op exact dezelfde arbeidsvoorwaarden als fulltime collega\'s, zoals een dertiende maand, eindejaarsuitkering, winstdeling, opleidingsbudget en verlofregelingen.'
+  },
+  {
+    question: 'Heeft minder werken invloed op inkomensafhankelijke toeslagen?',
+    answer: 'Ja, een lager parttime salaris verlaagt je toetsingsinkomen voor de Belastingdienst/Toeslagen. Hierdoor kan je recht op of het bedrag van inkomensafhankelijke regelingen — zoals het kindgebonden budget, zorgtoeslag of huurtoeslag — juist toenemen. Let wel op bij kinderopvangtoeslag: het aantal vergoede opvanguren is gekoppeld aan het aantal gewerkte uren van de minstwerkende ouder.'
+  },
+  {
+    question: 'Mag je werkgever een verzoek om parttime te werken zomaar afwijzen?',
+    answer: 'Nee. De werkgever moet ten minste een maand voor de gewenste ingangsdatum schriftelijk beslissen en overleggen met de werknemer. Afwijzen mag uitsluitend bij een zwaarwegend bedrijfsbelang. Reageert de werkgever niet tijdig (uiterlijk één maand voor de beoogde ingangsdatum), dan wordt het verzoek conform de wet automatisch goedgekeurd.'
   }
 ];
 ---
@@ -39,84 +59,163 @@ const faqItems = [
   <ParttimeSalarisCalculator slot="calculator" />
 
   <div slot="explanation">
-    <h2>Hoe werkt het omrekenen van fulltime naar parttime salaris?</h2>
+    <h2>Wat is een parttime salaris en hoe bereken je dit naar rato?</h2>
     <p>
-      Nederland is Europees kampioen in deeltijdwerken: bijna de helft van de werkenden heeft een parttime contract van 24, 28, 32 of 36 uur per week. In vacatures en salarisschalen wordt vrijwel altijd het <strong>fulltime brutosalaris (100%)</strong> gecommuniceerd. Met deze calculator reken je dit direct om naar jouw gewenste parttime werkweek.
+      Nederland is Europees koploper in deeltijdwerken: bijna de helft van alle werknemers werkt parttime (bijvoorbeeld 24, 28, 32 of 36 uur per week). In vrijwel alle vacatures en CAO-loonschalen wordt het salaris gecommuniceerd op basis van een <strong>fulltime dienstverband (100%)</strong>.
     </p>
-
-    <h3>De rekenformule voor de deeltijdfactor</h3>
     <p>
-      De deeltijdfactor geeft de verhouding weer tussen jouw contracturen en de fulltime norm binnen de organisatie:
+      Om te berekenen wat je bij een deeltijdcontract verdient, reken je het salaris om <em>naar rato van je arbeidsduur</em> met de <strong>deeltijdfactor</strong>. Wil je weten wat je per gewerkt uur verdient? Bereken dan je basisuurtarief via onze module voor <a href="/uurloon-berekenen/">uurloon berekenen</a>.
     </p>
 
     <div class="callout callout-info">
-      <strong>Rekenformule:</strong><br />
-      <code>Deeltijdfactor = Jouw wekelijkse contracturen ÷ Fulltime urennorm (36, 38 of 40 uur)</code><br /><br />
+      <strong>Rekenformules parttime salaris:</strong><br />
+      <code>Deeltijdfactor = Wekelijkse contracturen ÷ Fulltime CAO-norm (36, 38 of 40 uur)</code>
+      <br /><br />
       <code>Bruto Parttime Salaris = Bruto Fulltime Salaris × Deeltijdfactor</code>
+      <br /><br />
+      <em>Voorbeeld:</em> Bij een fulltime salaris van € 3.600,00 (40-urige norm) en een contract van 32 uur is de deeltijdfactor <code>32 ÷ 40 = 0,80 (80%)</code>. Jouw parttime salaris bedraagt <code>€ 3.600,00 × 0,80 = € 2.880,00 bruto per maand</code>.
     </div>
 
-    <h3>Handige vergelijkingstabel deeltijdfactoren</h3>
+    <h2>De invloed van de CAO-norm (36, 38 of 40 uur)</h2>
     <p>
-      Hieronder zie je het percentage van het fulltime salaris dat je ontvangt bij verschillende urencombinaties:
-    </p>
-
-    <table>
-      <thead>
-        <tr>
-          <th>Jouw uren</th>
-          <th>Bij 40-urige fulltime norm</th>
-          <th>Bij 38-urige fulltime norm</th>
-          <th>Bij 36-urige fulltime norm</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>16 uur / week</strong> (2 dagen)</td>
-          <td>40,0%</td>
-          <td>42,1%</td>
-          <td>44,4%</td>
-        </tr>
-        <tr>
-          <td><strong>24 uur / week</strong> (3 dagen)</td>
-          <td>60,0%</td>
-          <td>63,2%</td>
-          <td>66,7%</td>
-        </tr>
-        <tr>
-          <td><strong>28 uur / week</strong> (3,5 dag)</td>
-          <td>70,0%</td>
-          <td>73,7%</td>
-          <td>77,8%</td>
-        </tr>
-        <tr>
-          <td><strong>32 uur / week</strong> (4 dagen)</td>
-          <td>80,0%</td>
-          <td>84,2%</td>
-          <td>88,9%</td>
-        </tr>
-        <tr>
-          <td><strong>36 uur / week</strong> (4,5 dag)</td>
-          <td>90,0%</td>
-          <td>94,7%</td>
-          <td><strong>100,0% (Fulltime)</strong></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2>Rekenvoorbeeld parttime salaris</h2>
-    <p>
-      Stel: in de CAO staat een fulltime salaris van <strong>€ 4.000,00 bruto per maand</strong> bij een 40-urige werkweek. Je besluit een contract af te sluiten voor <strong>32 uur per week</strong> (4 dagen van 8 uur):
+      Wat in Nederland als fulltime geldt, verschilt per sector en collectieve arbeidsovereenkomst (CAO):
     </p>
     <ul>
-      <li><strong>Deeltijdpercentage:</strong> 32 ÷ 40 = 0,80 (80%).</li>
-      <li><strong>Bruto parttime maandsalaris:</strong> € 4.000 × 0,80 = <strong>€ 3.200,00 per maand</strong>.</li>
-      <li><strong>Bruto inkomensverschil:</strong> € 4.000 - € 3.200 = <strong>€ 800,00 per maand</strong>.</li>
-      <li><strong>Parttime jaarsalaris (incl. 8% vakantiegeld):</strong> € 3.200 × 12,96 = <strong>€ 41.472,00 per jaar</strong>.</li>
+      <li><strong>36 uur/week:</strong> Rijksoverheid, gemeenten, provincies, banken en verzekeraars.</li>
+      <li><strong>38 uur/week:</strong> Ziekenhuizen, ouderenzorg (VVT), onderwijs en metaalsector.</li>
+      <li><strong>40 uur/week:</strong> Zakelijke dienstverlening, bouw, ICT, transport en detailhandel.</li>
+    </ul>
+    <p>
+      Deze norm bepaalt jouw deeltijdpercentage. Werk je 32 uur bij een 40-urige norm? Dan ontvang je 80% van het fulltime loon. Werk je 32 uur bij een 36-urige CAO-norm? Dan ontvang je maar liefst <code>32 ÷ 36 = 88,89%</code> van het salaris.
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Vergelijkingstabel deeltijdfactoren per werkweek">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Jouw Contracturen</th>
+            <th>Bij 40-urige Norm</th>
+            <th>Bij 38-urige Norm</th>
+            <th>Bij 36-urige Norm</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>16 uur / week (2 dagen)</strong></td>
+            <td>40,00%</td>
+            <td>42,11%</td>
+            <td>44,44%</td>
+          </tr>
+          <tr>
+            <td><strong>20 uur / week (2,5 dag)</strong></td>
+            <td>50,00%</td>
+            <td>52,63%</td>
+            <td>55,56%</td>
+          </tr>
+          <tr>
+            <td><strong>24 uur / week (3 dagen)</strong></td>
+            <td>60,00%</td>
+            <td>63,16%</td>
+            <td>66,67%</td>
+          </tr>
+          <tr>
+            <td><strong>28 uur / week (3,5 dag)</strong></td>
+            <td>70,00%</td>
+            <td>73,68%</td>
+            <td>77,78%</td>
+          </tr>
+          <tr>
+            <td><strong>32 uur / week (4 dagen)</strong></td>
+            <td>80,00%</td>
+            <td>84,21%</td>
+            <td>88,89%</td>
+          </tr>
+          <tr>
+            <td><strong>36 uur / week (4,5 dag)</strong></td>
+            <td>90,00%</td>
+            <td>94,74%</td>
+            <td><strong>100,00% (Fulltime)</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>De netto paradox: Waarom minder werken netto relatief meevalt</h2>
+    <p>
+      Wie van 40 naar 32 uur gaat, levert bruto 20% salaris in. Op je bankrekening is het <strong>netto verlies vrijwel altijd aanzienlijk kleiner dan het bruto verschil</strong>. Dit heeft twee fiscale redenen:
+    </p>
+    <ul>
+      <li><strong>Minder toptarief:</strong> De ingeleverde uren gaan af van je hoogste belastingschijf in box 1. Je gemiddelde belastingdruk daalt daardoor.</li>
+      <li><strong>Hogere heffingskortingen:</strong> De algemene heffingskorting en arbeidskorting bouwen stapsgewijs af naarmate je inkomen stijgt. Bij een lager parttime salaris verlies je minder heffingskorting, waardoor er netto relatief meer overblijft.</li>
+      <li><strong>Toeslagen:</strong> Een lager toetsingsinkomen kan leiden tot een hogere tegemoetkoming in het kindgebonden budget, zorgtoeslag of huurtoeslag.</li>
     </ul>
 
-    <h2>Netto voordeel van parttime werken</h2>
+    <h2>Rechten van deeltijdwerkers: Wet flexibel werken</h2>
     <p>
-      Omdat Nederland werkt met oplopende belastingschijven en inkomensafhankelijke heffingskortingen, is het <em>netto</em> verlies aan besteedbaar inkomen doorgaans aanzienlijk kleiner dan het bruto verschil. Bovendien kunnen bij een lager gezinsinkomen eventuele toeslagen (zoals kinderopvangtoeslag of kindgebonden budget) hoger uitvallen.
+      In Nederland zijn deeltijdrechten strikt beschermd:
     </p>
+    <ul>
+      <li><strong>Gelijke behandeling (art. 7:648 BW):</strong> Parttimers hebben naar rato exact dezelfde rechten als voltijders op een dertiende maand, eindejaarsuitkering, winstdeling, opleidingsbudgetten en pensioen.</li>
+      <li><strong>Wet flexibel werken (Wfw):</strong> Na 26 weken dienstverband heb je het wettelijke recht om schriftelijk vermindering of vermeerdering van je arbeidsduur aan te vragen. Werkgevers mogen dit alleen afwijzen wegens zwaarwegende bedrijfsbelangen.</li>
+    </ul>
+
+    <h2>Vakantiegeld, vakantiedagen en vergoedingen</h2>
+    <ul>
+      <li>
+        <strong>8% Vakantiegeld:</strong> Je hebt wettelijk recht op 8% vakantiebijslag over je werkelijke bruto parttime jaarsalaris. Bereken het bedrag via <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+      </li>
+      <li>
+        <strong>Vakantie-uren:</strong> Je bouwt wettelijk minimaal vier keer je wekelijkse arbeidsduur aan vakantie-uren op (bij 24 uur/week heb je recht op 96 vakantie-uren = 4 vrije werkweken). Bereken je verlofsaldo met onze calculator voor <a href="/vakantie-uren-berekenen/">vakantie-uren berekenen</a>.
+      </li>
+      <li>
+        <strong>Reiskosten & thuiswerkvergoeding:</strong> Vergoedingen via de Werkkostenregeling (WKR) worden toegekend op basis van de dagen waarop je daadwerkelijk reist of thuiswerkt. Check je aanspraken met <a href="/reiskostenvergoeding-berekenen/">reiskostenvergoeding berekenen</a> en <a href="/thuiswerkvergoeding-berekenen/">thuiswerkvergoeding berekenen</a>.
+      </li>
+    </ul>
+
+    <h2>Meeruren versus overuren voor parttimers</h2>
+    <p>
+      Werk je als deeltijdmedewerker extra uren boven je contract tot aan de voltijdse norm (bijv. tot 36 of 40 uur)? Dan zijn dit <strong>meeruren</strong>. Deze worden uitbetaald tegen 100% van je normale uurloon plus opbouw van vakantiegeld en vakantiedagen. Pas wanneer je méér werkt dan de fulltime norm van het bedrijf, gelden de overwerktoeslagen (zoals 125% of 150%). Lees hier meer over op <a href="/overuren-berekenen/">overuren berekenen</a>.
+    </p>
+
+    <h2>Impact op pensioen en de AOW-franchise</h2>
+    <p>
+      Je bouwt pensioen op over je pensioengevend loon minus de <strong>AOW-franchise</strong> (de drempel waarover je later al AOW ontvangt). Omdat de AOW-franchise een vast bedrag is, weegt deze aftrek zwaarder op een lager salaris. Hierdoor daalt je pensioenopbouw vaak net iets harder dan je arbeidsduur. Raadpleeg je Uniform Pensioenoverzicht (UPO) voor inzicht in je pensioenopbouw.
+    </p>
+
+    <h2>Twee concrete rekenvoorbeelden van parttime salaris</h2>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 1: Van 40 naar 32 uur in de zakelijke dienstverlening</h3>
+      <p>
+        Lisa verdient € 4.200,00 bruto per maand bij een 40-urige werkweek en kiest voor een 4-daagse werkweek (32 uur):
+      </p>
+      <ul>
+        <li><strong>Deeltijdfactor:</strong> 32 uur ÷ 40 uur = 0,80 (80%).</li>
+        <li><strong>Nieuw parttime maandsalaris:</strong> € 4.200,00 × 0,80 = <strong>€ 3.360,00 bruto/maand</strong>.</li>
+        <li><strong>Bruto salarisverschil:</strong> € 4.200,00 - € 3.360,00 = <strong>€ 840,00 bruto minder</strong>.</li>
+        <li><strong>Parttime jaarsalaris (incl. 8% vakantiegeld):</strong> € 3.360,00 × 12,96 = <strong>€ 43.545,60 per jaar</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 2: Van 36 naar 24 uur bij de overheid (36-urige norm)</h3>
+      <p>
+        Daan werkt bij een gemeente onder de CAO Gemeenten (36-urige fulltime norm) met een voltijdssalaris van € 3.900,00. Hij gaat 3 dagen van 8 uur werken (24 uur per week):
+      </p>
+      <ul>
+        <li><strong>Deeltijdfactor:</strong> 24 uur ÷ 36 uur = 0,6667 (66,67%).</li>
+        <li><strong>Nieuw parttime maandsalaris:</strong> € 3.900,00 × (24 ÷ 36) = <strong>€ 2.600,00 bruto/maand</strong>.</li>
+        <li><strong>Bruto salarisverschil:</strong> € 3.900,00 - € 2.600,00 = <strong>€ 1.300,00 bruto minder</strong>.</li>
+        <li><strong>Uurloon:</strong> Blijft ongewijzigd op <code>€ 3.900,00 × 12 ÷ (36 × 52) = € 25,00 per uur</code>.</li>
+      </ul>
+    </div>
+
+    <h2>Tips bij de overstap naar een deeltijdcontract</h2>
+    <ol>
+      <li><strong>Dien je verzoek schriftelijk in:</strong> Doe dit minimaal 2 maanden van tevoren conform de Wet flexibel werken, met de gewenste werkdagen en urenverdeling.</li>
+      <li><strong>Check het netto resultaat:</strong> Bereken het netto effect om te zien hoeveel je daadwerkelijk overhoudt na loonheffing en pensioenpremie.</li>
+      <li><strong>Maak duidelijke afspraken:</strong> Leg afspraken over meeruren, vaste werkdagen en bereikbaarheid buiten werktijd helder vast met je leidinggevende.</li>
+    </ol>
   </div>
 </CalculatorLayout>
+

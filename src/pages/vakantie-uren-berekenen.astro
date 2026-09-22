@@ -8,24 +8,44 @@ const meta = getCalculatorBySlug('vakantie-uren-berekenen')!;
 
 const faqItems = [
   {
-    question: 'Hoeveel vakantiedagen heb je wettelijk in Nederland?',
-    answer: 'In Nederland heb je volgens artikel 7:634 van het Burgerlijk Wetboek (BW) recht op minimaal 4 keer je wekelijkse arbeidsduur aan vakantie-uren per jaar. Bij een fulltime werkweek van 40 uur is dat 160 uur, oftewel 20 wettelijke vakantiedagen per jaar.'
+    question: 'Hoe bereken je hoeveel vakantie-uren je per jaar opbouwt?',
+    answer: 'Het wettelijke minimum aantal vakantie-uren bereken je door je wekelijkse contracturen te vermenigvuldigen met 4. Bij een fulltime werkweek van 40 uur is dat 4 × 40 = 160 wettelijke vakantie-uren (20 vakantiedagen van 8 uur). Krijg je volgens je CAO 25 vakantiedagen per jaar, dan zijn 20 dagen wettelijk (160 uur) en 5 dagen bovenwettelijk (40 uur), wat een totaal maakt van 200 vakantie-uren per jaar.'
   },
   {
     question: 'Wat is het verschil tussen wettelijke en bovenwettelijke vakantie-uren?',
-    answer: 'Wettelijke vakantiedagen zijn de verplichte 4 weken per jaar volgens de wet. Alle vakantiedagen die je van je werkgever of via je CAO extra krijgt (in Nederland vaak 5 extra dagen, wat neerkomt op 25 vakantiedagen in totaal), zijn bovenwettelijke vakantiedagen.'
+    answer: 'Wettelijke vakantiedagen zijn de verplichte vier werkweken per jaar waarop iedere werknemer volgens artikel 7:634 BW recht heeft. Alle extra verlofdagen die je werkgever of de CAO toekent (in Nederland vaak 5 extra vakantiedagen) zijn bovenwettelijk. Bovenwettelijke uren hebben soepelere regels: ze mogen onder voorwaarden worden afgekocht en verjaren pas na 5 jaar in plaats van 6 maanden.'
   },
   {
-    question: 'Wanneer vervallen je opgebouwde vakantie-uren?',
-    answer: 'Wettelijke vakantiedagen vervallen 6 maanden na afloop van het kalenderjaar waarin ze zijn opgebouwd (dus per 1 juli van het daaropvolgende jaar), tenzij je redelijkerwijs niet in staat was ze op te nemen. Bovenwettelijke vakantiedagen verjaren pas na 5 jaar.'
+    question: 'Wanneer vervallen je wettelijke en bovenwettelijke vakantie-uren?',
+    answer: 'Wettelijke vakantie-uren vervallen zes maanden na het einde van het kalenderjaar waarin je ze hebt opgebouwd (dus per 1 juli van het daaropvolgende jaar). Bovenwettelijke vakantie-uren verjaren pas na 5 jaar. De vervaltermijn van 6 maanden voor wettelijke uren geldt echter alleen als de werkgever jou aantoonbaar en tijdig heeft gewaarschuwd dat ze dreigen te vervallen.'
   },
   {
-    question: 'Hoeveel vakantiedagen krijg je bij een parttime baan?',
-    answer: 'Bij parttime werk bouw je naar rato vakantie-uren op. Als je bijvoorbeeld 32 uur per week werkt (4 dagen van 8 uur), heb je wettelijk recht op 4 × 32 = 128 uur vakantie (16 dagen van 8 uur, oftewel precies 4 werkweken vakantie).'
+    question: 'Bouw je vakantie-uren op tijdens ziekte of re-integratie?',
+    answer: 'Ja. Sinds 2012 bouwt een zieke werknemer in Nederland over de volledige periode van ziekte 100% vakantiedagen op (zowel wettelijk als bovenwettelijk), ongeacht of er sprake is van gedeeltelijke re-integratie. Ook als je ziek vakantie opneemt, worden er vakantie-uren afgeschreven.'
   },
   {
-    question: 'Mag je vakantiedagen laten uitbetalen in geld?',
-    answer: 'Wettelijke vakantiedagen mogen tijdens het dienstverband nooit worden uitbetaald in geld; je moet ze verplicht in tijd kunnen opnemen. Bovenwettelijke vakantiedagen mogen wél schriftelijk worden afgekocht of uitbetaald, mits dit is toegestaan volgens je CAO of arbeidscontract.'
+    question: 'Hoe worden vakantie-uren berekend als je parttime werkt?',
+    answer: 'Bij een parttime contract bouw je naar rato exact dezelfde 4 weken vakantie per jaar op. Werk je bijvoorbeeld 24 uur per week (3 dagen van 8 uur)? Dan heb je wettelijk recht op 4 × 24 = 96 vakantie-uren per jaar. Daarmee kun je precies 4 volledige werkweken vrij nemen.'
+  },
+  {
+    question: 'Mag een werkgever opgebouwde vakantie-uren uitbetalen in geld?',
+    answer: 'Wettelijke vakantie-uren mogen tijdens het dienstverband nooit worden uitbetaald in geld; de wet verplicht dat werknemers deze tijd daadwerkelijk als rust opnemen. Bovenwettelijke vakantie-uren mogen wél schriftelijk worden uitbetaald of verrekend, mits dit in de CAO of het arbeidscontract is toegestaan.'
+  },
+  {
+    question: 'Welke vakantie-uren worden als eerste afgeschreven bij verlofopname?',
+    answer: 'Volgens de wet worden altijd de vakantie-uren afgeschreven die als eerste dreigen te vervallen. Als je verlof opneemt, worden daarom eerst de oudste wettelijke vakantie-uren gebruikt, vervolgens de nieuwere wettelijke uren, en pas daarna je bovenwettelijke vakantiedagen.'
+  },
+  {
+    question: 'Wat gebeurt er met je vakantie-uren als je uit dienst treedt?',
+    answer: 'Bij beëindiging van het dienstverband worden alle openstaande wettelijke en bovenwettelijke vakantie-uren financieel afgerekend op de eindafrekening. De werkgever betaalt elk openstaand uur uit tegen je bruto uurloon vermeerderd met 8% vakantiegeld en eventuele vaste toeslagen.'
+  },
+  {
+    question: 'Wat is de actieve zorg- en waarschuwingsplicht van de werkgever?',
+    answer: 'Volgens vaste rechtspraak van het Europese Hof van Justitie en de Hoge Raad vervallen wettelijke vakantiedagen niet automatisch per 1 juli als de werkgever niet kan bewijzen dat hij de werknemer tijdig, concreet en schriftelijk heeft geïnformeerd over het openstaande saldo en de naderende vervaldatum.'
+  },
+  {
+    question: 'Bouw je vakantie-uren op over overuren of meeruren?',
+    answer: 'Over reguliere meeruren van parttimers (uren boven contract tot aan fulltime) bouw je naar rato 100% vakantie-uren op. Over overwerk boven de voltijdse werkweek bouw je volgens de wet geen extra vakantie-uren op, tenzij dit expliciet in de CAO is afgesproken of wanneer overuren worden gecompenseerd via tijd-voor-tijd (TvT).'
   }
 ];
 ---
@@ -39,69 +59,155 @@ const faqItems = [
   <VakantieUrenCalculator slot="calculator" />
 
   <div slot="explanation">
-    <h2>Hoeveel vakantie-uren en vakantiedagen bouw je op?</h2>
+    <h2>Hoeveel vakantie-uren en vakantiedagen bouw je op per jaar?</h2>
     <p>
-      Iedere werknemer in Nederland bouwt tijdens zijn dienstverband vakantierechten op. Het Nederlandse arbeidsrecht maakt hierbij een strikt onderscheid tussen <strong>wettelijke vakantie-uren</strong> en <strong>bovenwettelijke vakantie-uren</strong>.
+      In Nederland heeft iedere werknemer wettelijk recht op betaald verlof. Of je nu voltijd werkt, een parttime contract hebt of als oproepkracht actief bent: over ieder gewerkt uur bouw je vakantierechten op. Het Nederlandse arbeidsrecht maakt hierbij onderscheid tussen <strong>wettelijke vakantie-uren</strong> en <strong>bovenwettelijke vakantie-uren</strong>.
     </p>
-
-    <h3>De wettelijke minimumregel (4 × wekelijkse arbeidsduur)</h3>
     <p>
-      In artikel 7:634 van het Burgerlijk Wetboek is vastgelegd dat je per jaar minimaal viermaal de overeengekomen wekelijkse arbeidsduur aan vakantie-uren opbouwt:
+      Om te weten hoeveel uren je per maand en per jaar opbouwt, is jouw wekelijkse arbeidsduur het uitgangspunt. Wil je ook de financiële waarde van een vakantie-uur weten? Bereken dan jouw basisuurloon via onze module voor <a href="/uurloon-berekenen/">uurloon berekenen</a>.
     </p>
 
     <div class="callout callout-info">
-      <strong>Wettelijke formule:</strong><br />
-      <code>Wettelijke vakantie-uren per jaar = Aantal contracturen per week × 4</code>
+      <strong>De wettelijke basisformule voor vakantie-uren:</strong><br />
+      <code>Wettelijke vakantie-uren per jaar = Wekelijkse contracturen × 4</code>
+      <br /><br />
+      <code>Maandelijkse wettelijke opbouw = (Wekelijkse contracturen × 4) ÷ 12</code>
+      <br /><br />
+      <em>Voorbeeld:</em> Werk je 36 uur per week? Dan heb je recht op <code>36 × 4 = 144 wettelijke vakantie-uren</code> per jaar (oftewel 12 uur per gewerkte maand).
     </div>
 
-    <h3>Wettelijk versus Bovenwettelijk: De verschillen</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Eigenschap</th>
-          <th>Wettelijke vakantiedagen</th>
-          <th>Bovenwettelijke vakantiedagen</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Aantal per jaar</strong></td>
-          <td>4 weken (bijv. 20 dagen bij 40u)</td>
-          <td>Alle extra dagen volgens CAO (vaak 5 dagen)</td>
-        </tr>
-        <tr>
-          <td><strong>Vervaltermijn</strong></td>
-          <td>6 maanden na afloop kalenderjaar (1 juli)</td>
-          <td>5 jaar na het opbouwjaar</td>
-        </tr>
-        <tr>
-          <td><strong>Uitbetalen tijdens contract</strong></td>
-          <td>Strikt verboden volgens de wet</td>
-          <td>Toegestaan met wederzijdse instemming</td>
-        </tr>
-        <tr>
-          <td><strong>Opnamevolgorde</strong></td>
-          <td>Moet volgens de wet als eerste worden opgenomen</td>
-          <td>Wordt aangesproken als wettelijke op zijn</td>
-        </tr>
-      </tbody>
-    </table>
-
-    <h2>Rekenvoorbeeld: Parttime 32 uur met 25 CAO-dagen</h2>
+    <h2>Wettelijke versus bovenwettelijke vakantie-uren</h2>
     <p>
-      Stel: je werkt <strong>32 uur per week</strong> bij een werkgever waar de fulltime norm 40 uur is en een fulltimer 25 vakantiedagen (200 uur) per jaar krijgt:
+      Volgens artikel 7:634 van het Burgerlijk Wetboek (BW) heeft iedere werknemer recht op <strong>minimaal vier werkweken vakantie per kalenderjaar</strong>. Bij een 40-urige werkweek is dit 20 vakantiedagen (160 uur).
+    </p>
+    <p>
+      In de meeste Nederlandse CAO's en arbeidscontracten geven werkgevers echter extra verlof: doorgaans <strong>25 tot 30 vakantiedagen per jaar</strong> bij een voltijds contract. Alle dagen boven de wettelijke norm van vier werkweken zijn <strong>bovenwettelijke vakantie-uren</strong>.
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Verschil tussen wettelijke en bovenwettelijke vakantie-uren in Nederland">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Juridisch Kenmerk</th>
+            <th>Wettelijke Vakantie-uren</th>
+            <th>Bovenwettelijke Vakantie-uren</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Aantal per jaar (voltijd)</strong></td>
+            <td>Exact 4 werkweken (bijv. 160 uur bij 40u)</td>
+            <td>Extra CAO-dagen (vaak 40 uur extra)</td>
+          </tr>
+          <tr>
+            <td><strong>Vervaltermijn</strong></td>
+            <td>6 maanden na afloop kalenderjaar (1 juli)</td>
+            <td>Verjaart pas na 5 jaar</td>
+          </tr>
+          <tr>
+            <td><strong>Uitbetaling tijdens dienstverband</strong></td>
+            <td>Strikt verboden volgens dwingend recht</td>
+            <td>Toegestaan (mits schriftelijk overeengekomen)</td>
+          </tr>
+          <tr>
+            <td><strong>Opnamevolgorde</strong></td>
+            <td>Wordt wettelijk als eerste afgeschreven</td>
+            <td>Wordt aangesproken als wettelijke uren op zijn</td>
+          </tr>
+          <tr>
+            <td><strong>Waarschuwingsplicht werkgever</strong></td>
+            <td>Ja, werkgever moet tijdig schriftelijk waarschuwen</td>
+            <td>Reguliere verjaringstermijn van 5 jaar</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>De vervaltermijn en de actieve zorgplicht van de werkgever</h2>
+    <p>
+      Wettelijke vakantiedagen die je in een kalenderjaar opbouwt, vervallen in principe al per <strong>1 juli van het daaropvolgende jaar</strong> (zes maanden na afloop van het opbouwjaar).
+    </p>
+    <p>
+      Echter, op grond van het Europese Max Planck-arrest geldt een zware <strong>actieve waarschuwingsplicht voor de werkgever</strong>:
     </p>
     <ul>
-      <li><strong>Deeltijdfactor:</strong> 32 ÷ 40 = 0,80 (80%).</li>
-      <li><strong>Wettelijke vakantie-uren:</strong> 4 × 32 uur = <strong>128 uur</strong> (16 werkdagen van 8 uur).</li>
-      <li><strong>Bovenwettelijke vakantie-uren:</strong> 5 dagen × 8 uur × 0,80 = <strong>32 uur</strong> (4 werkdagen van 8 uur).</li>
-      <li><strong>Totaal saldo per jaar:</strong> 128 + 32 = <strong>160 vakantie-uren</strong> (gelijk aan 20 volledige werkdagen van 8 uur).</li>
-      <li><strong>Maandelijkse opbouw:</strong> 160 uur ÷ 12 maanden = <strong>13,33 uur per gewerkte maand</strong>.</li>
+      <li>De werkgever moet je tijdig en schriftelijk informeren over het openstaande saldo wettelijke uren.</li>
+      <li>De werkgever moet je concreet in de gelegenheid stellen en stimuleren om het verlof op te nemen.</li>
+      <li>De werkgever moet uitdrukkelijk waarschuwen dat niet-opgenomen uren per 1 juli verloren gaan.</li>
+    </ul>
+    <p>
+      Kan de werkgever niet bewijzen aan deze plicht te hebben voldaan? Dan <strong>vervallen de wettelijke uren niet</strong> en geldt de lange verjaringstermijn van 5 jaar.
+    </p>
+
+    <h2>Vakantie-uren berekenen bij een parttime baan</h2>
+    <p>
+      Werk je in deeltijd, dan behoud je naar rato hetzelfde recht op <strong>vier volledige werkweken vakantie per jaar</strong>. De uren worden berekend op basis van je contracturen:
+    </p>
+    <ul>
+      <li>Werk je <strong>32 uur per week</strong> (4 dagen van 8 uur)? Dan heb je recht op <code>32 × 4 = 128 wettelijke vakantie-uren</code>. Bij 25 CAO-dagen komt daar <code>32 uur bovenwettelijk</code> bij (totaal 160 uur = 20 vrije dagen van 8 uur).</li>
+      <li>Werk je <strong>24 uur per week</strong> (3 dagen van 8 uur)? Dan bedraagt je wettelijk saldo <code>24 × 4 = 96 vakantie-uren</code> per jaar (exact 4 werkweken vrij).</li>
+    </ul>
+    <p>
+      Wil je weten wat parttime werken betekent voor je inkomen en deeltijdfactor? Bereken dit via <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+    </p>
+
+    <h2>Vakantieopbouw tijdens ziekte, verlof en zwangerschap</h2>
+    <p>
+      Het Nederlandse arbeidsrecht waarborgt verlofopbouw in bijzondere situaties:
+    </p>
+    <ul>
+      <li>
+        <strong>Ziekte en re-integratie:</strong> Zieke werknemers bouwen <strong>100% vakantie-uren op</strong> over de gehele ziekteperiode. Neem je tijdens ziekte vakantie op, dan worden er wel vakantie-uren van je saldo afgeschreven.
+      </li>
+      <li>
+        <strong>Zwangerschapsverlof:</strong> Tijdens het officiële WAZO-zwangerschaps- en bevallingsverlof loopt de opbouw van vakantie-uren volledig door.
+      </li>
+      <li>
+        <strong>Betaald ouderschapsverlof:</strong> Gedurende de 9 weken wettelijk betaald ouderschapsverlof loopt de vakantieopbouw onverminderd door.
+      </li>
     </ul>
 
-    <h2>Ziekte en vakantieopbouw</h2>
+    <h2>Twee concrete rekenvoorbeelden van vakantie-uren</h2>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 1: Fulltime medewerker (40 uur) met 25 CAO-vakantiedagen</h3>
+      <p>
+        Kevin werkt 40 uur per week in de bouw. De CAO Bouw & Infra kent 25 vakantiedagen (200 uur) per jaar toe:
+      </p>
+      <ul>
+        <li><strong>Wettelijke vakantie-uren:</strong> 4 × 40 uur = <strong>160 uur</strong> (20 dagen van 8 uur).</li>
+        <li><strong>Bovenwettelijke vakantie-uren:</strong> 5 dagen × 8 uur = <strong>40 uur</strong> (5 dagen van 8 uur).</li>
+        <li><strong>Totaal per jaar:</strong> 160 + 40 = <strong>200 vakantie-uren</strong>.</li>
+        <li><strong>Maandelijkse opbouw:</strong> 200 uur ÷ 12 maanden = <strong>16,67 uur per maand</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 2: Parttime medewerker (28 uur) met 25 vakantiedagen</h3>
+      <p>
+        Samira werkt 28 uur per week (deeltijdfactor 0,70 bij een 40-urige fulltime norm):
+      </p>
+      <ul>
+        <li><strong>Wettelijke vakantie-uren:</strong> 4 × 28 uur = <strong>112 uur</strong> (14 dagen van 8 uur).</li>
+        <li><strong>Bovenwettelijke vakantie-uren:</strong> 40 uur fulltime × 0,70 = <strong>28 uur</strong> (3,5 dag van 8 uur).</li>
+        <li><strong>Totaal per jaar:</strong> 112 + 28 = <strong>140 vakantie-uren</strong>.</li>
+        <li><strong>Maandelijkse opbouw:</strong> 140 uur ÷ 12 maanden = <strong>11,67 uur per maand</strong>.</li>
+      </ul>
+    </div>
+
+    <h2>Uitbetaling van vakantie-uren bij uitdiensttreding</h2>
     <p>
-      Als je ziek bent of re-integreert, loopt de opbouw van zowel je wettelijke als bovenwettelijke vakantie-uren in Nederland gewoon 100% door over je gehele contractduur.
+      Tijdens het dienstverband mogen wettelijke vakantiedagen nooit worden afgekocht. Bij beëindiging van het contract worden alle resterende vakantie-uren echter verplicht uitbetaald op de <strong>eindafrekening</strong>.
     </p>
+    <p>
+      Elk openstaand vakantie-uur wordt uitbetaald tegen je bruto uurloon, vermeerderd met <strong>8% vakantiebijslag</strong> en eventuele vaste toeslagen. Bereken jouw jaarlijkse vakantiegeld direct via onze tool voor <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+    </p>
+
+    <h2>Praktische tips voor een gezond vakantiesaldo</h2>
+    <ol>
+      <li><strong>Controleer je loonstrook:</strong> Check maandelijks of opgebouwde en opgenomen uren kloppen met je eigen urenregistratie.</li>
+      <li><strong>Let op 1 juli:</strong> Plan wettelijke vakantie-uren op tijd in om verval te voorkomen.</li>
+      <li><strong>Plan rond feestdagen:</strong> Gebruik onze calculator voor <a href="/werkdagen-berekenen/">werkdagen berekenen</a> om met minimale verlofuren maximale vrije aaneengesloten dagen te plannen rond Pasen, Hemelvaart en Pinksteren.</li>
+    </ol>
   </div>
 </CalculatorLayout>

@@ -8,24 +8,44 @@ const meta = getCalculatorBySlug('overuren-berekenen')!;
 
 const faqItems = [
   {
-    question: 'Wat is een gebruikelijke overurentoeslag in een Nederlandse CAO?',
-    answer: 'In Nederland zijn toeslagen afhankelijk van je CAO of arbeidscontract. Veelvoorkomende normen zijn: 125% voor doordeweekse overuren na reguliere werktijd, 150% voor zaterdagen en avonduren, en 200% voor werk op zondagen en officiële feestdagen.'
+    question: 'Wat is het verschil tussen overuren en meeruren?',
+    answer: 'Meeruren zijn gewerkte uren boven je deeltijdcontract tot aan de normale fulltime werkweek (meestal 36, 38 of 40 uur). Deze worden doorgaans uitbetaald tegen 100% van je normale uurloon zonder toeslag. Overuren zijn alle uren die je werkt boven de voltijdse werkweek van het bedrijf of buiten het vastgestelde dagrooster. Voor overuren geldt volgens de meeste CAO\'s een overwerktoeslag (zoals 125%, 150% of 200%).'
   },
   {
-    question: 'Worden overuren zwaarder belast dan normaal salaris?',
-    answer: 'Nee, overuren vallen onder hetzelfde progressieve belastingtarief in box 1 als je gewone loon. Wel wordt er op je loonstrook vooraf een voorheffing ingehouden tegen het "bijzonder tarief" (vaak circa 48% tot 56% inclusief afbouw heffingskortingen). Als blijkt dat er te veel is ingehouden, krijg je dit terug bij je jaarlijkse belastingaangifte.'
+    question: 'Hoe worden overuren berekend op je loonstrook?',
+    answer: 'Overuren worden berekend door je bruto basisuurloon te vermenigvuldigen met het aantal gewerkte overuren en het geldende toeslagpercentage. Bijvoorbeeld: bij 5 overuren met een uurloon van € 20 en 125% toeslag bedraagt de bruto vergoeding 5 × € 20 × 1,25 = € 125,00. Op je loonstrook staat dit vaak uitgesplitst in de basisvergoeding (100%) en de afzonderlijke overurentoeslag (25%).'
   },
   {
-    question: 'Wat is tijd-voor-tijd (TvT)?',
-    answer: 'Bij de tijd-voor-tijd regeling worden je gewerkte overuren niet in geld uitbetaald, maar omgezet in extra vrije uren of vakantie-uren die je later kunt opnemen. Afhankelijk van de CAO kan hier ook het toeslagpercentage in uren worden bijgeschreven (bijvoorbeeld 10 overuren à 150% = 15 uur compensatieverlof).'
+    question: 'Waarom betaal je schijnbaar meer belasting over overuren?',
+    answer: 'Overuren vallen onder hetzelfde belastingtarief in box 1 als je gewone loon. Op je loonstrook wordt overwerk echter belast volgens het "bijzonder tarief". Dit is een hogere voorheffing (vaak 48% tot 56%) om te voorkomen dat je bij je jaarlijkse belastingaangifte moet bijbetalen door de afbouw van heffingskortingen (zoals de algemene heffingskorting en arbeidskorting). Blijkt bij je belastingaangifte dat er te veel is ingehouden, dan betaalt de Belastingdienst het verschil aan je terug.'
   },
   {
-    question: 'Bouw je vakantiegeld op over overuren?',
-    answer: 'Ja, sinds de herziening van de Wet minimumloon en minimumvakantiebijslag (WML) hebben werknemers in Nederland wettelijk recht op 8% vakantiebijslag over uitbetaalde overuren, tenzij de toepasselijke CAO een vervangende regeling bevat die ten minste gelijkwaardig is.'
+    question: 'Bouw je wettelijk 8% vakantiegeld op over overuren?',
+    answer: 'Ja. Sinds de modernisering van de Wet minimumloon en minimumvakantiebijslag (WML) hebben alle werknemers in Nederland wettelijk recht op ten minste 8% vakantiebijslag over uitbetaalde overuren en overwerktoeslagen, tenzij in een CAO een afwijkende maar gelijkwaardige regeling is afgesproken.'
+  },
+  {
+    question: 'Wat is gunstiger: overuren uitbetalen of tijd-voor-tijd (TvT)?',
+    answer: 'Dat hangt af van je persoonlijke prioriteiten. Bij uitbetaling ontvang je direct extra netto besteedbaar inkomen, maar betaal je direct belasting via het bijzonder tarief. Bij tijd-voor-tijd (TvT) zet je de overuren om in extra verlofuren. Dit geeft je meer vrije tijd en rust zonder dat je vakantiedagensaldo afneemt, terwijl je salaris tijdens die vrije uren gewoon 100% wordt doorbetaald.'
+  },
+  {
+    question: 'Mag een werkgever je verplichten om over te werken?',
+    answer: 'Een werkgever mag overwerk alleen verplichten als dit uitdrukkelijk is vastgelegd in je arbeidscontract of de toepasselijke CAO én er sprake is van een zwaarwegend bedrijfsbelang (zoals een plotselinge crisissituatie of een piekperiode). Bovendien moet het verzoek redelijk zijn en mag het nooit in strijd zijn met de maximale werk- en rusttijden uit de Arbeidstijdenwet (ATW).'
   },
   {
     question: 'Hoeveel uur mag je maximaal overwerken volgens de Arbeidstijdenwet?',
-    answer: 'Volgens de Nederlandse Arbeidstijdenwet mag je maximaal 12 uur per dienst werken en ten hoogste 60 uur in één afzonderlijke week. Over een periode van 16 weken mag je gemiddeld niet meer dan 48 uur per week werken.'
+    answer: 'Volgens de Nederlandse Arbeidstijdenwet (ATW) mag je maximaal 12 uur per dienst werken en ten hoogste 60 uur in één afzonderlijke week. Over een aaneengesloten periode van 4 weken mag je gemiddeld maximaal 55 uur per week werken, en over een periode van 16 weken mag het gemiddelde niet hoger zijn dan 48 uur per week.'
+  },
+  {
+    question: 'Heb je altijd wettelijk recht op een overwerktoeslag?',
+    answer: 'Nee, in het Nederlandse Burgerlijk Wetboek staat geen wettelijk vast percentage voor overwerktoeslag. Wel heb je altijd recht op minimaal het wettelijk minimumloon over alle daadwerkelijk gewerkte uren. Het recht op een extra toeslag (zoals 25% of 50% extra) ontstaat pas via afspraken in een collectieve arbeidsovereenkomst (CAO), personeelshandboek of je individuele arbeidsovereenkomst.'
+  },
+  {
+    question: 'Krijgen managers of leidinggevenden overuren uitbetaald?',
+    answer: 'In veel arbeidscontracten voor hogere leidinggevende functies of functies met een salaris boven circa drie keer het minimumloon is een "all-in salarisclausule" opgenomen. Daarin staat dat eventueel overwerk geacht wordt te zijn inbegrepen in het vaste maandsalaris. De bepalingen van de Arbeidstijdenwet over veilige rusttijden blijven echter onverkort van kracht.'
+  },
+  {
+    question: 'Bouw je pensioen en vakantie-uren op over gewerkte overuren?',
+    answer: 'Wettelijke vakantiedagen (de 4 weken per jaar) bouw je alleen op over je overeengekomen contracturen, niet automatisch over overuren (tenzij je CAO dit expliciet toekent). Wat pensioen betreft: steeds meer Nederlandse pensioenfondsen (zoals PFZW of ABP) rekenen structureel overwerk of overwerktoeslagen mee in de pensioengevende grondslag, maar dit verschilt per pensioenreglement.'
   }
 ];
 ---
@@ -41,57 +61,155 @@ const faqItems = [
   <div slot="explanation">
     <h2>Wat zijn overuren en hoe worden ze berekend?</h2>
     <p>
-      Overuren zijn alle gewerkte uren die uitgaan boven de contractueel vastgelegde arbeidsduur per dag of per week. In tegenstelling tot reguliere contracturen gelden voor overwerk in de meeste Nederlandse sectoren toeslagpercentages die zijn afgesproken in de collectieve arbeidsovereenkomst (CAO).
+      In het Nederlandse arbeidsrecht zijn <strong>overuren</strong> de uren die je werkt bovenop de overeengekomen voltijdse arbeidsduur per dag of per week. Moet je door piekmomenten of uitval langer doorwerken, dan geldt dit als overwerk.
     </p>
-
-    <h3>Veelvoorkomende toeslagpercentages in Nederland</h3>
-    <table>
-      <thead>
-        <tr>
-          <th>Situatie / Tijdstip</th>
-          <th>Uitbetalingspercentage</th>
-          <th>Toelichting</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td><strong>Doordeweeks overwerk</strong></td>
-          <td>125% van het bruto uurloon</td>
-          <td>100% basisuurloon + 25% overwerktoeslag</td>
-        </tr>
-        <tr>
-          <td><strong>Zaterdag & avonddienst</strong></td>
-          <td>150% van het bruto uurloon</td>
-          <td>100% basisuurloon + 50% overwerktoeslag</td>
-        </tr>
-        <tr>
-          <td><strong>Zon- en feestdagen</strong></td>
-          <td>200% van het bruto uurloon</td>
-          <td>100% basisuurloon + 100% toeslag (dubbel loon)</td>
-        </tr>
-      </tbody>
-    </table>
+    <p>
+      Om je overwerkvergoeding te berekenen vermenigvuldig je het aantal overuren met je bruto uurloon en het geldende toeslagpercentage. Ken je jouw exacte uurloon nog niet? Bereken dit eerst via onze tool voor <a href="/uurloon-berekenen/">uurloon berekenen</a>.
+    </p>
 
     <div class="callout callout-info">
-      <strong>Uitbetalen of Tijd-voor-tijd (TvT):</strong><br />
-      Veel werkgevers bieden de keuze tussen directe uitbetaling op de salarisstrook of tijd-voor-tijd compensatie. Bij tijd-voor-tijd spaar je extra vrije uren op die je op een later moment kunt opnemen zonder dat je vakantiedagensaldo wordt aangesproken.
+      <strong>Rekenformule overwerkvergoeding:</strong><br />
+      <code>Bruto Overwerkvergoeding = Aantal Overuren × Bruto Uurloon × (Toeslagpercentage ÷ 100)</code>
+      <br />
+      <em>Voorbeeld:</em> 8 overuren met een uurloon van € 20,00 en 150% toeslag levert <code>8 × € 20,00 × 1,50 = € 240,00 bruto</code> op.
     </div>
 
-    <h2>Rekenvoorbeeld overwerk</h2>
+    <h2>Het verschil tussen overuren en meeruren</h2>
     <p>
-      Stel: je basis bruto uurloon bedraagt <strong>€ 20,00</strong> en je hebt deze maand in overleg <strong>8 overuren</strong> gemaakt op een zaterdag (toeslag 150%):
+      In de salarisadministratie is er een strikt onderscheid tussen meeruren en overuren, vooral relevant voor deeltijdmedewerkers:
     </p>
     <ul>
-      <li><strong>Basisvergoeding (100%):</strong> 8 uur × € 20,00 = € 160,00.</li>
-      <li><strong>Overwerktoeslag (50% extra):</strong> 8 uur × € 10,00 = € 80,00.</li>
-      <li><strong>Totale bruto vergoeding:</strong> € 160,00 + € 80,00 = <strong>€ 240,00 bruto</strong>.</li>
-      <li><strong>Tijd-voor-tijd alternatief:</strong> 8 uur × 150% = <strong>12 uur compensatieverlof</strong>.</li>
-      <li><strong>Wettelijke vakantiebijslag (8%):</strong> € 240,00 × 0,08 = <strong>€ 19,20 extra vakantiegeld</strong>.</li>
+      <li>
+        <strong>Meeruren (parttimers):</strong> Uren die een parttimer extra werkt boven de contracturen, maar tot de fulltime norm (meestal 36 of 40 uur). Deze uren worden uitbetaald tegen <strong>100% van het normale uurloon</strong> (inclusief vakantiegeld en vakantiedagenopbouw), maar zonder overwerktoeslag. Vergelijk jouw deeltijdsalaris via <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+      </li>
+      <li>
+        <strong>Overuren:</strong> Uren boven de geldende voltijdse werkweek of uren buiten het dagvenster van de CAO. Hierop is vrijwel altijd een extra overwerktoeslag van toepassing.
+      </li>
     </ul>
 
-    <h2>De wettelijke kaders: De Arbeidstijdenwet (ATW)</h2>
+    <h2>Toeslagpercentages in Nederlandse CAO’s</h2>
     <p>
-      Overwerk mag nooit leiden tot structurele overbelasting. De Arbeidstijdenwet stelt strikte grenzen aan werk- en rusttijden: na een werkdag heb je recht op minimaal 11 aaneengesloten uren nachtrust, en per werkweek moet minimaal 36 uur aaneengesloten rust worden gegarandeerd.
+      De wet kent geen verplichte minimumtoeslag voor overwerk, mits het gemiddelde loon niet onder het minimumloon zakt. Collectieve arbeidsovereenkomsten (CAO’s) en bedrijfsregelingen leggen vrijwel altijd vaste toeslagen vast:
     </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Veelvoorkomende toeslagpercentages voor overuren in Nederlandse CAO's">
+      <table>
+        <thead>
+          <tr>
+            <th>Situatie of Werkdag</th>
+            <th>Gangbaar Percentage</th>
+            <th>Toelichting op Samenstelling</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Doordeweeks overwerk</strong></td>
+            <td>125% van het basisuurloon</td>
+            <td>100% basisloon + 25% overwerktoeslag</td>
+          </tr>
+          <tr>
+            <td><strong>Avond- en vroege ochtenduren</strong></td>
+            <td>130% tot 150% van het basisuurloon</td>
+            <td>100% basisloon + onregelmatigheidstoeslag</td>
+          </tr>
+          <tr>
+            <td><strong>Zaterdagen</strong></td>
+            <td>150% van het basisuurloon</td>
+            <td>100% basisloon + 50% weekendtoeslag</td>
+          </tr>
+          <tr>
+            <td><strong>Zon- en feestdagen</strong></td>
+            <td>200% van het basisuurloon</td>
+            <td>100% basisloon + 100% toeslag (dubbel loon)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Uitbetalen of Tijd-voor-tijd (TvT)</h2>
+    <p>
+      Overuren kunnen op twee manieren worden vergoed, afhankelijk van de afspraken in jouw CAO of arbeidsovereenkomst:
+    </p>
+    <ul>
+      <li>
+        <strong>Direct uitbetalen:</strong> De gewerkte uren en toeslagen worden bij de eerstvolgende salarisronde uitbetaald. Dit zorgt direct voor extra geld op je rekening, belast volgens de tabel voor bijzondere beloningen.
+      </li>
+      <li>
+        <strong>Tijd-voor-tijd (TvT):</strong> Je zet de overuren om in extra vrije tijd. Afhankelijk van de regeling spaar je 100% of inclusief toeslagpercentage (bijv. 8 overuren à 150% = 12 uur compensatieverlof). Dit beschermt je saldo reguliere vakantiedagen. Bereken je totale verlofrechten met onze module voor <a href="/vakantie-uren-berekenen/">vakantie-uren berekenen</a>.
+      </li>
+    </ul>
+
+    <h2>Wettelijk 8% vakantiegeld over overuren</h2>
+    <p>
+      Volgens de Wet minimumloon en minimumvakantiebijslag (WML) hebben werknemers in Nederland <strong>wettelijk recht op 8% vakantiegeld over uitbetaalde overuren</strong>.
+    </p>
+    <p>
+      Ontvang je in een maand € 250,00 bruto aan overwerk en toeslagen? Dan reserveert je werkgever daar <code>8% × € 250,00 = € 20,00</code> extra vakantiebijslag over, uitbetaald in mei of bij vertrek. Bereken jouw jaarlijkse vakantiegeld eenvoudig met de calculator voor <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+    </p>
+
+    <h2>Belasting op overuren: Hoe het bijzonder tarief werkt</h2>
+    <p>
+      Veel werknemers ervaren dat overuren "zwaar belast" worden omdat de loonstrook een inhouding van 48% tot 56% toont. Dit leidt tot het misverstand dat overwerk fiscaal wordt afgestraft.
+    </p>
+    <p>
+      In werkelijkheid vallen overuren onder hetzelfde belastingtarief in box 1 als je reguliere loon. De hogere inhouding op de loonstrook is een <strong>voorheffing via het bijzonder tarief</strong>. Doordat je jaarinkomen stijgt, bouw je minder heffingskortingen af (zoals de algemene heffingskorting en arbeidskorting). De fiscus houdt hier direct rekening mee om naheffingen achteraf te voorkomen. Blijkt bij je jaarlijkse belastingaangifte dat er te veel loonheffing is ingehouden, dan betaalt de Belastingdienst het overschot aan je terug.
+    </p>
+
+    <h2>Twee concrete rekenvoorbeelden van overuren</h2>
+    <p>
+      Onderstaande praktijkvoorbeelden illustreren hoe overwerkberekeningen op de loonstrook werken:
+    </p>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 1: Doordeweeks overwerk (125%)</h3>
+      <p>
+        Een werknemer met een bruto uurloon van € 20,00 maakt doordeweeks 5 overuren tegen 125% toeslag:
+      </p>
+      <ul>
+        <li><strong>Basisvergoeding (100%):</strong> 5 uur × € 20,00 = € 100,00 bruto.</li>
+        <li><strong>Overwerktoeslag (25% extra):</strong> 5 uur × € 5,00 = € 25,00 bruto.</li>
+        <li><strong>Totale overwerkvergoeding:</strong> € 100,00 + € 25,00 = <strong>€ 125,00 bruto</strong>.</li>
+        <li><strong>Vakantiegeld (8%):</strong> 8% over € 125,00 = <strong>€ 10,00 extra vakantiebijslag</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 2: Weekendoverwerk op zaterdag (150%)</h3>
+      <p>
+        Een technicus met een uurloon van € 22,00 draait op zaterdag een extra onderhoudsdienst van 8 uur (150% toeslag):
+      </p>
+      <ul>
+        <li><strong>Basisloon (100%):</strong> 8 uur × € 22,00 = € 176,00 bruto.</li>
+        <li><strong>Weekendtoeslag (50% extra):</strong> 8 uur × € 11,00 = € 88,00 bruto.</li>
+        <li><strong>Totale vergoeding:</strong> € 176,00 + € 88,00 = <strong>€ 264,00 bruto</strong>.</li>
+        <li><strong>Bij keuze voor Tijd-voor-tijd:</strong> 8 uur × 150% = <strong>12 uur compensatieverlof</strong>.</li>
+        <li><strong>Wettelijke vakantiebijslag (8%):</strong> € 264,00 × 0,08 = <strong>€ 21,12</strong>.</li>
+      </ul>
+    </div>
+
+    <h2>Arbeidstijdenwet (ATW): Maximale uren en rust</h2>
+    <p>
+      Om werknemers te beschermen stelt de Nederlandse <strong>Arbeidstijdenwet (ATW)</strong> dwingende regels voor overwerk:
+    </p>
+    <ul>
+      <li><strong>Per dienst:</strong> Maximaal 12 uur werken.</li>
+      <li><strong>Per week:</strong> Maximaal 60 uur in een enkele werkweek.</li>
+      <li><strong>Gemiddelde over 4 weken:</strong> Maximaal 55 uur per week.</li>
+      <li><strong>Gemiddelde over 16 weken:</strong> Maximaal 48 uur per week.</li>
+      <li><strong>Rusttijd:</strong> Minimaal 11 aaneengesloten uren dagelijkse rust en minstens 36 uur aaneengesloten wekelijkse rust.</li>
+    </ul>
+
+    <h2>Overuren bij leidinggevenden en all-in contracten</h2>
+    <p>
+      Bij hogere leidinggevenden of werknemers met een salaris boven circa drie keer het minimumloon bevat het contract vaak een <em>all-in salarisclausule</em>. Overwerk wordt dan geacht te zijn verwerkt in het vaste salaris. Wel blijft de werkgever verplicht om toe te zien op veilige arbeidsomstandigheden volgens de Arbeidstijdenwet.
+    </p>
+
+    <h2>Tips bij het declareren van overuren</h2>
+    <ol>
+      <li><strong>Vraag vooraf goedkeuring:</strong> Werk alleen over na afstemming met je leidinggevende om discussie achteraf te vermijden.</li>
+      <li><strong>Houd je uren bij:</strong> Noteer begin-, eind- en pauzetijden nauwkeurig. Gebruik onze calculator voor <a href="/werkdagen-berekenen/">werkdagen berekenen</a> om je gewerkte periodes inzichtelijk te houden.</li>
+      <li><strong>Controleer je loonstrook:</strong> Check of overuren, toeslagpercentages en het wettelijke 8% vakantiegeld juist zijn gespecificeerd.</li>
+    </ol>
   </div>
 </CalculatorLayout>
+
