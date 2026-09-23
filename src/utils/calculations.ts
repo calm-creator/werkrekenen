@@ -444,3 +444,77 @@ export function calculateParttimeSalaris(
     annualParttimeWithVacation: Math.round(annualParttimeWithVacation * 100) / 100
   };
 }
+
+/* =========================================================================
+   9. Vakantiedagen berekenen
+   Wettelijk: 4 x aantal werkdagen per week (art. 7:634 BW)
+   Bovenwettelijk: CAO/werkgever extra dagen (vaak 5 dagen extra bij fulltime)
+   Naar rato berekend bij parttime en bij parttime/gedeeltelijk jaar (aantal maanden)
+   ========================================================================= */
+export interface VakantiedagenResult {
+  daysPerWeek: number;
+  fulltimeDays: number;
+  monthsWorked: number;
+  hoursPerDay: number;
+  parttimePercentage: number;
+  statutoryDays: number;
+  nonStatutoryDays: number;
+  totalDays: number;
+  statutoryHours: number;
+  nonStatutoryHours: number;
+  totalHours: number;
+  totalWeeks: number;
+  monthlyAccrualDays: number;
+}
+
+export function calculateVakantiedagen(
+  daysPerWeek: number = 5,
+  fulltimeDaysPerYear: number = 25,
+  monthsWorked: number = 12,
+  hoursPerDay: number = 8
+): VakantiedagenResult {
+  const safeDaysPerWeek = Math.max(0, Math.min(7, daysPerWeek));
+  const safeFulltimeDays = Math.max(20, fulltimeDaysPerYear);
+  const safeMonths = Math.max(1, Math.min(12, monthsWorked));
+  const safeHoursPerDay = Math.max(0, Math.min(24, hoursPerDay));
+
+  // Deeltijdfactor t.o.v. standaard voltijdse 5 werkdagen per week
+  const parttimeFactor = safeDaysPerWeek / 5;
+  const yearFraction = safeMonths / 12;
+
+  // Jaarlijkse wettelijke vakantiedagen = 4 x wekelijkse werkdagen (art. 7:634 BW)
+  const statutoryDaysAnnual = safeDaysPerWeek * 4;
+  const statutoryDays = statutoryDaysAnnual * yearFraction;
+
+  // Jaarlijkse bovenwettelijke dagen bij fulltime (5 dagen/week)
+  const nonStatutoryDaysFT = Math.max(0, safeFulltimeDays - 20);
+  const nonStatutoryDaysAnnual = nonStatutoryDaysFT * parttimeFactor;
+  const nonStatutoryDays = nonStatutoryDaysAnnual * yearFraction;
+
+  const totalDays = statutoryDays + nonStatutoryDays;
+  const totalWeeks = safeDaysPerWeek > 0 ? totalDays / safeDaysPerWeek : 0;
+
+  const statutoryHours = statutoryDays * safeHoursPerDay;
+  const nonStatutoryHours = nonStatutoryDays * safeHoursPerDay;
+  const totalHours = totalDays * safeHoursPerDay;
+  const monthlyAccrualDays = safeMonths > 0 ? totalDays / safeMonths : 0;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    daysPerWeek: safeDaysPerWeek,
+    fulltimeDays: safeFulltimeDays,
+    monthsWorked: safeMonths,
+    hoursPerDay: safeHoursPerDay,
+    parttimePercentage: Math.round(parttimeFactor * 1000) / 10,
+    statutoryDays: round2(statutoryDays),
+    nonStatutoryDays: round2(nonStatutoryDays),
+    totalDays: round2(totalDays),
+    statutoryHours: round2(statutoryHours),
+    nonStatutoryHours: round2(nonStatutoryHours),
+    totalHours: round2(totalHours),
+    totalWeeks: round2(totalWeeks),
+    monthlyAccrualDays: round2(monthlyAccrualDays)
+  };
+}
+

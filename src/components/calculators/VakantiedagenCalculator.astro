@@ -1,0 +1,292 @@
+---
+// src/components/calculators/VakantiedagenCalculator.astro
+---
+
+<div class="calc-grid" id="vakantiedagen-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Werksituatie invoeren</h2>
+
+    <!-- Aantal werkdagen per week -->
+    <div class="form-group">
+      <label for="input-vd-days-per-week" class="form-label">Aantal werkdagen per week</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-vd-days-per-week"
+          class="form-input input-has-suffix"
+          value="5"
+          min="0.5"
+          max="7"
+          step="0.5"
+          aria-describedby="hint-vd-days"
+        />
+        <span class="input-suffix">dagen / week</span>
+      </div>
+      <div class="quick-days-pills" role="group" aria-label="Snelle selectie werkdagen per week">
+        <button type="button" class="vd-pill" data-days="1">1 dag</button>
+        <button type="button" class="vd-pill" data-days="2">2 dagen</button>
+        <button type="button" class="vd-pill" data-days="3">3 dagen</button>
+        <button type="button" class="vd-pill" data-days="4">4 dagen</button>
+        <button type="button" class="vd-pill is-active" data-days="5">5 dagen (fulltime)</button>
+      </div>
+      <span class="form-hint" id="hint-vd-days">
+        Het aantal dagen dat je gemiddeld per week volgens je contract werkt (bijv. 5 dagen bij fulltime of 4 dagen bij 32 uur).
+      </span>
+    </div>
+
+    <!-- Vakantiedagen bij fulltime (volgens CAO/contract) -->
+    <div class="form-group">
+      <label for="input-vd-ft-days" class="form-label">Vakantiedagen bij fulltime (5 dagen/week)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-vd-ft-days"
+          class="form-input input-has-suffix"
+          value="25"
+          min="20"
+          max="60"
+          step="1"
+          aria-describedby="hint-vd-ft-days"
+        />
+        <span class="input-suffix">dagen / jaar</span>
+      </div>
+      <span class="form-hint" id="hint-vd-ft-days">
+        Wettelijk minimaal 20 dagen (4 weken). In de meeste Nederlandse CAO's is 25 dagen (5 weken) de standaard.
+      </span>
+    </div>
+
+    <!-- Aantal maanden in dienst dit jaar -->
+    <div class="form-group">
+      <label for="input-vd-months" class="form-label">Aantal maanden in dienst dit kalenderjaar</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-vd-months"
+          class="form-input input-has-suffix"
+          value="12"
+          min="1"
+          max="12"
+          step="1"
+          aria-describedby="hint-vd-months"
+        />
+        <span class="input-suffix">maanden</span>
+      </div>
+      <span class="form-hint" id="hint-vd-months">
+        Standaard 12 maanden bij een volledig kalenderjaar. Vul minder in bij indiensttreding of uitdiensttreding gedurende het jaar.
+      </span>
+    </div>
+
+    <!-- Werkuren per dag -->
+    <div class="form-group">
+      <label for="input-vd-hours-per-day" class="form-label">Gemiddeld aantal werkuren per dag</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-vd-hours-per-day"
+          class="form-input input-has-suffix"
+          value="8"
+          min="1"
+          max="12"
+          step="0.5"
+          aria-describedby="hint-vd-hours"
+        />
+        <span class="input-suffix">uur / werkdag</span>
+      </div>
+      <span class="form-hint" id="hint-vd-hours">
+        Standaard 8 uur (bij 40-urige werkweek). Wordt gebruikt om jouw vakantiedagen exact om te rekenen naar vakantie-uren.
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-vakantiedagen" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Totaal vakantiedagen</span>
+      <div class="result-hero-value" id="res-vd-total-days">25 dagen</div>
+      <span class="result-hero-sub" id="res-vd-total-sub">is gelijk aan 5,0 vakantieweken (200 uur)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Wettelijke vakantiedagen</span>
+        <span class="result-row-value font-medium" id="res-vd-statutory-days">20 dagen (160 uur)</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bovenwettelijke vakantiedagen</span>
+        <span class="result-row-value font-medium" id="res-vd-non-statutory-days">5 dagen (40 uur)</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Deeltijdfactor (parttime)</span>
+        <span class="result-row-value" id="res-vd-parttime-pct">100%</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Opbouw per gewerkte maand</span>
+        <span class="result-row-value" id="res-vd-monthly-accrual">2,08 dagen/mnd</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totaal in vakantie-uren</span>
+        <span class="result-row-value" id="res-vd-total-hours">200 uur</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Belangrijk wettelijk verschil:</strong>
+      <ul style="margin-top: 0.25rem; padding-left: 1.2rem;">
+        <li><strong>Wettelijke dagen:</strong> vervallen 6 maanden na afloop kalenderjaar (per 1 juli).</li>
+        <li><strong>Bovenwettelijke dagen:</strong> verjaringstermijn van 5 jaar en mogen wél worden afgekocht.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-days-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .vd-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+  }
+
+  .vd-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .vd-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('vakantiedagen-calc');
+    if (!calc) return;
+
+    const inputDaysPerWeek = calc.querySelector('#input-vd-days-per-week');
+    const pills = calc.querySelectorAll('.vd-pill');
+    const inputFtDays = calc.querySelector('#input-vd-ft-days');
+    const inputMonths = calc.querySelector('#input-vd-months');
+    const inputHoursPerDay = calc.querySelector('#input-vd-hours-per-day');
+    const btnReset = calc.querySelector('#btn-reset-vakantiedagen');
+
+    const resTotalDays = calc.querySelector('#res-vd-total-days');
+    const resTotalSub = calc.querySelector('#res-vd-total-sub');
+    const resStatutoryDays = calc.querySelector('#res-vd-statutory-days');
+    const resNonStatutoryDays = calc.querySelector('#res-vd-non-statutory-days');
+    const resParttimePct = calc.querySelector('#res-vd-parttime-pct');
+    const resMonthlyAccrual = calc.querySelector('#res-vd-monthly-accrual');
+    const resTotalHours = calc.querySelector('#res-vd-total-hours');
+
+    const formatNumber = (val, maxDec = 2) =>
+      new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maxDec
+      }).format(val);
+
+    function formatDays(val) {
+      const rounded = Math.round(val * 100) / 100;
+      return `${formatNumber(rounded)} ${rounded === 1 ? 'dag' : 'dagen'}`;
+    }
+
+    function calculate() {
+      const daysPerWeek = Math.max(0, Math.min(7, parseFloat(inputDaysPerWeek.value) || 0));
+      const ftDays = Math.max(20, parseFloat(inputFtDays.value) || 25);
+      const months = Math.max(1, Math.min(12, parseFloat(inputMonths.value) || 12));
+      const hoursPerDay = Math.max(0, Math.min(24, parseFloat(inputHoursPerDay.value) || 8));
+
+      const parttimeFactor = daysPerWeek / 5;
+      const yearFraction = months / 12;
+
+      // Wettelijke dagen = 4 x wekelijkse werkdagen x jaarfractie (art. 7:634 BW)
+      const statutoryDaysAnnual = daysPerWeek * 4;
+      const statutoryDays = statutoryDaysAnnual * yearFraction;
+
+      // Bovenwettelijke dagen = (fulltime dagen - 20) x deeltijdfactor x jaarfractie
+      const nonStatutoryDaysFT = Math.max(0, ftDays - 20);
+      const nonStatutoryDaysAnnual = nonStatutoryDaysFT * parttimeFactor;
+      const nonStatutoryDays = nonStatutoryDaysAnnual * yearFraction;
+
+      const totalDays = statutoryDays + nonStatutoryDays;
+      const totalWeeks = daysPerWeek > 0 ? totalDays / daysPerWeek : 0;
+
+      const statutoryHours = statutoryDays * hoursPerDay;
+      const nonStatutoryHours = nonStatutoryDays * hoursPerDay;
+      const totalHours = totalDays * hoursPerDay;
+      const monthlyAccrual = months > 0 ? totalDays / months : 0;
+
+      resTotalDays.textContent = formatDays(totalDays);
+      resTotalSub.textContent = `is gelijk aan ${formatNumber(totalWeeks, 1)} vakantieweken (${formatNumber(totalHours, 1)} uur)`;
+      resStatutoryDays.textContent = `${formatDays(statutoryDays)} (${formatNumber(statutoryHours, 1)} uur)`;
+      resNonStatutoryDays.textContent = `${formatDays(nonStatutoryDays)} (${formatNumber(nonStatutoryHours, 1)} uur)`;
+      resParttimePct.textContent = `${formatNumber(parttimeFactor * 100, 1)}%`;
+      resMonthlyAccrual.textContent = `${formatNumber(monthlyAccrual, 2)} dagen/mnd`;
+      resTotalHours.textContent = `${formatNumber(totalHours, 1)} uur`;
+    }
+
+    inputDaysPerWeek.addEventListener('input', () => {
+      const val = inputDaysPerWeek.value;
+      pills.forEach(p => p.classList.toggle('is-active', p.dataset.days === val));
+      calculate();
+    });
+
+    pills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputDaysPerWeek.value = pill.dataset.days;
+        calculate();
+      });
+    });
+
+    inputFtDays.addEventListener('input', calculate);
+    inputMonths.addEventListener('input', calculate);
+    inputHoursPerDay.addEventListener('input', calculate);
+
+    btnReset.addEventListener('click', () => {
+      inputDaysPerWeek.value = '5';
+      inputFtDays.value = '25';
+      inputMonths.value = '12';
+      inputHoursPerDay.value = '8';
+      pills.forEach(p => p.classList.toggle('is-active', p.dataset.days === '5'));
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

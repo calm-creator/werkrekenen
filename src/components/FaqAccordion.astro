@@ -90,6 +90,16 @@ const faqSchema = {
     cursor: pointer;
     list-style: none;
     user-select: none;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    gap: 0.75rem;
+  }
+
+  .faq-question span {
+    flex: 1 1 auto;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    min-width: 0;
   }
 
   .faq-question::-webkit-details-marker {
@@ -100,7 +110,6 @@ const faqSchema = {
     color: var(--text-subtle);
     transition: transform 0.2s ease;
     flex-shrink: 0;
-    margin-left: 0.75rem;
   }
 
   .faq-item[open] .faq-chevron {
@@ -112,5 +121,7 @@ const faqSchema = {
     color: var(--text-muted);
     font-size: 0.9375rem;
     line-height: 1.6;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 </style>

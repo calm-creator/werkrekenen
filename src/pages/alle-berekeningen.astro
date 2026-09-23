@@ -70,12 +70,21 @@ const categoryList = Object.values(CATEGORIES);
   }
 
   .hub-title {
-    font-size: 2.25rem;
+    font-size: 1.75rem;
     font-weight: 800;
     color: var(--text-main);
     letter-spacing: -0.02em;
     line-height: 1.2;
     margin-bottom: 0.75rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    hyphens: auto;
+  }
+
+  @media (min-width: 640px) {
+    .hub-title {
+      font-size: 2.25rem;
+    }
   }
 
   .hub-intro {

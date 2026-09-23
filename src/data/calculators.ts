@@ -104,7 +104,20 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken direct je wettelijke (4x werkweek) en bovenwettelijke vakantie-uren en vakantiedagen per jaar, ook bij een parttime dienstverband.',
     icon: 'calendar',
     popular: false,
-    relatedSlugs: ['werkdagen-berekenen', 'parttime-salaris-berekenen', 'vakantiegeld-berekenen']
+    relatedSlugs: ['vakantiedagen-berekenen', 'werkdagen-berekenen', 'parttime-salaris-berekenen']
+  },
+  {
+    id: 'vakantiedagen',
+    slug: 'vakantiedagen-berekenen',
+    title: 'Vakantiedagen berekenen',
+    shortTitle: 'Vakantiedagen',
+    category: 'werkuren',
+    categoryTitle: 'Werkuren & vakantie',
+    description: 'Bereken exact hoeveel wettelijke en bovenwettelijke vakantiedagen je opbouwt per jaar of maand, zowel voor fulltime als parttime dienstverbanden.',
+    metaDescription: 'Bereken direct je wettelijke en bovenwettelijke vakantiedagen per jaar of bij een parttime contract. Conform art. 7:634 BW en Nederlandse CAO-normen.',
+    icon: 'calendar',
+    popular: true,
+    relatedSlugs: ['vakantie-uren-berekenen', 'parttime-salaris-berekenen', 'werkdagen-berekenen', 'uurloon-berekenen']
   },
   {
     id: 'overuren',
@@ -130,7 +143,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken het aantal werkdagen tussen twee datums in Nederland. Exclusief weekenden en officiële Nederlandse feestdagen zoals Koningsdag en Hemelvaart.',
     icon: 'briefcase',
     popular: true,
-    relatedSlugs: ['reiskostenvergoeding-berekenen', 'thuiswerkvergoeding-berekenen', 'vakantie-uren-berekenen']
+    relatedSlugs: ['vakantiedagen-berekenen', 'reiskostenvergoeding-berekenen', 'thuiswerkvergoeding-berekenen']
   },
   {
     id: 'parttime-salaris',
@@ -143,7 +156,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken je parttime salaris op basis van je deeltijdfactor en gewerkte uren. Vergelijk direct met het fulltime salaris (36, 38 of 40 uur).',
     icon: 'pie-chart',
     popular: true,
-    relatedSlugs: ['uurloon-berekenen', 'vakantiegeld-berekenen', 'vakantie-uren-berekenen']
+    relatedSlugs: ['uurloon-berekenen', 'vakantiedagen-berekenen', 'vakantiegeld-berekenen']
   }
 ];
 

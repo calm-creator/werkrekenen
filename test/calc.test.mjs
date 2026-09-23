@@ -10,7 +10,8 @@ import {
   calculateVakantieUren,
   calculateOveruren,
   calculateWerkdagen,
-  calculateParttimeSalaris
+  calculateParttimeSalaris,
+  calculateVakantiedagen
 } from '../src/utils/calculations.ts';
 
 console.log('--- Testing WerkRekenen calculation engines ---');
@@ -134,4 +135,73 @@ console.log('--- Testing WerkRekenen calculation engines ---');
   console.log('✓ Parttime salaris calculations passed');
 }
 
-console.log('All 8 calculation engines passed tests successfully!');
+// 9. Vakantiedagen
+{
+  // Fulltime standard: 5 days/week, 25 days FT, 12 months, 8 hrs/day
+  const ft = calculateVakantiedagen(5, 25, 12, 8);
+  assert.strictEqual(ft.statutoryDays, 20);
+  assert.strictEqual(ft.nonStatutoryDays, 5);
+  assert.strictEqual(ft.totalDays, 25);
+  assert.strictEqual(ft.statutoryHours, 160);
+  assert.strictEqual(ft.nonStatutoryHours, 40);
+  assert.strictEqual(ft.totalHours, 200);
+  assert.strictEqual(ft.totalWeeks, 5);
+  assert.strictEqual(ft.parttimePercentage, 100);
+  assert.strictEqual(ft.monthlyAccrualDays, 2.08);
+
+  // Parttime: 4 days/week (80%)
+  const pt4 = calculateVakantiedagen(4, 25, 12, 8);
+  assert.strictEqual(pt4.statutoryDays, 16);
+  assert.strictEqual(pt4.nonStatutoryDays, 4);
+  assert.strictEqual(pt4.totalDays, 20);
+  assert.strictEqual(pt4.statutoryHours, 128);
+  assert.strictEqual(pt4.nonStatutoryHours, 32);
+  assert.strictEqual(pt4.totalHours, 160);
+  assert.strictEqual(pt4.totalWeeks, 5);
+  assert.strictEqual(pt4.parttimePercentage, 80);
+  assert.strictEqual(pt4.monthlyAccrualDays, 1.67);
+
+  // Parttime: 3 days/week (60%)
+  const pt3 = calculateVakantiedagen(3, 25, 12, 8);
+  assert.strictEqual(pt3.statutoryDays, 12);
+  assert.strictEqual(pt3.nonStatutoryDays, 3);
+  assert.strictEqual(pt3.totalDays, 15);
+  assert.strictEqual(pt3.totalWeeks, 5);
+  assert.strictEqual(pt3.parttimePercentage, 60);
+
+  // Partial year: started July 1st (6 months)
+  const halfYear = calculateVakantiedagen(5, 25, 6, 8);
+  assert.strictEqual(halfYear.statutoryDays, 10);
+  assert.strictEqual(halfYear.nonStatutoryDays, 2.5);
+  assert.strictEqual(halfYear.totalDays, 12.5);
+  assert.strictEqual(halfYear.totalHours, 100);
+  assert.strictEqual(halfYear.monthlyAccrualDays, 2.08);
+
+  // CAO with 30 days fulltime, 4 days/week
+  const cao30 = calculateVakantiedagen(4, 30, 12, 8);
+  assert.strictEqual(cao30.statutoryDays, 16);
+  assert.strictEqual(cao30.nonStatutoryDays, 8);
+  assert.strictEqual(cao30.totalDays, 24);
+  assert.strictEqual(cao30.totalWeeks, 6);
+
+  // Edge case: 1 day/week, 20 days minimum
+  const pt1 = calculateVakantiedagen(1, 20, 12, 8);
+  assert.strictEqual(pt1.statutoryDays, 4);
+  assert.strictEqual(pt1.nonStatutoryDays, 0);
+  assert.strictEqual(pt1.totalDays, 4);
+  assert.strictEqual(pt1.totalWeeks, 4);
+  assert.strictEqual(pt1.parttimePercentage, 20);
+
+  // Decimal days: 4.5 days/week
+  const dec = calculateVakantiedagen(4.5, 25, 12, 8);
+  assert.strictEqual(dec.statutoryDays, 18);
+  assert.strictEqual(dec.nonStatutoryDays, 4.5);
+  assert.strictEqual(dec.totalDays, 22.5);
+  assert.strictEqual(dec.totalWeeks, 5);
+  assert.strictEqual(dec.parttimePercentage, 90);
+
+  console.log('✓ Vakantiedagen calculations passed');
+}
+
+console.log('All 9 calculation engines passed tests successfully!');
+
