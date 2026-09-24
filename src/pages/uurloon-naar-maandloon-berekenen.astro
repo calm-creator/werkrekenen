@@ -1,0 +1,192 @@
+---
+// src/pages/uurloon-naar-maandloon-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import UurloonNaarMaandloonCalculator from '../components/calculators/UurloonNaarMaandloonCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('uurloon-naar-maandloon-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken je het maandloon vanuit een bruto uurloon?',
+    answer: 'Het bruto maandloon bereken je door je uurloon te vermenigvuldigen met je wekelijkse contracturen, dit te vermenigvuldigen met 52 weken (jaarsalaris) en vervolgens te delen door 12 kalendermaanden. De formule is: Maandsalaris = (Uurloon × Wekelijkse uren × 52) ÷ 12.'
+  },
+  {
+    question: 'Waarom mag je een uurloon niet simpelweg vermenigvuldigen met 4 weken?',
+    answer: 'Een kalendermaand telt gemiddeld 4,333 weken (30 of 31 dagen), en niet 4 weken (28 dagen). Als je je wekelijkse loon vermenigvuldigt met 4, reken je met slechts 48 weken per jaar in plaats van 52 weken. Daardoor valt je berekende maandsalaris circa 8,3% te laag uit en mis je vier volledige werkweken aan inkomsten.'
+  },
+  {
+    question: 'Hoeveel werkuren zitten er gemiddeld in een kalendermaand?',
+    answer: 'Het gemiddelde aantal werkuren per maand hangt direct af van je wekelijkse arbeidsduur: bij een 40-urige werkweek telt een maand gemiddeld 173,33 uur ((40 × 52) ÷ 12). Bij een 38-urige werkweek is dit 164,67 uur per maand, bij een 36-urige werkweek 156,00 uur, en bij een parttime werkweek van 32 uur gemiddeld 138,67 uur.'
+  },
+  {
+    question: 'Hoeveel bedraagt het bruto maandloon bij een 40-urige werkweek?',
+    answer: 'Bij een 40-urige werkweek vermenigvuldig je jouw bruto uurloon met 173,33 gemiddelde maanduren. Verdien je bijvoorbeeld € 20,00 bruto per uur, dan is je bruto maandsalaris € 20,00 × 173,33 = € 3.466,67 (exclusief 8% vakantiegeld). Inclusief 8% vakantiegeld bedraagt de totale maandelijkse beloning € 3.744,00.'
+  },
+  {
+    question: 'Wat is het maandsalaris bij een 36-urige fulltime werkweek?',
+    answer: 'In veel Nederlandse CAO’s (zoals overheid, banken en zorg) geldt 36 uur per week als de standaard fulltime werkweek. Bij 36 uur werk je gemiddeld 156 uur per maand ((36 × 52) ÷ 12). Met een uurloon van € 22,50 levert dit een bruto basissalaris op van exact € 3.510,00 per maand.'
+  },
+  {
+    question: 'Hoe bereken je het parttime maandloon bij bijvoorbeeld 32 of 24 uur?',
+    answer: 'Voor een deeltijdcontract pas je dezelfde formule toe met je eigen contracturen. Bij 32 uur per week werk je maandelijks gemiddeld 138,67 uur; bij een uurloon van € 18,75 kom je uit op € 2.600,00 bruto per maand. Bij 24 uur per week werk je maandelijks 104 uur, wat bij € 16,50 per uur leidt tot € 1.716,00 bruto per maand.'
+  },
+  {
+    question: 'Zit de 8% wettelijke vakantiebijslag inbegrepen in het berekende maandsalaris?',
+    answer: 'Nee. In een vast dienstverband is het vermelde maandsalaris op contracten en vacatures vrijwel altijd het kale basissalaris exclusief vakantiegeld. De 8% wettelijke vakantiebijslag wordt maandelijks opgebouwd en doorgaans eenmaal per jaar in mei in één keer uitgekeerd. Alleen bij all-in contracten (bijv. uitzendwerk of studentenbanen) wordt het vakantiegeld maandelijks direct uitbetaald.'
+  },
+  {
+    question: 'Wat is het verschil tussen verloning per maand en per 4 weken?',
+    answer: 'Bij verloning per kalendermaand ontvang je 12 vaste salarisbetalingen per jaar. Bij een 4-wekelijkse verloning ontvang je precies elke 4 weken loon, wat neerkomt op 13 periodes per kalenderjaar (52 ÷ 4 = 13). Het bedrag per 4 weken is iets lager dan per maand (namelijk Maandsalaris × 12 ÷ 13), maar je ontvangt een extra dertiende loonbetaling.'
+  },
+  {
+    question: 'Hoeveel houd je netto over van je bruto maandsalaris?',
+    answer: 'Het nettobedrag op je bankrekening is lager dan het berekende brutoloon door inhouding van loonheffing (box 1), pensioenpremies en eventuele personeelsverzekeringen, verminderd met de algemene heffingskorting en arbeidskorting. Als vuistregel houden werkenden met een gemiddeld modaal inkomen circa 70% tot 75% netto over van hun brutoloon.'
+  },
+  {
+    question: 'Tellen overwerk, toeslagen en een eindejaarsuitkering mee in het maandloon?',
+    answer: 'Nee, variabele overuren, onregelmatigheidstoeslagen (ORT) en een dertiende maand of prestatiebonus maken geen deel uit van je vaste basismaandloon. Ze worden apart berekend en als toeslag of extra periodieke vergoeding op je loonstrook vermeld. Wel tellen structurele toeslagen vaak mee voor de opbouw van je vakantiegeld en pensioen.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="CAO-normen & Rijksoverheid (WML & Burgerlijk Wetboek)"
+>
+  <UurloonNaarMaandloonCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Hoe reken je een uurloon om naar een maandsalaris?</h2>
+    <p>
+      Sta je op het punt een nieuw arbeidscontract te tekenen, overweeg je een overstap naar een andere baan of wil je weten wat jouw uurtarief op maandbasis oplevert? Met onze rekentool voor <strong>uurloon naar maandloon berekenen</strong> reken je binnen enkele seconden een <strong>bruto uurloon naar maandloon</strong> om. Ook wanneer je zoekt naar <em>maandloon berekenen vanuit uurloon</em> of de stap wilt maken van <em>uurloon naar salaris per maand</em> en <em>uurloon naar jaarsalaris</em>, biedt deze tool direct helderheid.
+    </p>
+    <p>
+      In vacatures en CAO-schalen wordt beloning regelmatig vermeld als een uurloon, terwijl vaste lasten zoals huur, hypotheek en verzekeringen maandelijks van je bankrekening worden afgeschreven. Daarom is het essentieel om te weten: <em>hoeveel verdien ik per maand met mijn uurloon?</em> Wil je de omgekeerde berekening maken van maandloon naar uurtarief? Gebruik dan onze specialistische module voor <a href="/uurloon-berekenen/">uurloon berekenen</a>. Wil je een <em>parttime maandloon berekenen</em>, bekijk dan ook de berekening via <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>De officiële Nederlandse rekenformule voor maandloon:</strong><br />
+      <code>Bruto maandsalaris = (Bruto uurloon × Wekelijkse arbeidsuren × 52 weken) ÷ 12 maanden</code>
+      <br /><br />
+      <em>Rekenvoorbeeld bij 40 uur:</em><br />
+      Verdien je € 20,00 bruto per uur bij een volledige werkweek van 40 uur? Dan bedraagt je wekelijkse loon <code>€ 20,00 × 40 = € 800,00</code>. Op jaarbasis is dat <code>€ 800,00 × 52 = € 41.600,00</code>. Gedeeld door 12 maanden levert dit een vast bruto maandsalaris op van <strong>€ 3.466,67</strong>.
+    </div>
+
+    <h2>Waarom is 4 weken vermenigvuldigen (× 4) een veelgemaakte rekenfout?</h2>
+    <p>
+      Een van de meest gemaakte fouten bij <strong>uurloon omrekenen naar maandloon</strong> is de aanname dat een maand simpelweg uit 4 werkweken bestaat. Wie rekent met <code>Weekloon × 4</code>, vergeet dat 4 weken slechts 28 kalenderdagen telt. Een normaal kalenderjaar heeft echter 365 dagen (in een schrikkeljaar 366 dagen), oftewel exact 52 weken plus 1 of 2 losse dagen.
+    </p>
+    <p>
+      Als je 52 weken deelt door 12 kalendermaanden, blijkt dat een gemiddelde maand niet 4,00 maar <strong>4,333 weken</strong> duurt. Vermenigvuldig je jouw weekloon slechts met 4, dan bereken je het salaris over slechts 48 weken per jaar. Hierdoor mis je maar liefst 4 volledige werkweken aan loon. Je berekende salaris per maand valt dan <strong>8,3% te laag</strong> uit:
+    </p>
+    <ul>
+      <li><strong>Foutieve methode (× 4):</strong> € 800 per week × 4 = € 3.200 per maand (slechts € 38.400 per jaar).</li>
+      <li><strong>Juiste Nederlandse standaard (× 52 ÷ 12):</strong> € 800 per week × 4,333 = € 3.466,67 per maand (€ 41.600 per jaar).</li>
+    </ul>
+
+    <h2>Vergelijkingstabel: van uurloon naar maandloon bij 40, 36, 32 en 24 uur</h2>
+    <p>
+      In Nederland varieert een fulltime werkweek afhankelijk van de toepasselijke CAO tussen 36, 38 en 40 uur. Daarnaast kiezen steeds meer werknemers voor een parttime werkweek van 32 of 24 uur. In onderstaande tabel zie je direct welk bruto maandsalaris hoort bij verschillende uurlonen en werkweken:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Bruto maandsalaris per uurloon en werkweek">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Bruto uurloon</th>
+            <th>Maandloon bij 40 uur (173,33 u/m)</th>
+            <th>Maandloon bij 36 uur (156,00 u/m)</th>
+            <th>Maandloon bij 32 uur (138,67 u/m)</th>
+            <th>Maandloon bij 24 uur (104,00 u/m)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>€ 15,00</strong></td>
+            <td>€ 2.600,00</td>
+            <td>€ 2.340,00</td>
+            <td>€ 2.080,00</td>
+            <td>€ 1.560,00</td>
+          </tr>
+          <tr>
+            <td><strong>€ 17,50</strong></td>
+            <td>€ 3.033,33</td>
+            <td>€ 2.730,00</td>
+            <td>€ 2.426,67</td>
+            <td>€ 1.820,00</td>
+          </tr>
+          <tr>
+            <td><strong>€ 20,00</strong></td>
+            <td>€ 3.466,67</td>
+            <td>€ 3.120,00</td>
+            <td>€ 2.773,33</td>
+            <td>€ 2.080,00</td>
+          </tr>
+          <tr>
+            <td><strong>€ 22,50</strong></td>
+            <td>€ 3.900,00</td>
+            <td>€ 3.510,00</td>
+            <td>€ 3.120,00</td>
+            <td>€ 2.340,00</td>
+          </tr>
+          <tr>
+            <td><strong>€ 25,00</strong></td>
+            <td>€ 4.333,33</td>
+            <td>€ 3.900,00</td>
+            <td>€ 3.466,67</td>
+            <td>€ 2.600,00</td>
+          </tr>
+          <tr>
+            <td><strong>€ 30,00</strong></td>
+            <td>€ 5.200,00</td>
+            <td>€ 4.680,00</td>
+            <td>€ 4.160,00</td>
+            <td>€ 3.120,00</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Het verschil tussen maandsalaris en 4-wekenloon (13 periodes)</h2>
+    <p>
+      In bepaalde sectoren, zoals de transport, bouw, beveiliging en uitzendbranche, wordt niet maandelijks uitbetaald, maar per periode van 4 weken. Het is belangrijk om dit onderscheid goed te begrijpen wanneer je een salarisvergelijking maakt:
+    </p>
+    <ul>
+      <li><strong>Maandelijkse verloning:</strong> Je ontvangt 12 keer per jaar een vast bedrag op een vaste datum (bijvoorbeeld rond de 24e van de maand). Elke maandbetaling dekt gemiddeld 4,333 weken.</li>
+      <li><strong>Vierwekelijkse verloning:</strong> Je ontvangt 13 keer per jaar exact 4 weken loon (160 uur bij 40 uur/week). Het bedrag per betaling ligt lager dan bij een maandsalaris (namelijk <code>Maandsalaris × 12 ÷ 13</code>), maar door de dertiende betaling is je totale jaarinkomen exact gelijk.</li>
+    </ul>
+
+    <h2>Doorwerking van vakantiegeld, overuren en toeslagen</h2>
+    <p>
+      Wanneer je jouw vaste bruto uurloon omrekent naar een maandsalaris, vormen de volgende componenten een belangrijke aanvulling op jouw totale inkomsten:
+    </p>
+    <ul>
+      <li><strong>Wettelijke vakantiebijslag (8%):</strong> Op grond van de Wet minimumloon en minimumvakantiebijslag bouwt iedere werknemer minimaal 8% vakantiegeld op over het bruto jaarsalaris. Dit bedrag komt bovenop je maandsalaris en wordt doorgaans in mei uitbetaald. Bereken je opbouw via onze tool voor <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.</li>
+      <li><strong>Overuren en overwerktoeslag:</strong> Werk je structureel of incidenteel meer uren dan in je contract staat? Deze uren worden uitbetaald tegen je uurloon plus een eventuele CAO-toeslag (zoals 125%, 150% of 200%). Bereken de exacte vergoeding en uitbetaling via <a href="/overuren-berekenen/">overuren berekenen</a>.</li>
+      <li><strong>Dertiende maand en periodieken:</strong> CAO-afspraken kennen soms een vaste eindejaarsuitkering of periodieke tredeverhoging. Bereken de impact van toekomstige stappen met <a href="/salarisverhoging-berekenen/">salarisverhoging berekenen</a>.</li>
+    </ul>
+
+    <h2>Bruto versus netto: wat hou je onderaan de streep over?</h2>
+    <p>
+      Het berekende maandloon uit deze calculator is een <strong>bruto maandsalaris</strong>. Dit is het afgesproken bedrag voordat de overheid en pensioenfondsen inhoudingen doen. Het uiteindelijke <strong>nettoloon</strong> op je bankrekening is lager en wordt beïnvloed door drie fiscale hoofdfactoren:
+    </p>
+    <ol>
+      <li><strong>Loonheffing box 1:</strong> Inkomstenbelasting volgens het schijventarief (35,82% of 49,50%).</li>
+      <li><strong>Heffingskortingen:</strong> Algemene heffingskorting en arbeidskorting verlagen de te betalen belasting.</li>
+      <li><strong>Pensioenpremie:</strong> Het werknemersdeel wordt bruto ingehouden vóór belastingheffing.</li>
+    </ol>
+    <p>
+      Voor de meeste Nederlandse werknemers met een modaal inkomen ligt het nettosalaris rond de <strong>70% tot 75%</strong> van het bruto maandsalaris.
+    </p>
+
+    <h2>Veelgemaakte fouten bij uurloon naar maandloon omrekenen</h2>
+    <ul>
+      <li><strong>De 4-wekenvalkuil:</strong> Vermenigvuldigen met 4 in plaats van de wettelijke factor van 4,333 weken (52 ÷ 12).</li>
+      <li><strong>All-in uurloon verwarren met basisuurloon:</strong> Bij flex- en studentenbanen zit vakantiegeld (8%) en vakantiedagenvergoeding vaak al in het uurloon verwerkt, waardoor het kale basissalaris lager ligt.</li>
+      <li><strong>Verkeerde fulltime norm hanteren:</strong> Rekenen met 40 uur terwijl de geldende CAO uitgaat van een 36- of 38-urige werkweek.</li>
+    </ul>
+  </div>
+</CalculatorLayout>

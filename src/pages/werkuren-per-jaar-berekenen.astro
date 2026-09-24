@@ -1,0 +1,190 @@
+---
+// src/pages/werkuren-per-jaar-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import WerkurenPerJaarCalculator from '../components/calculators/WerkurenPerJaarCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('werkuren-per-jaar-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoeveel werkuren telt een jaar bij een 40-urige werkweek?',
+    answer: 'Bij een 40-urige werkweek bedraagt het aantal contractuele werkuren per jaar 2.080 uur (40 uur × 52 weken). Na aftrek van gemiddeld 25 vakantiedagen (200 uur) en 7 doordeweekse feestdagen (56 uur) bedraagt het aantal daadwerkelijk gewerkte uren per jaar circa 1.824 uur (ongeveer 45,6 gewerkte weken).'
+  },
+  {
+    question: 'Hoe bereken je de contractuele werkuren per jaar?',
+    answer: 'De contractuele werkuren per jaar bereken je door je wekelijkse contracturen te vermenigvuldigen met 52 kalenderweken. De formule luidt: Contractuele jaaruren = Wekelijkse arbeidsuren × 52. Bij 36 uur per week is dat bijvoorbeeld 36 × 52 = 1.872 uur per jaar.'
+  },
+  {
+    question: 'Hoeveel werkuren telt een jaar bij een 36-urige fulltime werkweek?',
+    answer: 'In CAO’s waar 36 uur per week als fulltime geldt (zoals de overheid, zorg en financiële sector), bedragen de contractuele jaaruren 1.872 uur (36 × 52). Na aftrek van 25 vakantiedagen (180 uur) en 7 feestdagen (50,4 uur) werk je daadwerkelijk circa 1.641,60 uur per jaar.'
+  },
+  {
+    question: 'Hoeveel werkuren zitten er gemiddeld in een kalendermaand?',
+    answer: 'Het gemiddelde aantal werkuren per maand bereken je via de formule: (Wekelijkse uren × 52) ÷ 12. Bij een 40-urige werkweek is dat 173,33 uur per maand. Bij 38 uur is dat 164,67 uur, bij 36 uur is dat 156,00 uur, en bij een parttime contract van 32 uur gemiddeld 138,67 uur per maand.'
+  },
+  {
+    question: 'Wat is het verschil tussen contracturen en daadwerkelijk gewerkte uren?',
+    answer: 'Contracturen (nominale uren) vormen de basis voor je maandsalaris; over deze uren word je volledig doorbetaald, inclusief tijdens je vakantie en op feestdagen. Daadwerkelijk gewerkte uren (netto werkuren) tonen het aantal uren dat je daadwerkelijk fysiek aan het werk bent, na aftrek van vakantieverlof, feestdagen en eventuele ADV-dagen.'
+  },
+  {
+    question: 'Hoeveel werkdagen telt een gemiddeld kalenderjaar?',
+    answer: 'Een kalenderjaar telt 365 dagen (schrikkeljaar 366). Na aftrek van 104 weekenddagen telt een jaar 260 of 261 doordeweekse werkdagen (maandag t/m vrijdag). Na aftrek van gemiddeld 7 doordeweekse feestdagen en 25 vakantiedagen blijven er circa 228 daadwerkelijke werkbare dagen over.'
+  },
+  {
+    question: 'Hoe bereken je de werkuren per jaar bij een parttime baan?',
+    answer: 'Voor een parttime baan vermenigvuldig je jouw eigen wekelijkse deeltijduren met 52 weken. Bij een contract van 32 uur kom je uit op 1.664 contracturen per jaar. Bij 24 uur per week bedraagt dit 1.248 contracturen per jaar. Verlofdagen worden vervolgens naar rato (deeltijdfactor) verrekend.'
+  },
+  {
+    question: 'Welke invloed hebben ATV- en ADV-dagen op de jaarlijkse werkuren?',
+    answer: 'ADV-dagen (arbeidsduurverkorting) verlagen het aantal feitelijk gewerkte uren per jaar zonder dat je salaris daalt. Werk je bijvoorbeeld 40 uur per week volgens het rooster maar geldt een 38-urige CAO-norm? Dan bouw je jaarlijks circa 13 ADV-dagen (104 uur) op, waardoor je netto jaaruren dalen van 1.824 naar 1.720 uur.'
+  },
+  {
+    question: 'Hoe werkt een jaarurennorm (jaarurensysteem) in flexibele CAO’s?',
+    answer: 'Bij een jaarurennorm (JSN) spreek je met je werkgever een vast aantal te werken uren per kalenderjaar af (bijvoorbeeld 1.872 uur bij 36 uur/week). Binnen het jaar mag je werkrooster per seizoen of maand fluctueren, zolang je aan het einde van het jaar gemiddeld op je contracturen uitkomt.'
+  },
+  {
+    question: 'Tellen officiële feestdagen mee als gewerkte uren op je loonstrook?',
+    answer: 'Ja, als een erkende officiële feestdag op een vaste werkdag valt, heb je conform de meeste CAO’s en de wet recht op doorbetaling van je normale loon. Je hoeft die dag niet in te halen en levert hiervoor geen vakantie-uren in, waardoor deze uren contractueel gewoon meetellen.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Arbeidstijdenwet, CAO-normen & Burgerlijk Wetboek"
+>
+  <WerkurenPerJaarCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Hoe bereken je het aantal werkuren per jaar in Nederland?</h2>
+    <p>
+      Wil je inzicht krijgen in je jaarlijkse arbeidsinzet, bereken je de capaciteit voor een projectplanning of wil je controleren of jouw jaarurennorm klopt met je CAO? Met onze rekentool voor <strong>werkuren per jaar berekenen</strong> ontdek je binnen enkele tellen hoeveel contractuele én daadwerkelijk gewerkte uren jouw werkrooster telt. Je berekent het nominale <strong>aantal werkuren per jaar</strong>, het gemiddelde aantal werkuren per maand en het netto aantal uren na aftrek van vakantieverlof en officiële feestdagen.
+    </p>
+    <p>
+      Veel werknemers en werkgevers vragen zich af: <em>hoeveel uur werken per jaar</em> is gangbaar in Nederland? Het antwoord hangt af van twee verschillende grootheden: de <strong>contractuele jaaruren</strong> (waarop je salaris is gebaseerd) en de <strong>feitelijk gewerkte jaaruren</strong> (jouw daadwerkelijke productieve inzet). Wil je weten hoeveel officiële werkbare dagen er tussen twee datums vallen? Gebruik dan onze module voor <a href="/werkdagen-berekenen/">werkdagen berekenen</a>. Wil je jouw verlofrechten controleren? Bekijk dan <a href="/vakantiedagen-berekenen/">vakantiedagen berekenen</a> en <a href="/vakantie-uren-berekenen/">vakantie-uren berekenen</a>.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Standaardformule voor contractuele werkuren per jaar:</strong><br />
+      <code>Contractuele jaaruren = Wekelijkse contracturen × 52 weken</code>
+      <br /><br />
+      <strong>Formule voor daadwerkelijk gewerkte uren (netto jaaruren):</strong><br />
+      <code>Netto jaaruren = Contractuele jaaruren - (Vakantiedagen × Daguren) - (Feestdagen × Daguren) - (ADV-dagen × Daguren)</code>
+      <br /><br />
+      <em>Rekenvoorbeeld bij 40 uur per week:</em><br />
+      Bij een contract van 40 uur per week (8 uur per werkdag) bedragen de contracturen <code>40 × 52 = 2.080 uur</code>. Heb je 25 vakantiedagen (200 uur) en vallen er 7 officiële feestdagen op doordeweekse werkdagen (56 uur)? Dan werk je daadwerkelijk <code>2.080 - 200 - 56 = 1.824 uur</code> per jaar.
+    </div>
+
+    <h2>Contracturen versus daadwerkelijk gewerkte uren: het cruciale verschil</h2>
+    <p>
+      Bij <strong>arbeidsuren per jaar berekenen</strong> is het essentieel om te onderscheiden welk getal je nodig hebt:
+    </p>
+    <ul>
+      <li><strong>Contractuele jaaruren (nominaal):</strong> Dit zijn de uren die in je arbeidsovereenkomst zijn vastgelegd en waarvoor je salaris ontvangt (inclusief doorbetaald verlof). Op basis hiervan rekent de salarisadministratie je bruto maandloon en uurloon uit. Bekijk hiervoor ook <a href="/uurloon-berekenen/">uurloon berekenen</a>.</li>
+      <li><strong>Daadwerkelijk gewerkte jaaruren (netto):</strong> Dit is het aantal uren dat je daadwerkelijk fysiek aan het werk bent. Niemand werkt 52 weken onafgebroken: van de 52 weken gaan gemiddeld 5 weken vakantieverlof en ruim 1 week aan officiële feestdagen af, waardoor je feitelijk circa 45 tot 46 weken per jaar werkt.</li>
+    </ul>
+
+    <h2>Vergelijkingstabel: werkuren per jaar bij 40, 38, 36, 32 en 24 uur</h2>
+    <p>
+      In Nederland varieert een fulltime werkweek per sector tussen 36 en 40 uur. De onderstaande tabel geeft een helder overzicht van de contracturen, gemiddelde maanduren en netto gewerkte uren (uitgaande van de standaardnorm van 25 vakantiedagen en 7 doordeweekse feestdagen):
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Overzicht van werkuren per jaar per werkweek">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Wekelijkse werkuren</th>
+            <th>Contracturen per jaar (52 wk)</th>
+            <th>Contracturen per maand (gem.)</th>
+            <th>Verlof & feestdagen (uren)</th>
+            <th>Netto gewerkte jaaruren</th>
+            <th>Gewerkte werkweken (netto)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>40 uur (fulltime)</strong></td>
+            <td>2.080 uur</td>
+            <td>173,33 uur</td>
+            <td>256,00 uur</td>
+            <td>1.824,00 uur</td>
+            <td>45,60 weken</td>
+          </tr>
+          <tr>
+            <td><strong>38 uur (fulltime)</strong></td>
+            <td>1.976 uur</td>
+            <td>164,67 uur</td>
+            <td>243,20 uur</td>
+            <td>1.732,80 uur</td>
+            <td>45,60 weken</td>
+          </tr>
+          <tr>
+            <td><strong>36 uur (CAO fulltime)</strong></td>
+            <td>1.872 uur</td>
+            <td>156,00 uur</td>
+            <td>230,40 uur</td>
+            <td>1.641,60 uur</td>
+            <td>45,60 weken</td>
+          </tr>
+          <tr>
+            <td><strong>32 uur (parttime / 4 dagen)</strong></td>
+            <td>1.664 uur</td>
+            <td>138,67 uur</td>
+            <td>204,80 uur</td>
+            <td>1.459,20 uur</td>
+            <td>45,60 weken</td>
+          </tr>
+          <tr>
+            <td><strong>24 uur (parttime / 3 dagen)</strong></td>
+            <td>1.248 uur</td>
+            <td>104,00 uur</td>
+            <td>153,60 uur</td>
+            <td>1.094,40 uur</td>
+            <td>45,60 weken</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Uit deze tabel blijkt direct hoe <strong>fulltime werkuren per jaar</strong> verschillen tussen branches. Bij <em>werkuren 40 uur per week per jaar</em> bedraagt de contractuele norm 2.080 uur, terwijl werknemers met <em>werkuren 36 uur per week per jaar</em> contractueel op 1.872 uur uitkomen. Werk je vier dagen per week, dan geven de <em>werkuren 32 uur per week per jaar</em> een jaarbasis van 1.664 contracturen. Wie van <em>werkuren per week naar jaar</em> wil omrekenen, kan deze getallen als vaste richtlijn aanhouden.
+    </p>
+
+    <h2>De invloed van ADV- en ATV-dagen op jaarlijkse werkuren</h2>
+    <p>
+      In industriële sectoren zoals de metaal-, bouw- en installatietechniek werken werknemers vaak 40 uur per week in een rooster, terwijl de officiële CAO-arbeidsduur 38 of 36 uur bedraagt. Dit verschil wordt gecompenseerd via <strong>ADV-dagen</strong> (Arbeidsduurverkorting) of <strong>ATV-dagen</strong> (Arbeidstijdverkorting):
+    </p>
+    <ul>
+      <li><strong>6 tot 13 ADV-dagen per jaar:</strong> Bij 13 ADV-dagen van 8 uur bouw je 104 roostervrije uren op.</li>
+      <li><strong>Gevolg voor de jaaruren:</strong> Hoewel je salaris ongewijzigd blijft op basis van 2.080 uur, dalen je netto gewerkte uren per jaar van 1.824 naar slechts <strong>1.720 uur</strong>. Dat betekent dat je netto slechts 43 weken per jaar daadwerkelijk werkt.</li>
+    </ul>
+
+    <h2>Parttime werkuren per jaar berekenen</h2>
+    <p>
+      Werk je in deeltijd (bijvoorbeeld 32, 28 of 24 uur per week)? Bij <em>parttime werkuren per jaar</em> worden zowel je contracturen als je verlofrechten naar rato berekend:
+    </p>
+    <ul>
+      <li><strong>Wettelijk minimum verlof:</strong> Wettelijk heb je recht op 4 maal je wekelijkse arbeidsduur aan vakantie-uren (art. 7:634 BW). Bij 32 uur is dat 128 uur (16 dagen van 8 uur of 20 dagen van 6,4 uur).</li>
+      <li><strong>Feestdagen naar rato:</strong> Valt een erkende feestdag op een vaste vrije dag van de parttimer, dan regelen sommige CAO's een feestdagencompensatie of een jaarurensysteem om te garanderen dat parttimers evenredig profiteren van feestdagen. Reken je deeltijdsalaris door met <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.</li>
+    </ul>
+
+    <h2>Hoe verhouden jaaruren zich tot maand- en weekuren?</h2>
+    <p>
+      Een veelgemaakte fout is denken dat een jaar precies 12 gelijke maanden van 4 weken telt (48 werkweken). In werkelijkheid telt een kalenderjaar 52 weken plus 1 dag (in een schrikkeljaar 2 dagen):
+    </p>
+    <ul>
+      <li><strong>Wekelijkse arbeidsuren naar jaar:</strong> Vermenigvuldig je wekelijkse uren altijd met <strong>52</strong> (en niet met 48).</li>
+      <li><strong>Jaaruren naar maand:</strong> Deel de jaaruren door <strong>12</strong> kalendermaanden. Bij 40 uur levert dat de bekende norm van <code>(40 × 52) ÷ 12 = 173,33 uur per maand</code> op.</li>
+    </ul>
+
+    <h2>Veelgemaakte fouten bij werkuren per jaar berekenen</h2>
+    <ul>
+      <li><strong>Feestdagen en vakantiedagen vergeten af te trekken:</strong> Rekenen met 2.080 gewerkte uren bij projectplanningen, waardoor de verwachte personeelscapaciteit met ruim 12% wordt overschat.</li>
+      <li><strong>Verkeerde fulltime CAO-norm gebruiken:</strong> Aannemen dat fulltime altijd 40 uur is, terwijl in het onderwijs, zorg en openbaar bestuur 36 uur de norm is.</li>
+      <li><strong>Geen rekening houden met ADV-dagen:</strong> Verzuimen om roostervrije dagen in mindering te brengen op de productieve aanwezigheidsuren.</li>
+    </ul>
+  </div>
+</CalculatorLayout>

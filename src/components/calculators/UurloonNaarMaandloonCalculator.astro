@@ -1,0 +1,306 @@
+---
+// src/components/calculators/UurloonNaarMaandloonCalculator.astro
+---
+
+<div class="calc-grid" id="unm-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Uurloon & werkweek invoeren</h2>
+
+    <!-- Invoerveld: Bruto Uurloon -->
+    <div class="form-group">
+      <label for="input-unm-wage" class="form-label">Bruto uurloon</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-unm-wage"
+          class="form-input input-has-prefix input-has-suffix"
+          value="20.00"
+          min="0"
+          step="0.05"
+          aria-describedby="hint-unm-wage"
+        />
+        <span class="input-suffix">/ uur</span>
+      </div>
+      <div class="quick-pills-container" role="group" aria-label="Snelle selectie voorbeelduurlonen">
+        <button type="button" class="unm-pill unm-wage-pill" data-wage="14.71">€ 14,71 (WML)</button>
+        <button type="button" class="unm-pill unm-wage-pill" data-wage="16.50">€ 16,50</button>
+        <button type="button" class="unm-pill unm-wage-pill" data-wage="18.50">€ 18,50</button>
+        <button type="button" class="unm-pill unm-wage-pill is-active" data-wage="20.00">€ 20,00</button>
+        <button type="button" class="unm-pill unm-wage-pill" data-wage="22.50">€ 22,50</button>
+        <button type="button" class="unm-pill unm-wage-pill" data-wage="25.00">€ 25,00</button>
+      </div>
+      <span class="form-hint" id="hint-unm-wage">Je bruto uurloon volgens je arbeidsovereenkomst of loonstrook (excl. vakantiegeld).</span>
+    </div>
+
+    <!-- Invoerveld: Werkweek uren -->
+    <div class="form-group">
+      <label for="input-unm-hours" class="form-label">Wekelijkse arbeidsduur (uren per week)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-unm-hours"
+          class="form-input input-has-suffix"
+          value="40"
+          min="1"
+          max="80"
+          step="0.5"
+          aria-describedby="hint-unm-hours"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-pills-container" role="group" aria-label="Snelle selectie wekelijkse werkuren">
+        <button type="button" class="unm-pill unm-hour-pill" data-hours="24">24 uur</button>
+        <button type="button" class="unm-pill unm-hour-pill" data-hours="32">32 uur</button>
+        <button type="button" class="unm-pill unm-hour-pill" data-hours="36">36 uur</button>
+        <button type="button" class="unm-pill unm-hour-pill" data-hours="38">38 uur</button>
+        <button type="button" class="unm-pill unm-hour-pill is-active" data-hours="40">40 uur</button>
+      </div>
+      <span class="form-hint" id="hint-unm-hours">In Nederland geldt conform CAO's doorgaans 36, 38 of 40 uur als een fulltime werkweek.</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-unm" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Geschat bruto maandsalaris</span>
+      <div class="result-hero-value" id="res-unm-hero-salary">€ 3.466,67</div>
+      <span class="result-hero-sub" id="res-unm-hero-sub">bij 40 uur/week (ca. 173,33 uur per maand)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Bruto uurloon</span>
+        <span class="result-row-value font-medium" id="res-unm-wage">€ 20,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Wekelijkse contracturen</span>
+        <span class="result-row-value" id="res-unm-hours">40 uur / week</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Gemiddeld aantal uur per maand</span>
+        <span class="result-row-value" id="res-unm-month-hours">173,33 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto weeksalaris</span>
+        <span class="result-row-value" id="res-unm-week">€ 800,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto 4-weken salaris (13 periodes)</span>
+        <span class="result-row-value" id="res-unm-fourweek">€ 3.200,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto maandsalaris (excl. vakantiegeld)</span>
+        <span class="result-row-value font-medium" style="color: var(--color-primary);" id="res-unm-month">€ 3.466,67</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Opbouw vakantiegeld (8% per maand)</span>
+        <span class="result-row-value" style="color: var(--color-success);" id="res-unm-month-vacation">+ € 277,33</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Maandloon incl. 8% vakantiebijslag</span>
+        <span class="result-row-value font-medium" id="res-unm-month-total">€ 3.744,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto jaarsalaris (12 maanden)</span>
+        <span class="result-row-value" id="res-unm-annual">€ 41.600,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totaal jaarsalaris (incl. 8% vakantiegeld)</span>
+        <span class="result-row-value font-medium" style="color: var(--color-success);" id="res-unm-annual-total">€ 44.928,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Indicatief bruto dagloon (5-daagse week)</span>
+        <span class="result-row-value" id="res-unm-daily">€ 160,00</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>* Belangrijk over bruto versus netto:</strong>
+      <p style="margin-top: 0.25rem; line-height: 1.5; color: var(--text-muted);">
+        Dit is een <strong>bruto</strong> berekening. Je uiteindelijke netto salaris (wat er op je rekening wordt gestort) is lager door loonheffing (box 1), pensioenpremies en de opbouw of afbouw van heffingskortingen.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('unm-calc');
+    if (!calc) return;
+
+    const inputWage = calc.querySelector('#input-unm-wage') as HTMLInputElement | null;
+    const inputHours = calc.querySelector('#input-unm-hours') as HTMLInputElement | null;
+    const wagePills = calc.querySelectorAll('.unm-wage-pill') as NodeListOf<HTMLButtonElement>;
+    const hourPills = calc.querySelectorAll('.unm-hour-pill') as NodeListOf<HTMLButtonElement>;
+    const btnReset = calc.querySelector('#btn-reset-unm') as HTMLButtonElement | null;
+
+    const heroSalary = calc.querySelector('#res-unm-hero-salary');
+    const heroSub = calc.querySelector('#res-unm-hero-sub');
+    const resWage = calc.querySelector('#res-unm-wage');
+    const resHours = calc.querySelector('#res-unm-hours');
+    const resMonthHours = calc.querySelector('#res-unm-month-hours');
+    const resWeek = calc.querySelector('#res-unm-week');
+    const resFourWeek = calc.querySelector('#res-unm-fourweek');
+    const resMonth = calc.querySelector('#res-unm-month');
+    const resMonthVacation = calc.querySelector('#res-unm-month-vacation');
+    const resMonthTotal = calc.querySelector('#res-unm-month-total');
+    const resAnnual = calc.querySelector('#res-unm-annual');
+    const resAnnualTotal = calc.querySelector('#res-unm-annual-total');
+    const resDaily = calc.querySelector('#res-unm-daily');
+
+    const formatCurrency = (val: number) =>
+      new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+
+    const formatNumber = (val: number, maxDec = 2) =>
+      new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maxDec
+      }).format(val);
+
+    function calculate() {
+      if (!inputWage || !inputHours) return;
+
+      const wage = Math.max(0, parseFloat(inputWage.value) || 0);
+      const hours = Math.max(0, parseFloat(inputHours.value) || 0);
+
+      // Berekening conform officiële standaard:
+      // Wekelijkse uren * 52 / 12 = maanduren
+      const weeklySalary = wage * hours;
+      const fourWeeklySalary = weeklySalary * 4;
+      const monthlyHours = (hours * 52) / 12;
+      const monthlySalary = wage * monthlyHours;
+      const monthlyVacationPay = monthlySalary * 0.08;
+      const monthlyTotalWithVacation = monthlySalary + monthlyVacationPay;
+      const annualSalary = monthlySalary * 12;
+      const annualVacationPay = annualSalary * 0.08;
+      const annualSalaryWithVacation = annualSalary + annualVacationPay;
+      const dailyWage = hours > 0 ? (weeklySalary / 5) : 0;
+
+      // Update Hero
+      if (heroSalary) heroSalary.textContent = formatCurrency(monthlySalary);
+      if (heroSub) {
+        heroSub.textContent = `bij ${formatNumber(hours)} uur/week (ca. ${formatNumber(monthlyHours)} uur per maand)`;
+      }
+
+      // Update Breakdown
+      if (resWage) resWage.textContent = formatCurrency(wage);
+      if (resHours) resHours.textContent = `${formatNumber(hours)} uur / week`;
+      if (resMonthHours) resMonthHours.textContent = `${formatNumber(monthlyHours)} uur`;
+      if (resWeek) resWeek.textContent = formatCurrency(weeklySalary);
+      if (resFourWeek) resFourWeek.textContent = formatCurrency(fourWeeklySalary);
+      if (resMonth) resMonth.textContent = formatCurrency(monthlySalary);
+      if (resMonthVacation) resMonthVacation.textContent = `+ ${formatCurrency(monthlyVacationPay)}`;
+      if (resMonthTotal) resMonthTotal.textContent = formatCurrency(monthlyTotalWithVacation);
+      if (resAnnual) resAnnual.textContent = formatCurrency(annualSalary);
+      if (resAnnualTotal) resAnnualTotal.textContent = formatCurrency(annualSalaryWithVacation);
+      if (resDaily) resDaily.textContent = formatCurrency(dailyWage);
+    }
+
+    // Input event listeners
+    inputWage?.addEventListener('input', () => {
+      const val = inputWage.value;
+      wagePills.forEach(p => p.classList.toggle('is-active', p.dataset.wage === val));
+      calculate();
+    });
+
+    inputHours?.addEventListener('input', () => {
+      const val = inputHours.value;
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === val));
+      calculate();
+    });
+
+    // Wage pill buttons
+    wagePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        wagePills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        if (inputWage && pill.dataset.wage) {
+          inputWage.value = pill.dataset.wage;
+          calculate();
+        }
+      });
+    });
+
+    // Hour pill buttons
+    hourPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        hourPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        if (inputHours && pill.dataset.hours) {
+          inputHours.value = pill.dataset.hours;
+          calculate();
+        }
+      });
+    });
+
+    // Reset button
+    btnReset?.addEventListener('click', () => {
+      if (inputWage) inputWage.value = '20.00';
+      if (inputHours) inputHours.value = '40';
+      wagePills.forEach(p => p.classList.toggle('is-active', p.dataset.wage === '20.00'));
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '40'));
+      calculate();
+    });
+
+    // Initial calculation
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .unm-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .unm-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .unm-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>

@@ -52,7 +52,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken direct je bruto uurloon vanuit je maand- of jaarsalaris. Inclusief instelbare werkweek (36, 38 of 40 uur) en Nederlandse CAO-normen.',
     icon: 'coins',
     popular: true,
-    relatedSlugs: ['parttime-salaris-berekenen', 'overuren-berekenen', 'vakantiegeld-berekenen']
+    relatedSlugs: ['uurloon-naar-maandloon-berekenen', 'parttime-salaris-berekenen', 'vakantiegeld-berekenen']
   },
   {
     id: 'reiskostenvergoeding',
@@ -65,7 +65,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken je reiskostenvergoeding voor woon-werkverkeer. Zie direct hoeveel je netto onbelast vergoed krijgt op basis van de Belastingdienst norm van € 0,23/km.',
     icon: 'car',
     popular: true,
-    relatedSlugs: ['thuiswerkvergoeding-berekenen', 'werkdagen-berekenen', 'uurloon-berekenen']
+    relatedSlugs: ['kilometervergoeding-berekenen', 'woon-werk-kosten-berekenen', 'thuiswerkvergoeding-berekenen']
   },
   {
     id: 'thuiswerkvergoeding',
@@ -126,11 +126,11 @@ export const CALCULATORS: CalculatorMeta[] = [
     shortTitle: 'Overuren',
     category: 'salaris',
     categoryTitle: 'Salaris & loon',
-    description: 'Bereken de bruto uitbetaling van je overuren inclusief CAO-toeslagpercentage (125%, 150% of 200%) of tijd-voor-tijd compensatie.',
-    metaDescription: 'Bereken je overurenvergoeding inclusief toeslag (zoals 125%, 150% of 200%). Bereken direct het bruto overwerkbedrag of tijd-voor-tijd uren.',
+    description: 'Bereken direct je overurenvergoeding en uitbetaling inclusief overwerktoeslag (125%, 150% of 200%), vakantiegeld en netto indicatie.',
+    metaDescription: 'Bereken direct je overuren inclusief overwerktoeslag (zoals 125%, 150% of 200%), 8% vakantiegeld en netto indicatie. Eenvoudig en nauwkeurig.',
     icon: 'clock',
     popular: true,
-    relatedSlugs: ['uurloon-berekenen', 'parttime-salaris-berekenen', 'werkdagen-berekenen']
+    relatedSlugs: ['uurloon-berekenen', 'weekloon-berekenen', 'parttime-salaris-berekenen', 'vakantiegeld-berekenen']
   },
   {
     id: 'werkdagen',
@@ -143,7 +143,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken het aantal werkdagen tussen twee datums in Nederland. Exclusief weekenden en officiële Nederlandse feestdagen zoals Koningsdag en Hemelvaart.',
     icon: 'briefcase',
     popular: true,
-    relatedSlugs: ['vakantiedagen-berekenen', 'reiskostenvergoeding-berekenen', 'thuiswerkvergoeding-berekenen']
+    relatedSlugs: ['werkuren-per-jaar-berekenen', 'vakantiedagen-berekenen', 'reiskostenvergoeding-berekenen']
   },
   {
     id: 'parttime-salaris',
@@ -156,7 +156,98 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken je parttime salaris op basis van je deeltijdfactor en gewerkte uren. Vergelijk direct met het fulltime salaris (36, 38 of 40 uur).',
     icon: 'pie-chart',
     popular: true,
-    relatedSlugs: ['uurloon-berekenen', 'vakantiedagen-berekenen', 'vakantiegeld-berekenen']
+    relatedSlugs: ['uurloon-berekenen', 'salarisverhoging-berekenen', 'vakantiegeld-berekenen']
+  },
+  {
+    id: 'salarisverhoging',
+    slug: 'salarisverhoging-berekenen',
+    title: 'Salarisverhoging berekenen',
+    shortTitle: 'Salarisverhoging',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken direct wat een salarisverhoging of loonsverhoging betekent per maand, per jaar en inclusief vakantiegeld.',
+    metaDescription: 'Bereken je salarisverhoging in euro’s en procenten per maand en per jaar. Inclusief 8% vakantiebijslag, CAO-stappen en bruto-netto toelichting.',
+    icon: 'trending-up',
+    popular: true,
+    relatedSlugs: ['uurloon-berekenen', 'parttime-salaris-berekenen', 'vakantiegeld-berekenen', 'overuren-berekenen']
+  },
+  {
+    id: 'uurloon-naar-maandloon',
+    slug: 'uurloon-naar-maandloon-berekenen',
+    title: 'Uurloon naar maandloon berekenen',
+    shortTitle: 'Uurloon naar maandloon',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Reken eenvoudig een bruto uurloon om naar een maandsalaris, weeksalaris en jaarsalaris op basis van je werkweek.',
+    metaDescription: 'Bereken je maandloon vanuit je uurloon. Nauwkeurige omrekening op basis van je wekelijkse arbeidsduur (bijv. 40, 36 of 32 uur), incl. 8% vakantiegeld.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['weekloon-berekenen', 'maandloon-naar-uurloon-berekenen', 'uurloon-berekenen', 'parttime-salaris-berekenen']
+  },
+  {
+    id: 'maandloon-naar-uurloon',
+    slug: 'maandloon-naar-uurloon-berekenen',
+    title: 'Maandloon naar uurloon berekenen',
+    shortTitle: 'Maandloon naar uurloon',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Reken snel en nauwkeurig je bruto maandsalaris om naar je bruto uurloon op basis van je wekelijkse arbeidsduur.',
+    metaDescription: 'Bereken je bruto uurloon vanuit je maandsalaris. Nauwkeurige omrekening via de officiële jaaruren-methode voor 40, 36, 32 en 24 uur per week.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['weekloon-berekenen', 'uurloon-naar-maandloon-berekenen', 'uurloon-berekenen', 'parttime-salaris-berekenen']
+  },
+  {
+    id: 'werkuren-per-jaar',
+    slug: 'werkuren-per-jaar-berekenen',
+    title: 'Werkuren per jaar berekenen',
+    shortTitle: 'Werkuren per jaar',
+    category: 'werkuren',
+    categoryTitle: 'Werkuren & vakantie',
+    description: 'Bereken je totale contractuele en daadwerkelijk gewerkte uren per jaar na aftrek van vakantiedagen, feestdagen en ADV.',
+    metaDescription: 'Bereken eenvoudig het aantal werkuren per jaar. Zie direct het verschil tussen contracturen en feitelijk gewerkte uren na vakantie en feestdagen.',
+    icon: 'clock',
+    popular: true,
+    relatedSlugs: ['werkdagen-berekenen', 'vakantie-uren-berekenen', 'vakantiedagen-berekenen', 'uurloon-berekenen']
+  },
+  {
+    id: 'woon-werk-kosten',
+    slug: 'woon-werk-kosten-berekenen',
+    title: 'Woon-werk kosten berekenen',
+    shortTitle: 'Woon-werk kosten',
+    category: 'vergoedingen',
+    categoryTitle: 'Reiskosten & vergoedingen',
+    description: 'Bereken eenvoudig de werkelijke kosten van je woon-werkverkeer per maand en jaar. Inclusief brandstofverbruik, parkeerkosten en vergelijking met reiskostenvergoeding.',
+    metaDescription: 'Bereken direct je werkelijke kosten voor woon-werkverkeer per maand en jaar. Inclusief brandstofverbruik, parkeerkosten en vergelijking met € 0,23/km vergoeding.',
+    icon: 'car',
+    popular: true,
+    relatedSlugs: ['kilometervergoeding-berekenen', 'reiskostenvergoeding-berekenen', 'thuiswerkvergoeding-berekenen']
+  },
+  {
+    id: 'kilometervergoeding',
+    slug: 'kilometervergoeding-berekenen',
+    title: 'Kilometervergoeding berekenen',
+    shortTitle: 'Kilometervergoeding',
+    category: 'vergoedingen',
+    categoryTitle: 'Reiskosten & vergoedingen',
+    description: 'Bereken direct je kilometervergoeding per enkele reis, retour, week, maand en jaar op basis van je kilometers en vergoedingstarief.',
+    metaDescription: 'Bereken eenvoudig je kilometervergoeding per dag, week, maand en jaar. Pas direct je kilometertarief aan en zie welk deel onbelast is (€ 0,23/km).',
+    icon: 'car',
+    popular: true,
+    relatedSlugs: ['reiskostenvergoeding-berekenen', 'woon-werk-kosten-berekenen', 'thuiswerkvergoeding-berekenen', 'werkdagen-berekenen']
+  },
+  {
+    id: 'weekloon',
+    slug: 'weekloon-berekenen',
+    title: 'Weekloon berekenen',
+    shortTitle: 'Weekloon',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken eenvoudig je bruto weekloon vanuit je uurloon of maandsalaris, inclusief 4-wekenloon, maandsalaris en jaarsalaris.',
+    metaDescription: 'Bereken direct je bruto weekloon vanuit je uurloon of maandloon. Nauwkeurige omrekening via de 52-weken norm voor fulltime en parttime contracten.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['uurloon-berekenen', 'uurloon-naar-maandloon-berekenen', 'maandloon-naar-uurloon-berekenen', 'parttime-salaris-berekenen']
   }
 ];
 

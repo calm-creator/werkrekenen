@@ -265,40 +265,61 @@ export function calculateVakantieUren(
 
 /* =========================================================================
    6. Overuren berekenen
-   Uurloon + toeslagpercentage (bijv. 125%, 150%, 200%)
+   Uurloon + aantal overuren + toeslagpercentage (bijv. 100%, 125%, 150%, 200%)
+   Optioneel inclusief 8% wettelijk vakantiegeld (art. 16 WML) en indicatie netto
    ========================================================================= */
 export interface OverurenResult {
   hourlyWage: number;
   overtimeHours: number;
   surchargePercentage: number; // bijv. 125 voor 125% uitbetaling
-  basePay: number; // 100%
-  surchargePay: number; // toeslagdeel (bijv. 25%)
-  totalGrossPay: number;
-  timeForTimeHours: number;
+  effectiveHourlyRate: number; // hourlyWage * (surchargePercentage / 100)
+  basePay: number; // 100% basisvergoeding
+  surchargePay: number; // extra toeslag
+  totalGrossPay: number; // basisloon + overwerktoeslag
+  includeVacationPay: boolean;
+  vacationPayAmount: number; // 8% over totalGrossPay if includeVacationPay
+  totalGrossWithVacationPay: number; // totalGrossPay + vacationPayAmount
+  estimatedNetIndicative: number; // indicatieve netto schatting (ca. 50,5% na bijzonder tarief)
+  timeForTimeHours: number; // safeHours * (safePercentage / 100)
 }
 
 export function calculateOveruren(
   hourlyWage: number,
   overtimeHours: number,
-  surchargePercentage: number = 125 // 125% betekent 100% basis + 25% toeslag
+  surchargePercentage: number = 125,
+  includeVacationPay: boolean = false
 ): OverurenResult {
   const safeWage = Math.max(0, hourlyWage);
   const safeHours = Math.max(0, overtimeHours);
-  const safeSurcharge = Math.max(100, surchargePercentage);
+  const safeSurcharge = Math.max(0, surchargePercentage);
 
+  const effectiveHourlyRate = safeWage * (safeSurcharge / 100);
   const basePay = safeWage * safeHours;
-  const totalGrossPay = basePay * (safeSurcharge / 100);
-  const surchargePay = totalGrossPay - basePay;
+  const totalGrossPay = safeHours * effectiveHourlyRate;
+  const surchargePay = Math.max(0, totalGrossPay - basePay);
+
+  const vacationPayAmount = includeVacationPay ? totalGrossPay * 0.08 : 0;
+  const totalGrossWithVacationPay = totalGrossPay + vacationPayAmount;
+
+  const basisForNet = includeVacationPay ? totalGrossWithVacationPay : totalGrossPay;
+  const estimatedNetIndicative = basisForNet * 0.505;
   const timeForTimeHours = safeHours * (safeSurcharge / 100);
 
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
   return {
-    hourlyWage: safeWage,
-    overtimeHours: safeHours,
-    surchargePercentage: safeSurcharge,
-    basePay: Math.round(basePay * 100) / 100,
-    surchargePay: Math.round(surchargePay * 100) / 100,
-    totalGrossPay: Math.round(totalGrossPay * 100) / 100,
-    timeForTimeHours: Math.round(timeForTimeHours * 100) / 100
+    hourlyWage: round2(safeWage),
+    overtimeHours: round2(safeHours),
+    surchargePercentage: round2(safeSurcharge),
+    effectiveHourlyRate: round2(effectiveHourlyRate),
+    basePay: round2(basePay),
+    surchargePay: round2(surchargePay),
+    totalGrossPay: round2(totalGrossPay),
+    includeVacationPay,
+    vacationPayAmount: round2(vacationPayAmount),
+    totalGrossWithVacationPay: round2(totalGrossWithVacationPay),
+    estimatedNetIndicative: round2(estimatedNetIndicative),
+    timeForTimeHours: round2(timeForTimeHours)
   };
 }
 
@@ -516,5 +537,517 @@ export function calculateVakantiedagen(
     totalWeeks: round2(totalWeeks),
     monthlyAccrualDays: round2(monthlyAccrualDays)
   };
+}
+
+/* =========================================================================
+   11. Salarisverhoging berekenen
+   Berekening van loonsverhoging (percentage)
+   per maand, per jaar en inclusief 8% wettelijke vakantiebijslag
+   ========================================================================= */
+export interface SalarisverhogingResult {
+  currentSalary: number;
+  period: 'monthly' | 'annual';
+  increasePercentage: number;
+  increaseAmountMonthly: number;
+  increaseAmountAnnual: number;
+  increaseAmountAnnualWithVacation: number;
+  newSalaryMonthly: number;
+  newSalaryAnnual: number;
+  newSalaryAnnualWithVacation: number;
+  hourlyIncreaseEstimate: number;
+}
+
+export function calculateSalarisverhoging(
+  currentSalary: number,
+  period: 'monthly' | 'annual' = 'monthly',
+  increasePercentage: number = 4.0
+): SalarisverhogingResult {
+  const safeSalary = Math.max(0, currentSalary);
+  const safePct = Math.max(0, increasePercentage);
+
+  let currentMonthly = 0;
+  let currentAnnual = 0;
+
+  if (period === 'monthly') {
+    currentMonthly = safeSalary;
+    currentAnnual = safeSalary * 12;
+  } else {
+    currentAnnual = safeSalary;
+    currentMonthly = safeSalary / 12;
+  }
+
+  const factor = safePct / 100;
+
+  const increaseAmountMonthly = currentMonthly * factor;
+  const increaseAmountAnnual = currentAnnual * factor;
+  const increaseAmountAnnualWithVacation = increaseAmountAnnual * 1.08;
+
+  const newSalaryMonthly = currentMonthly + increaseAmountMonthly;
+  const newSalaryAnnual = currentAnnual + increaseAmountAnnual;
+  const newSalaryAnnualWithVacation = newSalaryAnnual * 1.08;
+
+  const monthlyHoursStandard = (40 * 52) / 12;
+  const hourlyIncreaseEstimate = monthlyHoursStandard > 0 ? increaseAmountMonthly / monthlyHoursStandard : 0;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    currentSalary: safeSalary,
+    period,
+    increasePercentage: safePct,
+    increaseAmountMonthly: round2(increaseAmountMonthly),
+    increaseAmountAnnual: round2(increaseAmountAnnual),
+    increaseAmountAnnualWithVacation: round2(increaseAmountAnnualWithVacation),
+    newSalaryMonthly: round2(newSalaryMonthly),
+    newSalaryAnnual: round2(newSalaryAnnual),
+    newSalaryAnnualWithVacation: round2(newSalaryAnnualWithVacation),
+    hourlyIncreaseEstimate: round2(hourlyIncreaseEstimate)
+  };
+}
+
+/* =========================================================================
+   12. Uurloon naar Maandloon berekenen
+   Formule: Maandsalaris = (Uurloon * wekelijkse_uren * 52) / 12
+   Weeksalaris = Uurloon * wekelijkse_uren
+   4-weken salaris = Weeksalaris * 4
+   Jaarsalaris = Maandsalaris * 12 (of Weeksalaris * 52)
+   Vakantiegeld = 8% over jaarsalaris (en maandelijks 8% over maandsalaris)
+   ========================================================================= */
+export interface UurloonNaarMaandloonResult {
+  hourlyWage: number;
+  weeklyHours: number;
+  weeklySalary: number;
+  fourWeeklySalary: number;
+  monthlyHours: number;
+  monthlySalary: number;
+  monthlyVacationPay: number;
+  monthlyTotalWithVacation: number;
+  annualSalary: number;
+  annualVacationPay: number;
+  annualSalaryWithVacation: number;
+  dailyWage: number;
+}
+
+export function calculateUurloonNaarMaandloon(
+  hourlyWage: number,
+  weeklyHours: number
+): UurloonNaarMaandloonResult {
+  const safeHourly = Math.max(0, hourlyWage);
+  const safeHours = Math.max(0, weeklyHours);
+  const weeklySalary = safeHourly * safeHours;
+  const fourWeeklySalary = weeklySalary * 4;
+  const monthlyHours = (safeHours * 52) / 12;
+  const monthlySalary = safeHourly * monthlyHours;
+  const monthlyVacationPay = monthlySalary * 0.08;
+  const monthlyTotalWithVacation = monthlySalary + monthlyVacationPay;
+  const annualSalary = monthlySalary * 12;
+  const annualVacationPay = annualSalary * 0.08;
+  const annualSalaryWithVacation = annualSalary + annualVacationPay;
+  const dailyWage = safeHours > 0 ? (weeklySalary / 5) : 0;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    hourlyWage: safeHourly,
+    weeklyHours: safeHours,
+    weeklySalary: round2(weeklySalary),
+    fourWeeklySalary: round2(fourWeeklySalary),
+    monthlyHours: round2(monthlyHours),
+    monthlySalary: round2(monthlySalary),
+    monthlyVacationPay: round2(monthlyVacationPay),
+    monthlyTotalWithVacation: round2(monthlyTotalWithVacation),
+    annualSalary: round2(annualSalary),
+    annualVacationPay: round2(annualVacationPay),
+    annualSalaryWithVacation: round2(annualSalaryWithVacation),
+    dailyWage: round2(dailyWage)
+  };
+}
+
+/* =========================================================================
+   13. Maandloon naar Uurloon berekenen
+   Formule: Uurloon = (Maandsalaris * 12) / (wekelijkse_uren * 52)
+   Gemiddelde maanduren = (wekelijkse_uren * 52) / 12
+   Weeksalaris = (Maandsalaris * 12) / 52
+   4-weken salaris = (Maandsalaris * 12) / 13
+   Jaarsalaris = Maandsalaris * 12
+   ========================================================================= */
+export interface MaandloonNaarUurloonResult {
+  monthlySalary: number;
+  weeklyHours: number;
+  hourlyWage: number;
+  weeklySalary: number;
+  fourWeeklySalary: number;
+  monthlyHours: number;
+  annualSalary: number;
+  annualSalaryWithVacation: number;
+  dailyWage: number;
+}
+
+export function calculateMaandloonNaarUurloon(
+  monthlySalary: number,
+  weeklyHours: number
+): MaandloonNaarUurloonResult {
+  const safeMonthly = Math.max(0, monthlySalary);
+  const safeHours = Math.max(0, weeklyHours);
+  const monthlyHours = (safeHours * 52) / 12;
+  const hourlyWage = monthlyHours > 0 ? safeMonthly / monthlyHours : 0;
+  const annualSalary = safeMonthly * 12;
+  const annualSalaryWithVacation = annualSalary * 1.08;
+  const weeklySalary = (safeMonthly * 12) / 52;
+  const fourWeeklySalary = (safeMonthly * 12) / 13;
+  const dailyWage = safeHours > 0 ? weeklySalary / 5 : 0;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    monthlySalary: safeMonthly,
+    weeklyHours: safeHours,
+    hourlyWage: round2(hourlyWage),
+    weeklySalary: round2(weeklySalary),
+    fourWeeklySalary: round2(fourWeeklySalary),
+    monthlyHours: round2(monthlyHours),
+    annualSalary: round2(annualSalary),
+    annualSalaryWithVacation: round2(annualSalaryWithVacation),
+    dailyWage: round2(dailyWage)
+  };
+}
+
+/* =========================================================================
+   14. Werkuren per Jaar berekenen
+   Contractuele jaaruren = wekelijkse_uren * 52
+   Contractuele maanduren = (wekelijkse_uren * 52) / 12
+   Contractuele werkdagen (5-daagse basis) = 52 * 5 = 260 dagen
+   Uren per dag = wekelijkse_uren / 5
+   Vakantie-uren = vakantiedagen * uren_per_dag
+   Feestdag-uren = feestdagen * uren_per_dag
+   ADV-uren = adv_dagen * uren_per_dag
+   Netto gewerkte jaaruren = Contractuele jaaruren - Vakantie-uren - Feestdag-uren - ADV-uren
+   Netto gewerkte maanduren = Netto gewerkte jaaruren / 12
+   Netto gewerkte werkweken = wekelijkse_uren > 0 ? Netto gewerkte jaaruren / wekelijkse_uren : 0
+   Netto gewerkte werkdagen = uren_per_dag > 0 ? Netto gewerkte jaaruren / uren_per_dag : 0
+   ========================================================================= */
+export interface WerkurenPerJaarResult {
+  weeklyHours: number;
+  vacationDays: number;
+  publicHolidays: number;
+  advDays: number;
+  dailyHours: number;
+  contractualAnnualHours: number;
+  contractualMonthlyHours: number;
+  contractualAnnualDays: number;
+  vacationHours: number;
+  holidayHours: number;
+  advHours: number;
+  totalLeaveHours: number;
+  actualAnnualHours: number;
+  actualMonthlyHours: number;
+  actualAnnualWeeks: number;
+  actualAnnualDays: number;
+}
+
+export function calculateWerkurenPerJaar(
+  weeklyHours: number,
+  vacationDays: number = 25,
+  publicHolidays: number = 7,
+  advDays: number = 0
+): WerkurenPerJaarResult {
+  const safeHours = Math.max(0, weeklyHours);
+  const safeVacationDays = Math.max(0, vacationDays);
+  const safeHolidays = Math.max(0, publicHolidays);
+  const safeAdvDays = Math.max(0, advDays);
+
+  const dailyHours = safeHours > 0 ? safeHours / 5 : 0;
+  const contractualAnnualHours = safeHours * 52;
+  const contractualMonthlyHours = (safeHours * 52) / 12;
+  const contractualAnnualDays = 52 * 5; // 260 nominale werkdagen
+
+  const vacationHours = safeVacationDays * dailyHours;
+  const holidayHours = safeHolidays * dailyHours;
+  const advHours = safeAdvDays * dailyHours;
+  const totalLeaveHours = vacationHours + holidayHours + advHours;
+
+  const actualAnnualHours = Math.max(0, contractualAnnualHours - totalLeaveHours);
+  const actualMonthlyHours = actualAnnualHours / 12;
+  const actualAnnualWeeks = safeHours > 0 ? actualAnnualHours / safeHours : 0;
+  const actualAnnualDays = dailyHours > 0 ? actualAnnualHours / dailyHours : 0;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    weeklyHours: safeHours,
+    vacationDays: safeVacationDays,
+    publicHolidays: safeHolidays,
+    advDays: safeAdvDays,
+    dailyHours: round2(dailyHours),
+    contractualAnnualHours: round2(contractualAnnualHours),
+    contractualMonthlyHours: round2(contractualMonthlyHours),
+    contractualAnnualDays,
+    vacationHours: round2(vacationHours),
+    holidayHours: round2(holidayHours),
+    advHours: round2(advHours),
+    totalLeaveHours: round2(totalLeaveHours),
+    actualAnnualHours: round2(actualAnnualHours),
+    actualMonthlyHours: round2(actualMonthlyHours),
+    actualAnnualWeeks: round2(actualAnnualWeeks),
+    actualAnnualDays: round2(actualAnnualDays)
+  };
+}
+
+/* =========================================================================
+   15. Woon-werk kosten berekenen
+   Afstand enkele reis, reisdagen per week, verbruik per 100km, brandstofprijs, parkeer/tol
+   ========================================================================= */
+export interface WoonWerkKostenResult {
+  oneWayKm: number;
+  returnKmDaily: number;
+  travelDaysPerWeek: number;
+  annualTravelDays: number;
+  fuelConsumptionPer100Km: number;
+  fuelPricePerLiter: number;
+  dailyExtraCosts: number;
+  fuelCostPerKm: number;
+  costPerOneWay: number;
+  fuelCostDaily: number;
+  totalCostDaily: number;
+  weeklyFuelCost: number;
+  weeklyTotalCost: number;
+  monthlyFuelCost: number;
+  monthlyTotalCost: number;
+  annualFuelCost: number;
+  annualTotalCost: number;
+  annualCommuteKm: number;
+  taxFreeAllowanceAnnual: number;
+  taxFreeAllowanceMonthly: number;
+  totalCarCostEstimateAnnual: number;
+}
+
+export function calculateWoonWerkKosten(
+  oneWayKm: number,
+  travelDaysPerWeek: number = 5,
+  fuelConsumptionPer100Km: number = 6.5,
+  fuelPricePerLiter: number = 2.05,
+  dailyExtraCosts: number = 0
+): WoonWerkKostenResult {
+  const safeOneWay = Math.max(0, oneWayKm);
+  const safeDays = Math.min(7, Math.max(0, travelDaysPerWeek));
+  const safeConsumption = Math.max(0, fuelConsumptionPer100Km);
+  const safePrice = Math.max(0, fuelPricePerLiter);
+  const safeExtra = Math.max(0, dailyExtraCosts);
+
+  const returnKmDaily = safeOneWay * 2;
+  // Belastingdienst 214-dagen norm pro rato
+  const annualTravelDays = (safeDays / 5) * 214;
+  const annualCommuteKm = returnKmDaily * annualTravelDays;
+
+  // Brandstofkosten per km
+  const fuelCostPerKm = (safeConsumption / 100) * safePrice;
+  const costPerOneWay = safeOneWay * fuelCostPerKm;
+  const fuelCostDaily = returnKmDaily * fuelCostPerKm;
+  const totalCostDaily = fuelCostDaily + safeExtra;
+
+  // Week
+  const weeklyFuelCost = fuelCostDaily * safeDays;
+  const weeklyTotalCost = totalCostDaily * safeDays;
+
+  // Jaar (o.b.v. 214 norm)
+  const annualFuelCost = fuelCostDaily * annualTravelDays;
+  const annualTotalCost = totalCostDaily * annualTravelDays;
+
+  // Maand (12 maanden)
+  const monthlyFuelCost = annualFuelCost / 12;
+  const monthlyTotalCost = annualTotalCost / 12;
+
+  // Fiscale vergoeding (€ 0,23 / km)
+  const taxFreeAllowanceAnnual = annualCommuteKm * DUTCH_RATES.travelAllowancePerKm;
+  const taxFreeAllowanceMonthly = taxFreeAllowanceAnnual / 12;
+
+  // ANWB / Nibud indicatie totale autokosten (ca. € 0,45 / km benchmark)
+  const totalCarCostEstimateAnnual = annualCommuteKm * 0.45;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    oneWayKm: safeOneWay,
+    returnKmDaily: round2(returnKmDaily),
+    travelDaysPerWeek: safeDays,
+    annualTravelDays: round2(annualTravelDays),
+    fuelConsumptionPer100Km: safeConsumption,
+    fuelPricePerLiter: safePrice,
+    dailyExtraCosts: safeExtra,
+    fuelCostPerKm: round2(fuelCostPerKm),
+    costPerOneWay: round2(costPerOneWay),
+    fuelCostDaily: round2(fuelCostDaily),
+    totalCostDaily: round2(totalCostDaily),
+    weeklyFuelCost: round2(weeklyFuelCost),
+    weeklyTotalCost: round2(weeklyTotalCost),
+    monthlyFuelCost: round2(monthlyFuelCost),
+    monthlyTotalCost: round2(monthlyTotalCost),
+    annualFuelCost: round2(annualFuelCost),
+    annualTotalCost: round2(annualTotalCost),
+    annualCommuteKm: round2(annualCommuteKm),
+    taxFreeAllowanceAnnual: round2(taxFreeAllowanceAnnual),
+    taxFreeAllowanceMonthly: round2(taxFreeAllowanceMonthly),
+    totalCarCostEstimateAnnual: round2(totalCarCostEstimateAnnual)
+  };
+}
+
+/* =========================================================================
+   16. Kilometervergoeding berekenen
+   Woon-werkkilometers, tarief per km, enkele reis vs retour
+   en Belastingdienst 214-dagenregeling pro-rata
+   ========================================================================= */
+export interface KilometervergoedingOptions {
+  distanceKm: number;
+  isReturnTrip?: boolean;
+  travelDaysPerWeek: number;
+  ratePerKm?: number;
+}
+
+export interface KilometervergoedingResult {
+  singleKm: number;
+  dailyKm: number;
+  weeklyKm: number;
+  annualKm: number;
+  travelDaysPerWeek: number;
+  annualTravelDays: number;
+  ratePerKm: number;
+  officialRatePerKm: number;
+  singleAllowance: number;
+  dailyAllowance: number;
+  weeklyAllowance: number;
+  monthlyAllowance: number;
+  annualAllowance: number;
+  isAboveOfficialRate: boolean;
+  taxableRateDiff: number;
+  taxablePortionMonthly: number;
+  untaxedPortionMonthly: number;
+}
+
+export function calculateKilometervergoeding({
+  distanceKm,
+  isReturnTrip = false,
+  travelDaysPerWeek,
+  ratePerKm = DUTCH_RATES.travelAllowancePerKm
+}: KilometervergoedingOptions): KilometervergoedingResult {
+  const safeDist = Math.max(0, distanceKm);
+  const singleKm = isReturnTrip ? safeDist / 2 : safeDist;
+  const dailyKm = isReturnTrip ? safeDist : safeDist * 2;
+  const safeDays = Math.min(7, Math.max(0, travelDaysPerWeek));
+  const safeRate = Math.max(0, ratePerKm);
+  const officialRate = DUTCH_RATES.travelAllowancePerKm;
+
+  // Belastingdienst 214-dagen norm: (reisdagen / 5) * 214
+  const annualTravelDays = (safeDays / 5) * 214;
+  const weeklyKm = dailyKm * safeDays;
+  const annualKm = dailyKm * annualTravelDays;
+
+  const singleAllowance = singleKm * safeRate;
+  const dailyAllowance = dailyKm * safeRate;
+  const weeklyAllowance = dailyAllowance * safeDays;
+  const annualAllowance = dailyAllowance * annualTravelDays;
+  const monthlyAllowance = annualAllowance / 12;
+
+  const isAboveOfficialRate = safeRate > officialRate;
+  const taxableRateDiff = Math.max(0, safeRate - officialRate);
+  const untaxedDaily = dailyKm * Math.min(safeRate, officialRate);
+  const untaxedMonthly = (untaxedDaily * annualTravelDays) / 12;
+  const taxableMonthly = Math.max(0, monthlyAllowance - untaxedMonthly);
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    singleKm: Math.round(singleKm * 100) / 100,
+    dailyKm: Math.round(dailyKm * 100) / 100,
+    weeklyKm: Math.round(weeklyKm * 100) / 100,
+    annualKm: Math.round(annualKm * 100) / 100,
+    travelDaysPerWeek: safeDays,
+    annualTravelDays: Math.round(annualTravelDays * 10) / 10,
+    ratePerKm: round2(safeRate),
+    officialRatePerKm: officialRate,
+    singleAllowance: round2(singleAllowance),
+    dailyAllowance: round2(dailyAllowance),
+    weeklyAllowance: round2(weeklyAllowance),
+    monthlyAllowance: round2(monthlyAllowance),
+    annualAllowance: round2(annualAllowance),
+    isAboveOfficialRate,
+    taxableRateDiff: round2(taxableRateDiff),
+    taxablePortionMonthly: round2(taxableMonthly),
+    untaxedPortionMonthly: round2(untaxedMonthly)
+  };
+}
+
+/* =========================================================================
+   17. Weekloon berekenen
+   Bruto weekloon vanuit uurloon of vanuit maandloon,
+   vierwekenloon (13 periodes) en jaarsalaris (52 weken)
+   ========================================================================= */
+export interface WeekloonOptions {
+  calculationMode: 'from_hourly' | 'from_monthly';
+  hourlyWage?: number;
+  monthlySalary?: number;
+  weeklyHours: number;
+}
+
+export interface WeekloonResult {
+  calculationMode: 'from_hourly' | 'from_monthly';
+  weeklyHours: number;
+  hourlyWage: number;
+  weeklySalary: number;
+  fourWeeklySalary: number;
+  monthlySalary: number;
+  annualSalary: number;
+  annualSalaryWithVacation: number;
+  monthlyHours: number;
+}
+
+export function calculateWeekloon({
+  calculationMode,
+  hourlyWage = 0,
+  monthlySalary = 0,
+  weeklyHours = 40
+}: WeekloonOptions): WeekloonResult {
+  const safeHours = Math.max(0.5, weeklyHours);
+  const monthlyHours = (safeHours * 52) / 12;
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  if (calculationMode === 'from_hourly') {
+    const safeHourly = Math.max(0, hourlyWage);
+    const weeklySalary = safeHourly * safeHours;
+    const annualSalary = weeklySalary * 52;
+    const monthlySalaryCalc = annualSalary / 12;
+    const fourWeeklySalary = weeklySalary * 4;
+    const annualSalaryWithVacation = annualSalary * 1.08;
+
+    return {
+      calculationMode,
+      weeklyHours: safeHours,
+      hourlyWage: round2(safeHourly),
+      weeklySalary: round2(weeklySalary),
+      fourWeeklySalary: round2(fourWeeklySalary),
+      monthlySalary: round2(monthlySalaryCalc),
+      annualSalary: round2(annualSalary),
+      annualSalaryWithVacation: round2(annualSalaryWithVacation),
+      monthlyHours: round2(monthlyHours)
+    };
+  } else {
+    const safeMonthly = Math.max(0, monthlySalary);
+    const annualSalary = safeMonthly * 12;
+    const weeklySalary = annualSalary / 52;
+    const fourWeeklySalary = annualSalary / 13;
+    const hourlyWageCalc = monthlyHours > 0 ? safeMonthly / monthlyHours : 0;
+    const annualSalaryWithVacation = annualSalary * 1.08;
+
+    return {
+      calculationMode,
+      weeklyHours: safeHours,
+      hourlyWage: round2(hourlyWageCalc),
+      weeklySalary: round2(weeklySalary),
+      fourWeeklySalary: round2(fourWeeklySalary),
+      monthlySalary: round2(safeMonthly),
+      annualSalary: round2(annualSalary),
+      annualSalaryWithVacation: round2(annualSalaryWithVacation),
+      monthlyHours: round2(monthlyHours)
+    };
+  }
 }
 

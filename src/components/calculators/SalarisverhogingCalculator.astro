@@ -1,0 +1,372 @@
+---
+// src/components/calculators/SalarisverhogingCalculator.astro
+---
+
+<div class="calc-grid" id="salarisverhoging-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Salaris & verhoging invoeren</h2>
+
+    <!-- Salarisperiode keuze -->
+    <div class="form-group">
+      <label class="form-label">Salarisperiode</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="sv-period-monthly" name="sv-period" value="monthly" checked />
+          <label for="sv-period-monthly">Per maand</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="sv-period-annual" name="sv-period" value="annual" />
+          <label for="sv-period-annual">Per jaar</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Huidig bruto salaris -->
+    <div class="form-group">
+      <label for="input-sv-salary" class="form-label" id="label-sv-salary">Huidig bruto maandsalaris</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-sv-salary"
+          class="form-input input-has-prefix input-has-suffix"
+          value="3500"
+          min="0"
+          step="50"
+          aria-describedby="hint-sv-salary"
+        />
+        <span class="input-suffix" id="suffix-sv-salary">/ maand</span>
+      </div>
+      <span class="form-hint" id="hint-sv-salary">Je huidige bruto salaris zonder vakantiegeld of overuren.</span>
+    </div>
+
+    <!-- Salarisverhoging percentage -->
+    <div class="form-group">
+      <label for="input-sv-percent" class="form-label">Salarisverhoging in procenten (%)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-sv-percent"
+          class="form-input input-has-suffix"
+          value="4"
+          min="0"
+          max="100"
+          step="0.25"
+          aria-describedby="hint-sv-percent"
+        />
+        <span class="input-suffix">%</span>
+      </div>
+      <div class="quick-pct-pills" role="group" aria-label="Snelle selectie verhogingspercentage">
+        <button type="button" class="sv-pct-pill" data-pct="2">2%</button>
+        <button type="button" class="sv-pct-pill" data-pct="3">3%</button>
+        <button type="button" class="sv-pct-pill" data-pct="3.5">3,5%</button>
+        <button type="button" class="sv-pct-pill is-active" data-pct="4">4%</button>
+        <button type="button" class="sv-pct-pill" data-pct="5">5%</button>
+        <button type="button" class="sv-pct-pill" data-pct="6">6%</button>
+        <button type="button" class="sv-pct-pill" data-pct="8">8%</button>
+      </div>
+      <span class="form-hint" id="hint-sv-percent">
+        Het percentage waarmee je salaris stijgt (bijv. via CAO-akkoord of individuele loonronde).
+      </span>
+    </div>
+
+    <!-- Vast bedrag in euro's (alternatief) -->
+    <div class="form-group">
+      <label for="input-sv-fixed" class="form-label">Of verhoging in vast bruto bedrag</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-sv-fixed"
+          class="form-input input-has-prefix input-has-suffix"
+          placeholder="bijv. 150"
+          min="0"
+          step="10"
+          aria-describedby="hint-sv-fixed"
+        />
+        <span class="input-suffix" id="suffix-sv-fixed">/ maand</span>
+      </div>
+      <span class="form-hint" id="hint-sv-fixed">
+        Optioneel: vul een vast bedrag in als jouw CAO een nominale loonsverhoging (bijv. + € 100) toekent.
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-salarisverhoging" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label" id="res-sv-hero-label">Nieuw bruto maandsalaris</span>
+      <div class="result-hero-value" id="res-sv-new-salary">€ 3.640,00</div>
+      <span class="result-hero-sub" id="res-sv-hero-sub">+ € 140,00 per maand (+4,0%)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Huidig basissalaris</span>
+        <span class="result-row-value" id="res-sv-current-salary">€ 3.500,00 / mnd</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto verhoging per maand</span>
+        <span class="result-row-value font-medium" style="color: var(--color-success);" id="res-sv-inc-month">+ € 140,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Nieuw bruto maandsalaris</span>
+        <span class="result-row-value font-medium" id="res-sv-new-month">€ 3.640,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Extra bruto per jaar (12 mnd)</span>
+        <span class="result-row-value" id="res-sv-inc-year">+ € 1.680,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Extra vakantiegeld (8% over verhoging)</span>
+        <span class="result-row-value" style="color: var(--color-success);" id="res-sv-inc-vacation">+ € 134,40</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totale jaarlijkse stijging (incl. 8%)</span>
+        <span class="result-row-value font-medium" style="color: var(--color-success);" id="res-sv-inc-year-total">+ € 1.814,40</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Nieuw jaarsalaris (incl. 8% vakantiegeld)</span>
+        <span class="result-row-value font-medium" id="res-sv-new-year-total">€ 47.174,40</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Indicatieve stijging per gewerkt uur *</span>
+        <span class="result-row-value" id="res-sv-hourly-inc">ca. + € 0,81 / uur</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>* Belangrijk over bruto versus netto:</strong>
+      <p style="margin-top: 0.25rem; line-height: 1.5; color: var(--text-muted);">
+        Dit is een <strong>bruto</strong> berekening. Je werkelijke netto stijging (besteedbaar inkomen) hangt af van je belastingschijf in box 1, pensioenafdrachten en de geleidelijke afbouw van heffingskortingen.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-pct-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .sv-pct-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .sv-pct-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .sv-pct-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('salarisverhoging-calc');
+    if (!calc) return;
+
+    const radioMonthly = calc.querySelector('#sv-period-monthly');
+    const radioAnnual = calc.querySelector('#sv-period-annual');
+    const labelSalary = calc.querySelector('#label-sv-salary');
+    const suffixSalary = calc.querySelector('#suffix-sv-salary');
+    const suffixFixed = calc.querySelector('#suffix-sv-fixed');
+    const inputSalary = calc.querySelector('#input-sv-salary');
+    const inputPercent = calc.querySelector('#input-sv-percent');
+    const inputFixed = calc.querySelector('#input-sv-fixed');
+    const pctPills = calc.querySelectorAll('.sv-pct-pill');
+    const btnReset = calc.querySelector('#btn-reset-salarisverhoging');
+
+    const heroLabel = calc.querySelector('#res-sv-hero-label');
+    const heroValue = calc.querySelector('#res-sv-new-salary');
+    const heroSub = calc.querySelector('#res-sv-hero-sub');
+    const resCurrentSalary = calc.querySelector('#res-sv-current-salary');
+    const resIncMonth = calc.querySelector('#res-sv-inc-month');
+    const resNewMonth = calc.querySelector('#res-sv-new-month');
+    const resIncYear = calc.querySelector('#res-sv-inc-year');
+    const resIncVacation = calc.querySelector('#res-sv-inc-vacation');
+    const resIncYearTotal = calc.querySelector('#res-sv-inc-year-total');
+    const resNewYearTotal = calc.querySelector('#res-sv-new-year-total');
+    const resHourlyInc = calc.querySelector('#res-sv-hourly-inc');
+
+    let activeMode = 'percent'; // 'percent' of 'fixed'
+
+    const formatCurrency = (val) =>
+      new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+
+    const formatNumber = (val, maxDec = 2) =>
+      new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maxDec
+      }).format(val);
+
+    function updatePeriodLabels() {
+      const isMonthly = radioMonthly.checked;
+      if (isMonthly) {
+        labelSalary.textContent = 'Huidig bruto maandsalaris';
+        suffixSalary.textContent = '/ maand';
+        suffixFixed.textContent = '/ maand';
+        heroLabel.textContent = 'Nieuw bruto maandsalaris';
+      } else {
+        labelSalary.textContent = 'Huidig bruto jaarsalaris';
+        suffixSalary.textContent = '/ jaar';
+        suffixFixed.textContent = '/ jaar';
+        heroLabel.textContent = 'Nieuw bruto jaarsalaris';
+      }
+    }
+
+    function calculate() {
+      const isMonthly = radioMonthly.checked;
+      const salaryInput = Math.max(0, parseFloat(inputSalary.value) || 0);
+
+      let currentMonthly = isMonthly ? salaryInput : salaryInput / 12;
+      let currentAnnual = isMonthly ? salaryInput * 12 : salaryInput;
+
+      let pct = 0;
+      let incMonth = 0;
+      let incAnnual = 0;
+
+      if (activeMode === 'fixed') {
+        const fixedVal = Math.max(0, parseFloat(inputFixed.value) || 0);
+        if (isMonthly) {
+          incMonth = fixedVal;
+          incAnnual = fixedVal * 12;
+          pct = currentMonthly > 0 ? (incMonth / currentMonthly) * 100 : 0;
+        } else {
+          incAnnual = fixedVal;
+          incMonth = fixedVal / 12;
+          pct = currentAnnual > 0 ? (incAnnual / currentAnnual) * 100 : 0;
+        }
+        inputPercent.value = formatNumber(pct, 2);
+        pctPills.forEach(p => p.classList.remove('is-active'));
+      } else {
+        pct = Math.max(0, parseFloat(inputPercent.value) || 0);
+        incMonth = currentMonthly * (pct / 100);
+        incAnnual = currentAnnual * (pct / 100);
+        inputFixed.value = isMonthly ? (incMonth > 0 ? incMonth.toFixed(2) : '') : (incAnnual > 0 ? incAnnual.toFixed(2) : '');
+      }
+
+      const newMonthly = currentMonthly + incMonth;
+      const newAnnual = currentAnnual + incAnnual;
+
+      const incVacation = incAnnual * 0.08;
+      const incYearTotal = incAnnual + incVacation;
+      const newYearTotal = newAnnual * 1.08;
+
+      const monthlyHoursStandard = (40 * 52) / 12; // 173.33 uur
+      const hourlyInc = monthlyHoursStandard > 0 ? incMonth / monthlyHoursStandard : 0;
+
+      if (isMonthly) {
+        heroValue.textContent = formatCurrency(newMonthly);
+        heroSub.textContent = `+ ${formatCurrency(incMonth)} per maand (+${formatNumber(pct, 1)}%)`;
+        resCurrentSalary.textContent = `${formatCurrency(currentMonthly)} / mnd`;
+      } else {
+        heroValue.textContent = formatCurrency(newAnnual);
+        heroSub.textContent = `+ ${formatCurrency(incAnnual)} per jaar (+${formatNumber(pct, 1)}%)`;
+        resCurrentSalary.textContent = `${formatCurrency(currentAnnual)} / jaar`;
+      }
+
+      resIncMonth.textContent = `+ ${formatCurrency(incMonth)}`;
+      resNewMonth.textContent = formatCurrency(newMonthly);
+      resIncYear.textContent = `+ ${formatCurrency(incAnnual)}`;
+      resIncVacation.textContent = `+ ${formatCurrency(incVacation)}`;
+      resIncYearTotal.textContent = `+ ${formatCurrency(incYearTotal)}`;
+      resNewYearTotal.textContent = formatCurrency(newYearTotal);
+      resHourlyInc.textContent = `ca. + ${formatCurrency(hourlyInc)} / uur`;
+    }
+
+    radioMonthly.addEventListener('change', () => {
+      updatePeriodLabels();
+      if (inputSalary.value === '42000' || inputSalary.value === '45000') {
+        inputSalary.value = '3500';
+      }
+      calculate();
+    });
+
+    radioAnnual.addEventListener('change', () => {
+      updatePeriodLabels();
+      if (inputSalary.value === '3500') {
+        inputSalary.value = '42000';
+      }
+      calculate();
+    });
+
+    inputSalary.addEventListener('input', calculate);
+
+    inputPercent.addEventListener('input', () => {
+      activeMode = 'percent';
+      const val = inputPercent.value;
+      pctPills.forEach(p => p.classList.toggle('is-active', p.dataset.pct === val));
+      calculate();
+    });
+
+    pctPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        activeMode = 'percent';
+        pctPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputPercent.value = pill.dataset.pct;
+        calculate();
+      });
+    });
+
+    inputFixed.addEventListener('input', () => {
+      activeMode = 'fixed';
+      calculate();
+    });
+
+    btnReset.addEventListener('click', () => {
+      activeMode = 'percent';
+      radioMonthly.checked = true;
+      updatePeriodLabels();
+      inputSalary.value = '3500';
+      inputPercent.value = '4';
+      inputFixed.value = '';
+      pctPills.forEach(p => p.classList.toggle('is-active', p.dataset.pct === '4'));
+      calculate();
+    });
+
+    updatePeriodLabels();
+    calculate();
+  })();
+</script>

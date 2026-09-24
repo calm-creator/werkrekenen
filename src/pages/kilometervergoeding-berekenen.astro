@@ -1,0 +1,230 @@
+---
+// src/pages/kilometervergoeding-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import KilometervergoedingCalculator from '../components/calculators/KilometervergoedingCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+import { DUTCH_RATES } from '../data/dutchRates';
+
+const meta = getCalculatorBySlug('kilometervergoeding-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoeveel kilometervergoeding krijg ik in 2026?',
+    answer: `De maximale fiscaal onbelaste kilometervergoeding van de Belastingdienst bedraagt in 2026 € ${DUTCH_RATES.travelAllowancePerKm.toFixed(2).replace('.', ',')} per kilometer. Hoeveel kilometervergoeding je daadwerkelijk ontvangt, staat vastgelegd in je cao, personeelsregeling of individuele arbeidsovereenkomst.`
+  },
+  {
+    question: 'Hoe bereken ik mijn kilometervergoeding per maand?',
+    answer: 'Je berekent je maandelijkse kilometervergoeding door de dagelijkse retourafstand te vermenigvuldigen met je kilometertarief en het aantal reisdagen per week. Voor een vast maandbedrag vermenigvuldig je het dagbedrag met je jaarlijkse reisdagen volgens de 214-dagenregeling en deel je dit door 12 maanden.'
+  },
+  {
+    question: 'Is een werkgever wettelijk verplicht om een kilometervergoeding te betalen?',
+    answer: 'Nee. In het Nederlandse Burgerlijk Wetboek bestaat geen algemene wettelijke plicht tot het vergoeden van reiskosten of kilometers. In de meeste bedrijfstakken is een kilometervergoeding echter bindend afgesproken in de collectieve arbeidsovereenkomst (cao).'
+  },
+  {
+    question: 'Wat is het verschil tussen kilometervergoeding en reiskostenvergoeding?',
+    answer: 'Kilometervergoeding is specifiek een vergoeding per afgelegde kilometer (vaak met eigen auto of fiets). Reiskostenvergoeding is een bredere verzamelterm die ook vaste ov-abonnementen, NS Business Cards, parkeerkostenvergoedingen of algemene mobiliteitsbudgetten kan omvatten.'
+  },
+  {
+    question: 'Mag een werkgever meer vergoeden dan € 0,23 per kilometer?',
+    answer: 'Ja, een werkgever mag een hoger kilometertarief betalen (zoals € 0,29 of € 0,35 per km). Over het meerdere boven € 0,23 per km moet de werkgever loonheffing inhouden als belast loon, tenzij dit wordt ondergebracht in de vrije ruimte van de Werkkostenregeling (WKR).'
+  },
+  {
+    question: 'Geldt de kilometervergoeding ook voor de fiets, scooter of wandelen?',
+    answer: 'Ja. De fiscale onbelaste norm van € 0,23 per km geldt voor ieder eigen vervoermiddel van de werknemer. Kies je voor een gewone stadsfiets, een elektrische fiets, een brommer of ga je te voet naar kantoor, dan mag je werkgever hetzelfde onbelaste kilometertarief toekennen.'
+  },
+  {
+    question: 'Hoe werkt de kilometervergoeding bij een parttime baan?',
+    answer: 'Bij parttime werken geldt de 214-dagenregeling naar evenredigheid. Reis je 3 dagen per week naar je werkplek? Dan berekent de fiscus de vergoeding op basis van 128,4 reisdagen per jaar ((3 / 5) × 214). Vermenigvuldig je dagvergoeding met 128,4 en deel door 12 voor het vaste maandbedrag.'
+  },
+  {
+    question: 'Moet ik belasting betalen over mijn kilometervergoeding?',
+    answer: 'Zolang het kilometertarief niet hoger is dan € 0,23 per kilometer, is de vergoeding 100% belastingvrij. Er worden geen loonbelasting en premies ingehouden. Alleen over het bedrag boven de € 0,23 per km betaal je reguliere inkomstenbelasting in box 1.'
+  },
+  {
+    question: 'Dekt de kilometervergoeding al mijn werkelijke autokosten?',
+    answer: 'Nee. Een vergoeding van € 0,23 per km dekt ruimschoots de directe brandstofkosten (gemiddeld € 0,11 tot € 0,15 per km), maar dekt niet de volledige vaste autokosten zoals afschrijving, motorrijtuigenbelasting, verzekering en periodiek onderhoud volgens ANWB- en Nibud-normen.'
+  },
+  {
+    question: 'Wat gebeurt er met mijn vaste kilometervergoeding tijdens vakantie of ziekte?',
+    answer: 'Tijdens normale vakantiedagen loopt de vaste maandelijkse vergoeding gewoon door. Bij langdurige ziekte mag de werkgever de vaste onbelaste vergoeding nog uitkeren in de lopende maand en de kalendermaand daarna; blijft de afwezigheid daarna duren, dan moet de vergoeding tijdelijk stoppen.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Belastingdienst"
+>
+  <KilometervergoedingCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is kilometervergoeding en hoe bereken je deze?</h2>
+    <p>
+      Een <strong>kilometervergoeding</strong> is een vergoeding per kilometer voor zakelijke ritten en woon-werkverkeer. Of je nu met de auto, motor, scooter of fiets reist: de vergoeding dekt een deel van je reiskosten. Met onze rekentool voor <strong>kilometervergoeding berekenen</strong> zie je direct wat je ontvangt per enkele reis, retour, week, maand en jaar.
+    </p>
+    <p>
+      Veel werknemers vragen zich af: <em>hoeveel kilometervergoeding krijg ik?</em> Dit hangt af van je reisafstand, je wekelijkse reisdagen en het tarief in je arbeidsovereenkomst of cao. Vergelijk je vergoeding desgewenst met je loon via onze tool voor <a href="/uurloon-berekenen/">uurloon berekenen</a>.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Stapsgewijze berekening van kilometervergoeding:</strong><br />
+      <code>1. Dagafstand = Enkele reis (km) × 2 (retour)</code><br />
+      <code>2. Dagvergoeding = Dagafstand (km) × Kilometertarief (€)</code><br />
+      <code>3. Weekvergoeding = Dagvergoeding × Reisdagen per week</code><br />
+      <code>4. Vaste maandvergoeding (214-norm) = (Dagvergoeding × Fiscale reisdagen) ÷ 12</code><br /><br />
+      <em>Rekenvoorbeeld:</em> Bij 25 km enkele reis (50 km retour), 4 reisdagen per week en € 0,23 per km bedraagt je dagvergoeding € 11,50 en je vaste maandvergoeding <strong>€ 164,07 netto per maand</strong>.
+    </div>
+
+    <h2>Enkele reis versus retourafstand: voorkom rekenfouten</h2>
+    <p>
+      Een veelgemaakte fout bij de <strong>kilometervergoeding woon-werk</strong> is het verwarren van de enkele reisafstand met de retourafstand. Routeplanners tonen standaard de enkele reis (bijvoorbeeld 30 km). Voor een complete werkdag vermenigvuldig je dit altijd met twee (60 km retour).
+    </p>
+    <p>
+      Controleer welke routeplanner je werkgever voorschrijft. Meestal geldt de snelste route via Google Maps of de ANWB Routeplanner van postcode naar postcode.
+    </p>
+
+    <h2>De fiscale norm van de Belastingdienst: € 0,23 per kilometer</h2>
+    <p>
+      De Belastingdienst stelt een fiscaal maximum vast voor de <strong>onbelaste kilometervergoeding</strong>. In 2026 bedraagt dit tarief <strong>€ 0,23 per kilometer</strong>. Over dit bedrag betaal je geen belasting; je ontvangt het 100% netto.
+    </p>
+    <p>
+      Dit tarief geldt voor elk eigen vervoermiddel: auto (benzine, diesel, elektrisch), motor, e-bike, stadsfiets of te voet.
+    </p>
+
+    <h2>Kilometervergoeding boven of onder de norm van € 0,23</h2>
+    <ul>
+      <li>
+        <strong>Hoger tarief (bijv. € 0,29 of € 0,35 per km):</strong> Biedt je werkgever meer? Dan is het deel tot € 0,23 onbelast. Het meerdere geldt als belast loon in box 1, tenzij ondergebracht in de vrije ruimte van de WKR.
+      </li>
+      <li>
+        <strong>Lager tarief (bijv. € 0,19 per km):</strong> Een werkgever mag ook minder vergoeden, conform de geldende arbeidsvoorwaarden of cao.
+      </li>
+    </ul>
+
+    <h2>De 214-dagenregeling voor een vaste maandelijkse vergoeding</h2>
+    <p>
+      Werkgevers hoeven niet maandelijks rittenstaten te controleren. De Belastingdienst staat toe dat bij een vast reispatroon een vast maandbedrag wordt betaald via de <strong>214-dagenregeling</strong>. Bij 5 reisdagen per week gaat de fiscus uit van 214 reisdagen per jaar (na aftrek van weekenden, verlof, feestdagen en verzuim).
+    </p>
+    <p>
+      Bij parttime werk geldt de norm naar rato: <code>(Kantoordagen per week ÷ 5) × 214</code>. Bekijk via onze tool voor <a href="/werkdagen-berekenen/">werkdagen berekenen</a> het aantal werkdagen in jouw jaar.
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Kilometervergoeding overzicht bij 50 km retour per reisdag">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Reisdagen per Week</th>
+            <th>Fiscale Reisdagen</th>
+            <th>Jaarkilometers (50 km retour)</th>
+            <th>Vergoeding per Maand (€ 0,23/km)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1 dag per week</strong></td>
+            <td>42,8 reisdagen</td>
+            <td>2.140 km</td>
+            <td>€ 41,02 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>2 dagen per week</strong></td>
+            <td>85,6 reisdagen</td>
+            <td>4.280 km</td>
+            <td>€ 82,03 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>3 dagen per week</strong></td>
+            <td>128,4 reisdagen</td>
+            <td>6.420 km</td>
+            <td>€ 123,05 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>4 dagen per week</strong></td>
+            <td>171,2 reisdagen</td>
+            <td>8.560 km</td>
+            <td>€ 164,07 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>5 dagen per week</strong> (Fulltime)</td>
+            <td>214,0 reisdagen</td>
+            <td>10.700 km</td>
+            <td>€ 205,08 per maand</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Kilometervergoeding vs reiskostenvergoeding vs werkelijke kosten</h2>
+    <p>
+      Drie begrippen rondom reiskosten worden regelmatig met elkaar verward:
+    </p>
+    <ul>
+      <li>
+        <strong>Kilometervergoeding:</strong> Een vaste vergoeding per afgelegde kilometer (onbelast tot € 0,23/km), meestal voor eigen vervoer.
+      </li>
+      <li>
+        <strong>Reiskostenvergoeding:</strong> De overkoepelende term voor alle vergoedingen, inclusief ov-abonnementen (zoals de NS Business Card) en mobiliteitsbudgetten. Zie ook onze pagina over <a href="/reiskostenvergoeding-berekenen/">reiskostenvergoeding berekenen</a>.
+      </li>
+      <li>
+        <strong>Werkelijke reiskosten:</strong> De daadwerkelijke kosten van autorijden. Brandstof kost gemiddeld € 0,11 tot € 0,15 per km, maar de integrale all-in autokosten bedragen volgens de ANWB en het Nibud circa <strong>€ 0,40 tot € 0,55 per km</strong>. Bereken je reële brandstofverbruik via <a href="/woon-werk-kosten-berekenen/">woon-werk kosten berekenen</a>.
+      </li>
+    </ul>
+
+    <h2>Is een kilometervergoeding wettelijk verplicht?</h2>
+    <p>
+      In het Nederlandse arbeidsrecht bestaat <strong>geen wettelijke verplichting</strong> om reiskosten te vergoeden. Een werkgever is hiertoe alleen verplicht als dit is afgesproken in een cao, bedrijfsregeling of individueel arbeidscontract.
+    </p>
+
+    <h2>Samenloop met thuiswerkvergoeding bij hybride werken</h2>
+    <p>
+      Combineer je thuiswerk- en kantoordagen? De Belastingdienst bepaalt dat voor dezelfde werkdag niet tegelijk een onbelaste kilometervergoeding én een onbelaste thuiswerkvergoeding mag worden toegekend. Bereken je thuiswerkaanspraak met onze module voor <a href="/thuiswerkvergoeding-berekenen/">thuiswerkvergoeding berekenen</a>.
+    </p>
+
+    <h2>Drie praktijkvoorbeelden van kilometervergoeding</h2>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 1: Fulltimer met standaardvergoeding (20 km enkele reis)</h3>
+      <p>
+        Lisa rijdt 5 dagen per week naar kantoor (40 km retour) tegen € 0,23 per km:
+      </p>
+      <ul>
+        <li><strong>Dagvergoeding:</strong> 40 km × € 0,23 = € 9,20 per dag.</li>
+        <li><strong>Weekvergoeding:</strong> € 9,20 × 5 = € 46,00 per week.</li>
+        <li><strong>Vaste maandvergoeding:</strong> (40 km × € 0,23 × 214) ÷ 12 = <strong>€ 164,07 netto per maand</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 2: Parttimer met 3 reisdagen per week (35 km enkele reis)</h3>
+      <p>
+        Mark werkt 3 dagen per week op locatie (70 km retour) tegen € 0,23 per km:
+      </p>
+      <ul>
+        <li><strong>Dagvergoeding:</strong> 70 km × € 0,23 = € 16,10 per dag.</li>
+        <li><strong>Vaste maandvergoeding:</strong> (€ 16,10 × 128,4 dagen) ÷ 12 = <strong>€ 172,27 netto per maand</strong>.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 3: Werknemer met CAO-tarief van € 0,29 per km</h3>
+      <p>
+        Daan reist 4 dagen per week (50 km retour) en ontvangt volgens zijn cao € 0,29 per km:
+      </p>
+      <ul>
+        <li><strong>Totale maandvergoeding (171,2 dagen):</strong> (50 km × € 0,29 × 171,2) ÷ 12 = <strong>€ 206,87 per maand</strong>.</li>
+        <li><strong>Onbelast deel (tot € 0,23):</strong> (50 km × € 0,23 × 171,2) ÷ 12 = € 164,07 netto.</li>
+        <li><strong>Belast deel (€ 0,06 extra):</strong> (50 km × € 0,06 × 171,2) ÷ 12 = € 42,80 bruto (onderhevig aan loonheffing).</li>
+      </ul>
+    </div>
+
+    <h2>Veelgemaakte fouten bij kilometervergoeding</h2>
+    <ol>
+      <li><strong>Enkele reis niet verdubbelen:</strong> Reken altijd met de retourafstand voor een complete reisdag.</li>
+      <li><strong>Vermenigvuldigen met 52 weken:</strong> Dit leidt tot een overschatting, omdat verlof- en feestdagen niet zijn verrekend. Gebruik de 214-dagenregeling.</li>
+      <li><strong>Verhuizing niet melden:</strong> Een nieuw adres wijzigt je reisafstand direct; meld dit direct bij personeelszaken.</li>
+      <li><strong>Dubbel declareren bij hybride werken:</strong> Op één dag mag je fiscaal niet zowel een reiskostenvergoeding als een thuiswerkvergoeding ontvangen.</li>
+    </ol>
+  </div>
+</CalculatorLayout>

@@ -21,12 +21,19 @@
           step="0.25"
         />
       </div>
-      <span class="form-hint">Je basisloon per gewerkt uur (exclusief overwerktoeslagen).</span>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill wage-pill" data-wage="15.00">€ 15,00</button>
+        <button type="button" class="quick-pill wage-pill" data-wage="18.50">€ 18,50</button>
+        <button type="button" class="quick-pill wage-pill is-active" data-wage="22.50">€ 22,50</button>
+        <button type="button" class="quick-pill wage-pill" data-wage="27.50">€ 27,50</button>
+        <button type="button" class="quick-pill wage-pill" data-wage="35.00">€ 35,00</button>
+      </div>
+      <span class="form-hint">Je reguliere bruto uurloon (exclusief overwerktoeslagen en vakantiegeld).</span>
     </div>
 
     <!-- Aantal overuren -->
     <div class="form-group">
-      <label for="input-over-hours" class="form-label">Aantal overuren</label>
+      <label for="input-over-hours" class="form-label">Aantal gewerkte overuren</label>
       <div class="input-wrapper">
         <input
           type="number"
@@ -34,34 +41,56 @@
           class="form-input input-has-suffix"
           value="10"
           min="0"
-          step="0.5"
+          step="0.25"
         />
         <span class="input-suffix">uur</span>
       </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill hour-pill" data-hours="5">5 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="7.5">7,5 uur</button>
+        <button type="button" class="quick-pill hour-pill is-active" data-hours="10">10 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="15">15 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="20">20 uur</button>
+      </div>
+      <span class="form-hint">Het aantal overuren bovenop je contracturen (komma- of decimale uren zoals 7,5 zijn mogelijk).</span>
     </div>
 
     <!-- Toeslagpercentage -->
     <div class="form-group">
-      <label class="form-label">Toeslagpercentage volgens je CAO</label>
-      <div class="form-radio-group">
-        <div class="form-radio-card">
-          <input type="radio" id="surcharge-100" name="surcharge" value="100" />
-          <label for="surcharge-100">100%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Geen toeslag</small></label>
-        </div>
-        <div class="form-radio-card">
-          <input type="radio" id="surcharge-125" name="surcharge" value="125" checked />
-          <label for="surcharge-125">125%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Doordeweeks</small></label>
-        </div>
-        <div class="form-radio-card">
-          <input type="radio" id="surcharge-150" name="surcharge" value="150" />
-          <label for="surcharge-150">150%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Zaterdag/avond</small></label>
-        </div>
-        <div class="form-radio-card">
-          <input type="radio" id="surcharge-200" name="surcharge" value="200" />
-          <label for="surcharge-200">200%<br><small style="font-size: 0.7rem; color: var(--text-subtle);">Zon- & feestdag</small></label>
-        </div>
+      <label for="input-over-surcharge" class="form-label">Overwerk- of uitbetalingspercentage</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-over-surcharge"
+          class="form-input input-has-suffix"
+          value="125"
+          min="0"
+          max="500"
+          step="1"
+        />
+        <span class="input-suffix">%</span>
       </div>
-      <span class="form-hint">Het totale percentage van de uitbetaling (125% betekent 100% basisloon + 25% toeslag).</span>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill surcharge-pill" data-surcharge="100">100% (Geen toeslag)</button>
+        <button type="button" class="quick-pill surcharge-pill is-active" data-surcharge="125">125% (Gangbaar)</button>
+        <button type="button" class="quick-pill surcharge-pill" data-surcharge="130">130%</button>
+        <button type="button" class="quick-pill surcharge-pill" data-surcharge="150">150% (Zaterdag)</button>
+        <button type="button" class="quick-pill surcharge-pill" data-surcharge="200">200% (Zondag/feestdag)</button>
+      </div>
+      <span class="form-hint">
+        Totale uitbetaling in procenten volgens jouw CAO of contract (125% betekent 100% basisloon + 25% toeslag). Elk percentage kan handmatig worden ingevoerd.
+      </span>
+    </div>
+
+    <!-- Vakantiegeld optie -->
+    <div class="vacation-pay-toggle">
+      <label class="vacation-pay-label" for="check-vacation-pay">
+        <input type="checkbox" id="check-vacation-pay" class="checkbox-input" />
+        <div class="checkbox-text">
+          <span class="checkbox-title">Inclusief 8% wettelijk vakantiegeld (art. 16 WML)</span>
+          <span class="checkbox-desc">Sinds 2018 telt overwerk mee voor de wettelijke vakantiebijslag, tenzij je CAO dit expliciet uitsluit.</span>
+        </div>
+      </label>
     </div>
 
     <div class="form-actions">
@@ -86,20 +115,37 @@
       </div>
       <div class="result-row">
         <span class="result-row-label">Overwerktoeslag (extra)</span>
-        <span class="result-row-value" style="color: var(--color-success);" id="res-over-surcharge">+ € 56,25</span>
+        <span class="result-row-value text-success" id="res-over-surcharge">+ € 56,25</span>
+      </div>
+      <div class="result-row" id="row-vacation" style="display: none;">
+        <span class="result-row-label">Wettelijke vakantiebijslag (8%)</span>
+        <span class="result-row-value text-success" id="res-over-vacation">+ € 22,50</span>
       </div>
       <div class="result-row">
         <span class="result-row-label">Effectief uurtarief overuren</span>
-        <span class="result-row-value" id="res-over-effective-rate">€ 28,13 / uur</span>
+        <span class="result-row-value font-semibold" id="res-over-effective-rate">€ 28,13 / uur</span>
+      </div>
+      <div class="result-section-divider"></div>
+      <div class="result-row">
+        <div>
+          <span class="result-row-label">Geschatte netto uitbetaling</span>
+          <span class="result-badge-sub">indicatief bijzonder tarief</span>
+        </div>
+        <span class="result-row-value text-primary" id="res-over-net">~ € 142,03</span>
       </div>
       <div class="result-row">
-        <span class="result-row-label">Tijd-voor-tijd alternatief (TVT)</span>
+        <span class="result-row-label">Tijd-voor-tijd alternatief (TvT)</span>
         <span class="result-row-value" id="res-over-tvt">12,5 uur vrije tijd</span>
       </div>
     </div>
 
-    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
-      <strong>Belasting op overuren:</strong> Overwerk wordt bij de loonadministratie afgerekend tegen het zogeheten bijzonder tarief. Bij de jaarlijkse belastingaangifte wordt dit echter verrekend met je werkelijke jaarinkomen in box 1.
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.875rem;">
+      <p style="margin: 0 0 0.5rem 0;">
+        <strong>Let op belasting op overuren:</strong> Overwerk wordt bij de maandelijkse salarisadministratie ingehouden volgens het <em>bijzonder tarief</em> (vaak circa 49,5% tot 56%). De getoonde netto uitbetaling is een schatting. Bij de definitieve aangifte inkomstenbelasting (box 1) wordt het overwerk definitief belast tegen je werkelijke marginale jaartarief.
+      </p>
+      <p style="margin: 0; color: var(--text-subtle);">
+        Toeslagpercentages zijn afhankelijk van je CAO of arbeidsovereenkomst en zijn niet wettelijk vastgelegd.
+      </p>
     </div>
   </div>
 </div>
@@ -112,12 +158,131 @@
     margin-bottom: 1.25rem;
   }
 
+  .quick-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .quick-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .quick-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .quick-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .vacation-pay-toggle {
+    margin-top: 1.25rem;
+    padding: 0.875rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+  }
+
+  .vacation-pay-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    cursor: pointer;
+  }
+
+  .checkbox-input {
+    margin-top: 0.2rem;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  .checkbox-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .checkbox-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .checkbox-desc {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .result-badge-sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    font-weight: normal;
+  }
+
+  .text-success {
+    color: var(--color-success);
+    font-weight: 600;
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+    font-weight: 700;
+    font-size: 1.05rem;
+  }
+
+  .font-semibold {
+    font-weight: 600;
+  }
+
   .form-actions {
     margin-top: 1.5rem;
     padding-top: 1rem;
     border-top: 1px solid var(--border-color);
     display: flex;
     justify-content: flex-end;
+  }
+
+  @media (max-width: 480px) {
+    .quick-pills {
+      gap: 0.25rem;
+    }
+    .quick-pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+    }
+    .vacation-pay-toggle {
+      padding: 0.75rem;
+    }
+    .checkbox-title {
+      font-size: 0.8125rem;
+    }
+    .checkbox-desc {
+      font-size: 0.75rem;
+    }
   }
 </style>
 
@@ -128,53 +293,120 @@
 
     const inputWage = calc.querySelector('#input-over-wage');
     const inputHours = calc.querySelector('#input-over-hours');
-    const surchargeRadios = calc.querySelectorAll('input[name="surcharge"]');
+    const inputSurcharge = calc.querySelector('#input-over-surcharge');
+    const checkVacation = calc.querySelector('#check-vacation-pay');
     const btnReset = calc.querySelector('#btn-reset-overuren');
+
+    const wagePills = calc.querySelectorAll('.wage-pill');
+    const hourPills = calc.querySelectorAll('.hour-pill');
+    const surchargePills = calc.querySelectorAll('.surcharge-pill');
 
     const resTotal = calc.querySelector('#res-over-total');
     const resSub = calc.querySelector('#res-over-sub');
     const resBase = calc.querySelector('#res-over-base');
     const resSurcharge = calc.querySelector('#res-over-surcharge');
+    const rowVacation = calc.querySelector('#row-vacation');
+    const resVacation = calc.querySelector('#res-over-vacation');
     const resEffectiveRate = calc.querySelector('#res-over-effective-rate');
+    const resNet = calc.querySelector('#res-over-net');
     const resTvt = calc.querySelector('#res-over-tvt');
 
     const formatCurrency = (val) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
     const formatNumber = (val, dec = 1) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
 
-    function getSelectedSurcharge() {
-      for (const r of surchargeRadios) {
-        if (r.checked) return parseFloat(r.value) || 125;
-      }
-      return 125;
-    }
-
     function calculate() {
       const wage = Math.max(0, parseFloat(inputWage.value) || 0);
       const hours = Math.max(0, parseFloat(inputHours.value) || 0);
-      const surcharge = getSelectedSurcharge();
+      const surcharge = Math.max(0, parseFloat(inputSurcharge.value) || 0);
+      const hasVacation = checkVacation.checked;
 
       const basePay = wage * hours;
-      const totalGross = basePay * (surcharge / 100);
-      const surchargePay = totalGross - basePay;
-      const effectiveRate = hours > 0 ? totalGross / hours : 0;
+      const totalGrossPay = hours * (wage * (surcharge / 100));
+      const surchargePay = Math.max(0, totalGrossPay - basePay);
+
+      const vacationPay = hasVacation ? totalGrossPay * 0.08 : 0;
+      const finalGrossPay = totalGrossPay + vacationPay;
+
+      const effectiveHourlyRate = hours > 0 ? finalGrossPay / hours : 0;
+      const estimatedNet = finalGrossPay * 0.505;
       const tvtHours = hours * (surcharge / 100);
 
-      resTotal.textContent = formatCurrency(totalGross);
-      resSub.textContent = `bij ${formatNumber(hours, 1)} uur à ${surcharge}% uitbetaling`;
+      resTotal.textContent = formatCurrency(finalGrossPay);
+      const vacationNote = hasVacation ? ' (incl. 8% vakantiegeld)' : '';
+      resSub.textContent = `bij ${formatNumber(hours, 2)} uur à ${formatNumber(surcharge, 1)}% uitbetaling${vacationNote}`;
+
       resBase.textContent = formatCurrency(basePay);
       resSurcharge.textContent = `+ ${formatCurrency(surchargePay)}`;
-      resEffectiveRate.textContent = `${formatCurrency(effectiveRate)} / uur`;
-      resTvt.textContent = `${formatNumber(tvtHours, 1)} uur vrije tijd`;
+
+      if (hasVacation) {
+        rowVacation.style.display = 'flex';
+        resVacation.textContent = `+ ${formatCurrency(vacationPay)}`;
+      } else {
+        rowVacation.style.display = 'none';
+      }
+
+      resEffectiveRate.textContent = `${formatCurrency(effectiveHourlyRate)} / uur`;
+      resNet.textContent = `~ ${formatCurrency(estimatedNet)}`;
+      resTvt.textContent = `${formatNumber(tvtHours, 2)} uur vrije tijd`;
     }
 
-    inputWage.addEventListener('input', calculate);
-    inputHours.addEventListener('input', calculate);
-    surchargeRadios.forEach(r => r.addEventListener('change', calculate));
+    inputWage.addEventListener('input', () => {
+      const val = parseFloat(inputWage.value);
+      wagePills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.wage) === val));
+      calculate();
+    });
+
+    wagePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        wagePills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputWage.value = pill.dataset.wage;
+        calculate();
+      });
+    });
+
+    inputHours.addEventListener('input', () => {
+      const val = parseFloat(inputHours.value);
+      hourPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.hours) === val));
+      calculate();
+    });
+
+    hourPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        hourPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputHours.value = pill.dataset.hours;
+        calculate();
+      });
+    });
+
+    inputSurcharge.addEventListener('input', () => {
+      const val = parseFloat(inputSurcharge.value);
+      surchargePills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.surcharge) === val));
+      calculate();
+    });
+
+    surchargePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        surchargePills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputSurcharge.value = pill.dataset.surcharge;
+        calculate();
+      });
+    });
+
+    checkVacation.addEventListener('change', calculate);
 
     btnReset.addEventListener('click', () => {
       inputWage.value = '22.50';
       inputHours.value = '10';
-      calc.querySelector('#surcharge-125').checked = true;
+      inputSurcharge.value = '125';
+      checkVacation.checked = false;
+
+      wagePills.forEach(p => p.classList.toggle('is-active', p.dataset.wage === '22.50'));
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '10'));
+      surchargePills.forEach(p => p.classList.toggle('is-active', p.dataset.surcharge === '125'));
+
       calculate();
     });
 

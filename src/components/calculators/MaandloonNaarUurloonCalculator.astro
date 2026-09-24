@@ -1,0 +1,292 @@
+---
+// src/components/calculators/MaandloonNaarUurloonCalculator.astro
+---
+
+<div class="calc-grid" id="mnu-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Maandsalaris & werkweek invoeren</h2>
+
+    <!-- Invoerveld: Bruto Maandsalaris -->
+    <div class="form-group">
+      <label for="input-mnu-salary" class="form-label">Bruto maandsalaris</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-mnu-salary"
+          class="form-input input-has-prefix input-has-suffix"
+          value="3500"
+          min="0"
+          step="50"
+          aria-describedby="hint-mnu-salary"
+        />
+        <span class="input-suffix">/ maand</span>
+      </div>
+      <div class="quick-pills-container" role="group" aria-label="Snelle selectie voorbeeldsalarissen">
+        <button type="button" class="mnu-pill mnu-salary-pill" data-salary="2500">€ 2.500</button>
+        <button type="button" class="mnu-pill mnu-salary-pill" data-salary="3000">€ 3.000</button>
+        <button type="button" class="mnu-pill mnu-salary-pill is-active" data-salary="3500">€ 3.500</button>
+        <button type="button" class="mnu-pill mnu-salary-pill" data-salary="4000">€ 4.000</button>
+        <button type="button" class="mnu-pill mnu-salary-pill" data-salary="4500">€ 4.500</button>
+        <button type="button" class="mnu-pill mnu-salary-pill" data-salary="5000">€ 5.000</button>
+      </div>
+      <span class="form-hint" id="hint-mnu-salary">Je vaste bruto maandsalaris (exclusief 8% vakantiegeld of overuren).</span>
+    </div>
+
+    <!-- Invoerveld: Werkweek uren -->
+    <div class="form-group">
+      <label for="input-mnu-hours" class="form-label">Wekelijkse arbeidsduur (uren per week)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-mnu-hours"
+          class="form-input input-has-suffix"
+          value="40"
+          min="1"
+          max="80"
+          step="0.5"
+          aria-describedby="hint-mnu-hours"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-pills-container" role="group" aria-label="Snelle selectie wekelijkse werkuren">
+        <button type="button" class="mnu-pill mnu-hour-pill" data-hours="24">24 uur</button>
+        <button type="button" class="mnu-pill mnu-hour-pill" data-hours="32">32 uur</button>
+        <button type="button" class="mnu-pill mnu-hour-pill" data-hours="36">36 uur</button>
+        <button type="button" class="mnu-pill mnu-hour-pill" data-hours="38">38 uur</button>
+        <button type="button" class="mnu-pill mnu-hour-pill is-active" data-hours="40">40 uur</button>
+      </div>
+      <span class="form-hint" id="hint-mnu-hours">In Nederland geldt conform CAO's doorgaans 36, 38 of 40 uur als een fulltime werkweek.</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-mnu" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Geschat bruto uurloon</span>
+      <div class="result-hero-value" id="res-mnu-hero-wage">€ 20,19</div>
+      <span class="result-hero-sub" id="res-mnu-hero-sub">bij een 40-urige werkweek (ca. 173,33 uur per maand)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Bruto maandsalaris</span>
+        <span class="result-row-value font-medium" id="res-mnu-salary">€ 3.500,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Wekelijkse contracturen</span>
+        <span class="result-row-value" id="res-mnu-hours">40 uur / week</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Gemiddeld aantal uur per maand</span>
+        <span class="result-row-value" id="res-mnu-month-hours">173,33 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto uurloon</span>
+        <span class="result-row-value font-medium" style="color: var(--color-primary);" id="res-mnu-wage">€ 20,19</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto weeksalaris (52 weken)</span>
+        <span class="result-row-value" id="res-mnu-week">€ 807,69</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto 4-weken salaris (13 periodes)</span>
+        <span class="result-row-value" id="res-mnu-fourweek">€ 3.230,77</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto jaarsalaris (12 maanden)</span>
+        <span class="result-row-value" id="res-mnu-annual">€ 42.000,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totaal jaarsalaris (incl. 8% vakantiegeld)</span>
+        <span class="result-row-value font-medium" style="color: var(--color-success);" id="res-mnu-annual-total">€ 45.360,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Indicatief bruto dagloon (5-daagse week)</span>
+        <span class="result-row-value" id="res-mnu-daily">€ 161,54</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>* Belangrijk over bruto versus netto:</strong>
+      <p style="margin-top: 0.25rem; line-height: 1.5; color: var(--text-muted);">
+        Dit is een <strong>bruto</strong> berekening. Je werkelijke netto uurloon (besteedbaar inkomen) is lager door inhoudingen voor inkomstenbelasting in box 1, pensioenafdrachten en de afbouw van heffingskortingen.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('mnu-calc');
+    if (!calc) return;
+
+    const inputSalary = calc.querySelector('#input-mnu-salary') as HTMLInputElement | null;
+    const inputHours = calc.querySelector('#input-mnu-hours') as HTMLInputElement | null;
+    const salaryPills = calc.querySelectorAll('.mnu-salary-pill') as NodeListOf<HTMLButtonElement>;
+    const hourPills = calc.querySelectorAll('.mnu-hour-pill') as NodeListOf<HTMLButtonElement>;
+    const btnReset = calc.querySelector('#btn-reset-mnu') as HTMLButtonElement | null;
+
+    const heroWage = calc.querySelector('#res-mnu-hero-wage');
+    const heroSub = calc.querySelector('#res-mnu-hero-sub');
+    const resSalary = calc.querySelector('#res-mnu-salary');
+    const resHours = calc.querySelector('#res-mnu-hours');
+    const resMonthHours = calc.querySelector('#res-mnu-month-hours');
+    const resWage = calc.querySelector('#res-mnu-wage');
+    const resWeek = calc.querySelector('#res-mnu-week');
+    const resFourWeek = calc.querySelector('#res-mnu-fourweek');
+    const resAnnual = calc.querySelector('#res-mnu-annual');
+    const resAnnualTotal = calc.querySelector('#res-mnu-annual-total');
+    const resDaily = calc.querySelector('#res-mnu-daily');
+
+    const formatCurrency = (val: number) =>
+      new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+
+    const formatNumber = (val: number, maxDec = 2) =>
+      new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maxDec
+      }).format(val);
+
+    function calculate() {
+      if (!inputSalary || !inputHours) return;
+
+      const salary = Math.max(0, parseFloat(inputSalary.value) || 0);
+      const hours = Math.max(0, parseFloat(inputHours.value) || 0);
+
+      // Berekening volgens de Nederlandse officiële standaard:
+      // Maanduren = (uren * 52) / 12
+      // Uurloon = salaris / maanduren
+      const monthlyHours = (hours * 52) / 12;
+      const hourlyWage = monthlyHours > 0 ? salary / monthlyHours : 0;
+      const annualSalary = salary * 12;
+      const annualSalaryWithVacation = annualSalary * 1.08;
+      const weeklySalary = (salary * 12) / 52;
+      const fourWeeklySalary = (salary * 12) / 13;
+      const dailyWage = hours > 0 ? weeklySalary / 5 : 0;
+
+      // Update Hero
+      if (heroWage) heroWage.textContent = formatCurrency(hourlyWage);
+      if (heroSub) {
+        heroSub.textContent = `bij ${formatNumber(hours)} uur/week (ca. ${formatNumber(monthlyHours)} uur per maand)`;
+      }
+
+      // Update Breakdown
+      if (resSalary) resSalary.textContent = formatCurrency(salary);
+      if (resHours) resHours.textContent = `${formatNumber(hours)} uur / week`;
+      if (resMonthHours) resMonthHours.textContent = `${formatNumber(monthlyHours)} uur`;
+      if (resWage) resWage.textContent = formatCurrency(hourlyWage);
+      if (resWeek) resWeek.textContent = formatCurrency(weeklySalary);
+      if (resFourWeek) resFourWeek.textContent = formatCurrency(fourWeeklySalary);
+      if (resAnnual) resAnnual.textContent = formatCurrency(annualSalary);
+      if (resAnnualTotal) resAnnualTotal.textContent = formatCurrency(annualSalaryWithVacation);
+      if (resDaily) resDaily.textContent = formatCurrency(dailyWage);
+    }
+
+    // Input event listeners
+    inputSalary?.addEventListener('input', () => {
+      const val = inputSalary.value;
+      salaryPills.forEach(p => p.classList.toggle('is-active', p.dataset.salary === val));
+      calculate();
+    });
+
+    inputHours?.addEventListener('input', () => {
+      const val = inputHours.value;
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === val));
+      calculate();
+    });
+
+    // Salary pill buttons
+    salaryPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        salaryPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        if (inputSalary && pill.dataset.salary) {
+          inputSalary.value = pill.dataset.salary;
+          calculate();
+        }
+      });
+    });
+
+    // Hour pill buttons
+    hourPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        hourPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        if (inputHours && pill.dataset.hours) {
+          inputHours.value = pill.dataset.hours;
+          calculate();
+        }
+      });
+    });
+
+    // Reset button
+    btnReset?.addEventListener('click', () => {
+      if (inputSalary) inputSalary.value = '3500';
+      if (inputHours) inputHours.value = '40';
+      salaryPills.forEach(p => p.classList.toggle('is-active', p.dataset.salary === '3500'));
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '40'));
+      calculate();
+    });
+
+    // Initial calculation
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .mnu-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .mnu-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .mnu-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>

@@ -1,0 +1,354 @@
+---
+// src/components/calculators/WerkurenPerJaarCalculator.astro
+---
+
+<div class="calc-grid" id="wpj-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Werkuren & verlof invoeren</h2>
+
+    <!-- Invoerveld: Wekelijkse arbeidsduur -->
+    <div class="form-group">
+      <label for="input-wpj-hours" class="form-label">Wekelijkse arbeidsduur (uren per week)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-wpj-hours"
+          class="form-input input-has-suffix"
+          value="40"
+          min="1"
+          max="80"
+          step="0.5"
+          aria-describedby="hint-wpj-hours"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-pills-container" role="group" aria-label="Snelle selectie wekelijkse werkuren">
+        <button type="button" class="wpj-pill wpj-hour-pill" data-hours="24">24 uur</button>
+        <button type="button" class="wpj-pill wpj-hour-pill" data-hours="32">32 uur</button>
+        <button type="button" class="wpj-pill wpj-hour-pill" data-hours="36">36 uur</button>
+        <button type="button" class="wpj-pill wpj-hour-pill" data-hours="38">38 uur</button>
+        <button type="button" class="wpj-pill wpj-hour-pill is-active" data-hours="40">40 uur</button>
+      </div>
+      <span class="form-hint" id="hint-wpj-hours">Je contractuele wekelijkse arbeidsduur conform je arbeidsovereenkomst of CAO.</span>
+    </div>
+
+    <!-- Invoerveld: Vakantiedagen per jaar -->
+    <div class="form-group">
+      <label for="input-wpj-vacation" class="form-label">Vakantiedagen per jaar</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-wpj-vacation"
+          class="form-input input-has-suffix"
+          value="25"
+          min="0"
+          max="60"
+          step="0.5"
+          aria-describedby="hint-wpj-vacation"
+        />
+        <span class="input-suffix">dagen / jaar</span>
+      </div>
+      <div class="quick-pills-container" role="group" aria-label="Snelle selectie vakantiedagen">
+        <button type="button" class="wpj-pill wpj-vac-pill" data-vac="20">20 dagen (wettelijk)</button>
+        <button type="button" class="wpj-pill wpj-vac-pill is-active" data-vac="25">25 dagen (standaard)</button>
+        <button type="button" class="wpj-pill wpj-vac-pill" data-vac="30">30 dagen (extra)</button>
+      </div>
+      <span class="form-hint" id="hint-wpj-vacation">Wettelijk minimaal 4× je werkweek (bij fulltime 20 dagen). In Nederland is 25 dagen de meest gangbare norm.</span>
+    </div>
+
+    <!-- Invoerveld: Feestdagen op werkdagen -->
+    <div class="form-group">
+      <label for="input-wpj-holidays" class="form-label">Officiële feestdagen op werkdagen</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-wpj-holidays"
+          class="form-input input-has-suffix"
+          value="7"
+          min="0"
+          max="15"
+          step="1"
+          aria-describedby="hint-wpj-holidays"
+        />
+        <span class="input-suffix">dagen / jaar</span>
+      </div>
+      <span class="form-hint" id="hint-wpj-holidays">In Nederland vallen jaarlijks gemiddeld 6 tot 8 officiële feestdagen op een doordeweekse dag.</span>
+    </div>
+
+    <!-- Invoerveld: ADV / ATV dagen -->
+    <div class="form-group">
+      <label for="input-wpj-adv" class="form-label">ADV- / ATV-dagen per jaar (optioneel)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-wpj-adv"
+          class="form-input input-has-suffix"
+          value="0"
+          min="0"
+          max="50"
+          step="1"
+          aria-describedby="hint-wpj-adv"
+        />
+        <span class="input-suffix">dagen / jaar</span>
+      </div>
+      <span class="form-hint" id="hint-wpj-adv">Vul hier eventuele roostervrije dagen of ADV-dagen in (bijv. 6 tot 13 dagen in de techniek of bouw).</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-wpj" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Daadwerkelijk gewerkte uren per jaar</span>
+      <div class="result-hero-value" id="res-wpj-hero-actual">1.824 uur</div>
+      <span class="result-hero-sub" id="res-wpj-hero-sub">van 2.080 contracturen (45,6 gewerkte weken)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Wekelijkse contracturen</span>
+        <span class="result-row-value font-medium" id="res-wpj-hours">40 uur / week</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Contractuele jaaruren (52 weken)</span>
+        <span class="result-row-value font-medium" id="res-wpj-contract-year">2.080 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Gemiddelde contracturen per maand</span>
+        <span class="result-row-value" id="res-wpj-contract-month">173,33 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Gemiddelde uren per werkdag</span>
+        <span class="result-row-value" id="res-wpj-daily-hours">8,00 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Vakantieverlof uren</span>
+        <span class="result-row-value" style="color: var(--text-muted);" id="res-wpj-vacation-hours">- 200,00 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Vrije officiële feestdagen</span>
+        <span class="result-row-value" style="color: var(--text-muted);" id="res-wpj-holiday-hours">- 56,00 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">ADV- / ATV-uren</span>
+        <span class="result-row-value" style="color: var(--text-muted);" id="res-wpj-adv-hours">- 0,00 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totale verlof- & feestdaguren</span>
+        <span class="result-row-value font-medium" style="color: var(--color-error, #dc2626);" id="res-wpj-total-leave">- 256,00 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Daadwerkelijk gewerkte jaaruren (netto)</span>
+        <span class="result-row-value font-medium" style="color: var(--color-primary);" id="res-wpj-actual-year">1.824,00 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Daadwerkelijk gewerkte uren per maand</span>
+        <span class="result-row-value font-medium" id="res-wpj-actual-month">152,00 uur</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Daadwerkelijk gewerkte werkweken</span>
+        <span class="result-row-value" id="res-wpj-actual-weeks">45,60 weken</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Daadwerkelijk gewerkte werkdagen</span>
+        <span class="result-row-value" id="res-wpj-actual-days">228 dagen</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>* Contracturen versus gewerkte uren:</strong>
+      <p style="margin-top: 0.25rem; line-height: 1.5; color: var(--text-muted);">
+        Je werkgever betaalt je salaris over de nominale contracturen (bijv. 2.080 uur), inclusief doorbetaalde vakantiedagen en feestdagen. De netto jaaruren (bijv. 1.824 uur) tonen het aantal uren dat je daadwerkelijk fysiek aan het werk bent.
+      </p>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('wpj-calc');
+    if (!calc) return;
+
+    const inputHours = calc.querySelector('#input-wpj-hours') as HTMLInputElement | null;
+    const inputVacation = calc.querySelector('#input-wpj-vacation') as HTMLInputElement | null;
+    const inputHolidays = calc.querySelector('#input-wpj-holidays') as HTMLInputElement | null;
+    const inputAdv = calc.querySelector('#input-wpj-adv') as HTMLInputElement | null;
+    const hourPills = calc.querySelectorAll('.wpj-hour-pill') as NodeListOf<HTMLButtonElement>;
+    const vacPills = calc.querySelectorAll('.wpj-vac-pill') as NodeListOf<HTMLButtonElement>;
+    const btnReset = calc.querySelector('#btn-reset-wpj') as HTMLButtonElement | null;
+
+    const heroActual = calc.querySelector('#res-wpj-hero-actual');
+    const heroSub = calc.querySelector('#res-wpj-hero-sub');
+    const resHours = calc.querySelector('#res-wpj-hours');
+    const resContractYear = calc.querySelector('#res-wpj-contract-year');
+    const resContractMonth = calc.querySelector('#res-wpj-contract-month');
+    const resDailyHours = calc.querySelector('#res-wpj-daily-hours');
+    const resVacationHours = calc.querySelector('#res-wpj-vacation-hours');
+    const resHolidayHours = calc.querySelector('#res-wpj-holiday-hours');
+    const resAdvHours = calc.querySelector('#res-wpj-adv-hours');
+    const resTotalLeave = calc.querySelector('#res-wpj-total-leave');
+    const resActualYear = calc.querySelector('#res-wpj-actual-year');
+    const resActualMonth = calc.querySelector('#res-wpj-actual-month');
+    const resActualWeeks = calc.querySelector('#res-wpj-actual-weeks');
+    const resActualDays = calc.querySelector('#res-wpj-actual-days');
+
+    const formatNumber = (val: number, maxDec = 2) =>
+      new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: maxDec
+      }).format(val);
+
+    function calculate() {
+      if (!inputHours || !inputVacation || !inputHolidays || !inputAdv) return;
+
+      const weeklyHours = Math.max(0, parseFloat(inputHours.value) || 0);
+      const vacationDays = Math.max(0, parseFloat(inputVacation.value) || 0);
+      const holidays = Math.max(0, parseFloat(inputHolidays.value) || 0);
+      const advDays = Math.max(0, parseFloat(inputAdv.value) || 0);
+
+      const dailyHours = weeklyHours > 0 ? weeklyHours / 5 : 0;
+      const contractualAnnualHours = weeklyHours * 52;
+      const contractualMonthlyHours = (weeklyHours * 52) / 12;
+
+      const vacationHours = vacationDays * dailyHours;
+      const holidayHours = holidays * dailyHours;
+      const advHours = advDays * dailyHours;
+      const totalLeaveHours = vacationHours + holidayHours + advHours;
+
+      const actualAnnualHours = Math.max(0, contractualAnnualHours - totalLeaveHours);
+      const actualMonthlyHours = actualAnnualHours / 12;
+      const actualAnnualWeeks = weeklyHours > 0 ? actualAnnualHours / weeklyHours : 0;
+      const actualAnnualDays = dailyHours > 0 ? actualAnnualHours / dailyHours : 0;
+
+      // Update Hero
+      if (heroActual) heroActual.textContent = `${formatNumber(actualAnnualHours)} uur`;
+      if (heroSub) {
+        heroSub.textContent = `van ${formatNumber(contractualAnnualHours)} contracturen (${formatNumber(actualAnnualWeeks, 1)} gewerkte weken)`;
+      }
+
+      // Update Breakdown
+      if (resHours) resHours.textContent = `${formatNumber(weeklyHours)} uur / week`;
+      if (resContractYear) resContractYear.textContent = `${formatNumber(contractualAnnualHours)} uur`;
+      if (resContractMonth) resContractMonth.textContent = `${formatNumber(contractualMonthlyHours)} uur`;
+      if (resDailyHours) resDailyHours.textContent = `${formatNumber(dailyHours)} uur`;
+      if (resVacationHours) resVacationHours.textContent = `- ${formatNumber(vacationHours)} uur`;
+      if (resHolidayHours) resHolidayHours.textContent = `- ${formatNumber(holidayHours)} uur`;
+      if (resAdvHours) resAdvHours.textContent = `- ${formatNumber(advHours)} uur`;
+      if (resTotalLeave) resTotalLeave.textContent = `- ${formatNumber(totalLeaveHours)} uur`;
+      if (resActualYear) resActualYear.textContent = `${formatNumber(actualAnnualHours)} uur`;
+      if (resActualMonth) resActualMonth.textContent = `${formatNumber(actualMonthlyHours)} uur`;
+      if (resActualWeeks) resActualWeeks.textContent = `${formatNumber(actualAnnualWeeks, 2)} weken`;
+      if (resActualDays) resActualDays.textContent = `${formatNumber(actualAnnualDays, 1)} dagen`;
+    }
+
+    // Input listeners
+    inputHours?.addEventListener('input', () => {
+      const val = inputHours.value;
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === val));
+      calculate();
+    });
+
+    inputVacation?.addEventListener('input', () => {
+      const val = inputVacation.value;
+      vacPills.forEach(p => p.classList.toggle('is-active', p.dataset.vac === val));
+      calculate();
+    });
+
+    inputHolidays?.addEventListener('input', calculate);
+    inputAdv?.addEventListener('input', calculate);
+
+    // Hour pill buttons
+    hourPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        hourPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        if (inputHours && pill.dataset.hours) {
+          inputHours.value = pill.dataset.hours;
+          calculate();
+        }
+      });
+    });
+
+    // Vacation pill buttons
+    vacPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        vacPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        if (inputVacation && pill.dataset.vac) {
+          inputVacation.value = pill.dataset.vac;
+          calculate();
+        }
+      });
+    });
+
+    // Reset button
+    btnReset?.addEventListener('click', () => {
+      if (inputHours) inputHours.value = '40';
+      if (inputVacation) inputVacation.value = '25';
+      if (inputHolidays) inputHolidays.value = '7';
+      if (inputAdv) inputAdv.value = '0';
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '40'));
+      vacPills.forEach(p => p.classList.toggle('is-active', p.dataset.vac === '25'));
+      calculate();
+    });
+
+    // Initial calculation
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-pills-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.5rem;
+  }
+
+  .wpj-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    white-space: normal;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .wpj-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .wpj-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>

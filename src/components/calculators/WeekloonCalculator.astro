@@ -1,0 +1,404 @@
+---
+// src/components/calculators/WeekloonCalculator.astro
+---
+
+<div class="calc-grid" id="weekloon-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Berekening instellen</h2>
+
+    <!-- Keuze: Invoertype -->
+    <div class="form-group">
+      <label class="form-label">Kies je uitgangspunt</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="mode-from-hourly" name="calc-mode" value="from_hourly" checked />
+          <label for="mode-from-hourly">Vanuit uurloon</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="mode-from-monthly" name="calc-mode" value="from_monthly" />
+          <label for="mode-from-monthly">Vanuit maandsalaris</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Veld: Uurloon (zichtbaar in mode from_hourly) -->
+    <div class="form-group" id="group-hourly">
+      <label for="input-hourly-wage" class="form-label">Bruto uurloon</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-hourly-wage"
+          class="form-input input-has-prefix input-has-suffix"
+          value="20"
+          min="0"
+          max="500"
+          step="0.10"
+        />
+        <span class="input-suffix">/ uur</span>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill wage-pill" data-wage="14.50">€ 14,50</button>
+        <button type="button" class="quick-pill wage-pill" data-wage="16.00">€ 16,00</button>
+        <button type="button" class="quick-pill wage-pill" data-wage="18.50">€ 18,50</button>
+        <button type="button" class="quick-pill wage-pill is-active" data-wage="20.00">€ 20,00</button>
+        <button type="button" class="quick-pill wage-pill" data-wage="22.50">€ 22,50</button>
+        <button type="button" class="quick-pill wage-pill" data-wage="25.00">€ 25,00</button>
+      </div>
+      <span class="form-hint">Je vaste bruto basistarief per gewerkt uur.</span>
+    </div>
+
+    <!-- Veld: Maandsalaris (zichtbaar in mode from_monthly) -->
+    <div class="form-group" id="group-monthly" style="display: none;">
+      <label for="input-monthly-salary" class="form-label">Bruto maandsalaris</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-monthly-salary"
+          class="form-input input-has-prefix input-has-suffix"
+          value="3500"
+          min="0"
+          max="50000"
+          step="50"
+        />
+        <span class="input-suffix">/ maand</span>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill salary-pill" data-salary="2500">€ 2.500</button>
+        <button type="button" class="quick-pill salary-pill" data-salary="3000">€ 3.000</button>
+        <button type="button" class="quick-pill salary-pill is-active" data-salary="3500">€ 3.500</button>
+        <button type="button" class="quick-pill salary-pill" data-salary="4000">€ 4.000</button>
+        <button type="button" class="quick-pill salary-pill" data-salary="4500">€ 4.500</button>
+        <button type="button" class="quick-pill salary-pill" data-salary="5000">€ 5.000</button>
+      </div>
+      <span class="form-hint">Je vaste bruto salaris per kalendermaand (exclusief vakantietoeslag).</span>
+    </div>
+
+    <!-- Veld: Wekelijkse uren -->
+    <div class="form-group">
+      <label for="input-weekly-hours" class="form-label">Wekelijkse arbeidsduur (uren per week)</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-weekly-hours"
+          class="form-input input-has-suffix"
+          value="40"
+          min="1"
+          max="80"
+          step="0.5"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill hour-pill" data-hours="24">24 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="32">32 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="36">36 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="38">38 uur</button>
+        <button type="button" class="quick-pill hour-pill is-active" data-hours="40">40 uur</button>
+      </div>
+      <span class="form-hint">Aantal contractuele werkuren per week (bijv. 36, 38 of 40 voor fulltime).</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-weekloon" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Geschat bruto weekloon</span>
+      <div class="result-hero-value" id="res-hero-week">€ 800,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">bij 40 uur per week (€ 20,00 per uur)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-subtitle">Salaris & Contracturen</div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto uurloon</span>
+        <span class="result-row-value font-medium" style="color: var(--color-primary);" id="res-hourly-wage">€ 20,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Contracturen per week</span>
+        <span class="result-row-value" id="res-weekly-hours">40 uur / week</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Gemiddelde uren per maand</span>
+        <span class="result-row-value" id="res-monthly-hours">173,33 uur</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle">Periodieke Vergelijking (Bruto)</div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto weekloon (52 weken/jaar)</span>
+        <span class="result-row-value font-bold" id="res-breakdown-week">€ 800,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto 4-wekenloon (13 periodes)</span>
+        <span class="result-row-value" id="res-four-weekly">€ 3.200,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto maandsalaris (equivalent)</span>
+        <span class="result-row-value" id="res-monthly-salary">€ 3.466,67</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto jaarsalaris (excl. vakantiegeld)</span>
+        <span class="result-row-value" id="res-annual-salary">€ 41.600,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Bruto jaarsalaris (incl. 8% vakantiegeld)</span>
+        <span class="result-row-value" style="color: var(--color-success);" id="res-annual-vacation">€ 44.928,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle">Berekeningswijze</div>
+      <div class="result-note" id="res-formula-expl">
+        40 uur × € 20,00 = € 800,00 per week. Maandloon = (52 weken × € 800,00) ÷ 12 = € 3.466,67.
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .quick-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .quick-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .quick-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .result-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .result-note {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    background-color: var(--bg-subtle);
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid var(--color-primary);
+  }
+
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('weekloon-calc');
+    if (!calc) return;
+
+    const radioHourly = calc.querySelector('#mode-from-hourly');
+    const radioMonthly = calc.querySelector('#mode-from-monthly');
+    const groupHourly = calc.querySelector('#group-hourly');
+    const groupMonthly = calc.querySelector('#group-monthly');
+
+    const inputHourly = calc.querySelector('#input-hourly-wage');
+    const wagePills = calc.querySelectorAll('.wage-pill');
+
+    const inputMonthly = calc.querySelector('#input-monthly-salary');
+    const salaryPills = calc.querySelectorAll('.salary-pill');
+
+    const inputHours = calc.querySelector('#input-weekly-hours');
+    const hourPills = calc.querySelectorAll('.hour-pill');
+
+    const btnReset = calc.querySelector('#btn-reset-weekloon');
+
+    // Result elements
+    const resHeroWeek = calc.querySelector('#res-hero-week');
+    const resHeroSub = calc.querySelector('#res-hero-sub');
+    const resHourlyWage = calc.querySelector('#res-hourly-wage');
+    const resWeeklyHours = calc.querySelector('#res-weekly-hours');
+    const resMonthlyHours = calc.querySelector('#res-monthly-hours');
+    const resBreakdownWeek = calc.querySelector('#res-breakdown-week');
+    const resFourWeekly = calc.querySelector('#res-four-weekly');
+    const resMonthlySalary = calc.querySelector('#res-monthly-salary');
+    const resAnnualSalary = calc.querySelector('#res-annual-salary');
+    const resAnnualVacation = calc.querySelector('#res-annual-vacation');
+    const resFormulaExpl = calc.querySelector('#res-formula-expl');
+
+    const formatCurrency = (val) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+    const formatNumber = (val, dec = 2) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function updateMode() {
+      const isFromHourly = radioHourly.checked;
+      if (isFromHourly) {
+        groupHourly.style.display = 'block';
+        groupMonthly.style.display = 'none';
+      } else {
+        groupHourly.style.display = 'none';
+        groupMonthly.style.display = 'block';
+      }
+      calculate();
+    }
+
+    function calculate() {
+      const isFromHourly = radioHourly.checked;
+      const hours = Math.max(0.5, parseFloat(inputHours.value) || 0);
+      const monthlyHours = (hours * 52) / 12;
+
+      let weeklySalary = 0;
+      let hourlyWage = 0;
+      let monthlySalary = 0;
+      let annualSalary = 0;
+      let fourWeeklySalary = 0;
+
+      if (isFromHourly) {
+        hourlyWage = Math.max(0, parseFloat(inputHourly.value) || 0);
+        weeklySalary = hourlyWage * hours;
+        annualSalary = weeklySalary * 52;
+        monthlySalary = annualSalary / 12;
+        fourWeeklySalary = weeklySalary * 4;
+
+        resHeroSub.textContent = `bij ${formatNumber(hours, 1)} uur per week (${formatCurrency(hourlyWage)} per uur)`;
+        resFormulaExpl.textContent = `${formatNumber(hours, 1)} uur × ${formatCurrency(hourlyWage)} = ${formatCurrency(weeklySalary)} per week. Maandloon = (52 weken × ${formatCurrency(weeklySalary)}) ÷ 12 = ${formatCurrency(monthlySalary)}.`;
+      } else {
+        monthlySalary = Math.max(0, parseFloat(inputMonthly.value) || 0);
+        annualSalary = monthlySalary * 12;
+        weeklySalary = annualSalary / 52;
+        fourWeeklySalary = annualSalary / 13;
+        hourlyWage = monthlyHours > 0 ? monthlySalary / monthlyHours : 0;
+
+        resHeroSub.textContent = `bij ${formatCurrency(monthlySalary)} per maand (${formatNumber(hours, 1)} uur per week)`;
+        resFormulaExpl.textContent = `(${formatCurrency(monthlySalary)} × 12 maanden) ÷ 52 weken = ${formatCurrency(weeklySalary)} per week. Uurloon = ${formatCurrency(monthlySalary)} ÷ ${formatNumber(monthlyHours, 2)} uur = ${formatCurrency(hourlyWage)}.`;
+      }
+
+      const annualWithVacation = annualSalary * 1.08;
+
+      // Update DOM
+      resHeroWeek.textContent = formatCurrency(weeklySalary);
+      resHourlyWage.textContent = formatCurrency(hourlyWage);
+      resWeeklyHours.textContent = `${formatNumber(hours, 1)} uur / week`;
+      resMonthlyHours.textContent = `${formatNumber(monthlyHours, 2)} uur`;
+
+      resBreakdownWeek.textContent = formatCurrency(weeklySalary);
+      resFourWeekly.textContent = formatCurrency(fourWeeklySalary);
+      resMonthlySalary.textContent = formatCurrency(monthlySalary);
+      resAnnualSalary.textContent = formatCurrency(annualSalary);
+      resAnnualVacation.textContent = formatCurrency(annualWithVacation);
+    }
+
+    // Event listeners
+    radioHourly.addEventListener('change', updateMode);
+    radioMonthly.addEventListener('change', updateMode);
+
+    inputHourly.addEventListener('input', () => {
+      const val = inputHourly.value;
+      wagePills.forEach(p => p.classList.toggle('is-active', p.dataset.wage === val));
+      calculate();
+    });
+
+    wagePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        wagePills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputHourly.value = pill.dataset.wage;
+        calculate();
+      });
+    });
+
+    inputMonthly.addEventListener('input', () => {
+      const val = inputMonthly.value;
+      salaryPills.forEach(p => p.classList.toggle('is-active', p.dataset.salary === val));
+      calculate();
+    });
+
+    salaryPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        salaryPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputMonthly.value = pill.dataset.salary;
+        calculate();
+      });
+    });
+
+    inputHours.addEventListener('input', () => {
+      const val = inputHours.value;
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === val));
+      calculate();
+    });
+
+    hourPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        hourPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputHours.value = pill.dataset.hours;
+        calculate();
+      });
+    });
+
+    btnReset.addEventListener('click', () => {
+      radioHourly.checked = true;
+      groupHourly.style.display = 'block';
+      groupMonthly.style.display = 'none';
+
+      inputHourly.value = '20';
+      wagePills.forEach(p => p.classList.toggle('is-active', p.dataset.wage === '20.00'));
+
+      inputMonthly.value = '3500';
+      salaryPills.forEach(p => p.classList.toggle('is-active', p.dataset.salary === '3500'));
+
+      inputHours.value = '40';
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '40'));
+
+      calculate();
+    });
+
+    updateMode();
+  })();
+</script>

@@ -1,0 +1,517 @@
+---
+// src/components/calculators/WoonWerkKostenCalculator.astro
+import { DUTCH_RATES } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="woon-werk-kosten-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">Reis- en verbruiksgegevens</h2>
+
+    <!-- Afstand -->
+    <div class="form-group">
+      <label for="input-distance" class="form-label">Afstand woon-werk</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-distance"
+          class="form-input input-has-suffix"
+          value="25"
+          min="0"
+          max="500"
+          step="0.5"
+        />
+        <span class="input-suffix">km</span>
+      </div>
+      <div class="form-radio-group" style="margin-top: 0.5rem;">
+        <div class="form-radio-card">
+          <input type="radio" id="dist-mode-single" name="dist-mode" value="single" checked />
+          <label for="dist-mode-single">Enkele reis</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="dist-mode-round" name="dist-mode" value="round" />
+          <label for="dist-mode-round">Heen en terug (retour)</label>
+        </div>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill dist-pill" data-km="10">10 km</button>
+        <button type="button" class="quick-pill dist-pill" data-km="20">20 km</button>
+        <button type="button" class="quick-pill dist-pill is-active" data-km="25">25 km</button>
+        <button type="button" class="quick-pill dist-pill" data-km="35">35 km</button>
+        <button type="button" class="quick-pill dist-pill" data-km="50">50 km</button>
+      </div>
+      <span class="form-hint">Voer de afstand in kilometers in volgens de routeplanner van je navigatie.</span>
+    </div>
+
+    <!-- Aantal reisdagen per week -->
+    <div class="form-group">
+      <label for="input-travel-days" class="form-label">Aantal reisdagen per week</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-travel-days"
+          class="form-input input-has-suffix"
+          value="4"
+          min="1"
+          max="7"
+          step="1"
+        />
+        <span class="input-suffix">dagen / week</span>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill day-pill" data-days="1">1 dag</button>
+        <button type="button" class="quick-pill day-pill" data-days="2">2 dagen</button>
+        <button type="button" class="quick-pill day-pill" data-days="3">3 dagen</button>
+        <button type="button" class="quick-pill day-pill is-active" data-days="4">4 dagen</button>
+        <button type="button" class="quick-pill day-pill" data-days="5">5 dagen</button>
+      </div>
+      <span class="form-hint">Dagen waarop je fysiek van huis naar je werkplek reist.</span>
+    </div>
+
+    <!-- Brandstoftype snelselectie -->
+    <div class="form-group">
+      <label class="form-label">Brandstoftype (richtprijzen)</label>
+      <div class="fuel-presets">
+        <button type="button" class="fuel-preset-btn is-active" data-cons="6.5" data-price="2.05" data-unit="liter">
+          <strong>Benzine</strong>
+          <span>6,5 l / € 2,05</span>
+        </button>
+        <button type="button" class="fuel-preset-btn" data-cons="5.2" data-price="1.80" data-unit="liter">
+          <strong>Diesel</strong>
+          <span>5,2 l / € 1,80</span>
+        </button>
+        <button type="button" class="fuel-preset-btn" data-cons="18.0" data-price="0.35" data-unit="kWh">
+          <strong>Elektrisch</strong>
+          <span>18 kWh / € 0,35</span>
+        </button>
+        <button type="button" class="fuel-preset-btn" data-cons="4.5" data-price="2.05" data-unit="liter">
+          <strong>Hybride</strong>
+          <span>4,5 l / € 2,05</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Brandstofverbruik -->
+    <div class="form-group">
+      <label for="input-consumption" class="form-label">Brandstofverbruik per 100 km</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-consumption"
+          class="form-input input-has-suffix"
+          value="6.5"
+          min="0.1"
+          max="50"
+          step="0.1"
+        />
+        <span class="input-suffix" id="consumption-unit">liter / 100 km</span>
+      </div>
+      <span class="form-hint">Gemiddeld verbruik van je auto (bijv. 6,5 l/100 km of 18 kWh/100 km bij EV).</span>
+    </div>
+
+    <!-- Brandstofprijs per eenheid -->
+    <div class="form-group">
+      <label for="input-fuel-price" class="form-label">Brandstofprijs per liter of kWh</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-fuel-price"
+          class="form-input input-has-prefix"
+          value="2.05"
+          min="0.01"
+          max="10"
+          step="0.01"
+        />
+      </div>
+      <span class="form-hint">Pompprijs per liter benzine/diesel of laadtarief per kWh.</span>
+    </div>
+
+    <!-- Parkeer- of tolkosten per dag -->
+    <div class="form-group">
+      <label for="input-parking" class="form-label">Parkeer- of tolkosten per reisdag (optioneel)</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-parking"
+          class="form-input input-has-prefix"
+          value="0"
+          min="0"
+          max="200"
+          step="0.50"
+        />
+      </div>
+      <span class="form-hint">Optionele kosten per kantoordag, zoals parkeergarage, P+R of tolwegen.</span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-woonwerk" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Geschatte kosten per maand</span>
+      <div class="result-hero-value" id="res-monthly-total">€ 95,05</div>
+      <span class="result-hero-sub" id="res-hero-sub">op basis van 171,2 reisdagen per jaar (214-norm)</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-row">
+        <span class="result-row-label">Totale afstand per reisdag (retour)</span>
+        <span class="result-row-value" id="res-daily-km">50 km</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Geschatte kilometers per jaar</span>
+        <span class="result-row-value" id="res-annual-km">8.560 km</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Brandstofkosten per kilometer</span>
+        <span class="result-row-value" id="res-fuel-per-km">€ 0,133</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Brandstof per enkele reis</span>
+        <span class="result-row-value" id="res-single-fuel">€ 3,33</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Brandstof per reisdag (retour)</span>
+        <span class="result-row-value" id="res-daily-fuel">€ 6,66</span>
+      </div>
+      <div class="result-row" id="row-parking" style="display: none;">
+        <span class="result-row-label">Parkeren/tol per reisdag</span>
+        <span class="result-row-value" id="res-daily-parking">€ 0,00</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totale kosten per week</span>
+        <span class="result-row-value" id="res-weekly-total">€ 26,65</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Totale kosten per jaar</span>
+        <span class="result-row-value" id="res-annual-total">€ 1.140,62</span>
+      </div>
+
+      <!-- Vergelijking met vergoeding -->
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle">Vergelijking met reiskostenvergoeding (€ 0,23/km)</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Fiscale onbelaste vergoeding (per maand)</span>
+        <span class="result-row-value" style="color: var(--color-primary);" id="res-allowance-monthly">€ 164,07</span>
+      </div>
+      <div class="result-row">
+        <span class="result-row-label">Verschil met brandstofkosten</span>
+        <span class="result-row-value" id="res-net-diff" style="color: var(--color-success);">+ € 69,02 over</span>
+      </div>
+
+      <!-- ANWB benchmark -->
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle">Totale autokosten indicatie (ANWB / Nibud ~€ 0,45/km)</div>
+      <div class="result-row">
+        <span class="result-row-label">Totale autokosten per maand (all-in)</span>
+        <span class="result-row-value" id="res-allin-cost">€ 321,00</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .quick-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .quick-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .quick-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .fuel-presets {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+  }
+
+  @media (min-width: 480px) {
+    .fuel-presets {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+
+  .fuel-preset-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 0.25rem;
+    font-size: 0.75rem;
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    text-align: center;
+  }
+
+  .fuel-preset-btn strong {
+    color: var(--text-main);
+    font-size: 0.8125rem;
+    margin-bottom: 0.15rem;
+  }
+
+  .fuel-preset-btn:hover {
+    border-color: var(--border-strong);
+    color: var(--text-main);
+  }
+
+  .fuel-preset-btn.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  .fuel-preset-btn.is-active strong {
+    color: var(--color-primary);
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .result-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('woon-werk-kosten-calc');
+    if (!calc) return;
+
+    const inputDistance = calc.querySelector('#input-distance');
+    const radioSingle = calc.querySelector('#dist-mode-single');
+    const radioRound = calc.querySelector('#dist-mode-round');
+    const distPills = calc.querySelectorAll('.dist-pill');
+
+    const inputDays = calc.querySelector('#input-travel-days');
+    const dayPills = calc.querySelectorAll('.day-pill');
+
+    const fuelPresetBtns = calc.querySelectorAll('.fuel-preset-btn');
+    const inputConsumption = calc.querySelector('#input-consumption');
+    const consumptionUnit = calc.querySelector('#consumption-unit');
+    const inputFuelPrice = calc.querySelector('#input-fuel-price');
+    const inputParking = calc.querySelector('#input-parking');
+
+    const btnReset = calc.querySelector('#btn-reset-woonwerk');
+
+    // Outputs
+    const resMonthlyTotal = calc.querySelector('#res-monthly-total');
+    const resHeroSub = calc.querySelector('#res-hero-sub');
+    const resDailyKm = calc.querySelector('#res-daily-km');
+    const resAnnualKm = calc.querySelector('#res-annual-km');
+    const resFuelPerKm = calc.querySelector('#res-fuel-per-km');
+    const resSingleFuel = calc.querySelector('#res-single-fuel');
+    const resDailyFuel = calc.querySelector('#res-daily-fuel');
+    const rowParking = calc.querySelector('#row-parking');
+    const resDailyParking = calc.querySelector('#res-daily-parking');
+    const resWeeklyTotal = calc.querySelector('#res-weekly-total');
+    const resAnnualTotal = calc.querySelector('#res-annual-total');
+    const resAllowanceMonthly = calc.querySelector('#res-allowance-monthly');
+    const resNetDiff = calc.querySelector('#res-net-diff');
+    const resAllinCost = calc.querySelector('#res-allin-cost');
+
+    const TAX_FREE_RATE = 0.23;
+    const ALL_IN_RATE = 0.45;
+
+    const formatCurrency = (val) => new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+    const formatNumber = (val, dec = 1) => new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function calculate() {
+      const rawDistance = Math.max(0, parseFloat(inputDistance.value) || 0);
+      const isRound = radioRound.checked;
+      const returnKm = isRound ? rawDistance : rawDistance * 2;
+      const singleKm = isRound ? rawDistance / 2 : rawDistance;
+
+      const travelDays = Math.min(7, Math.max(0, parseFloat(inputDays.value) || 0));
+      const consumption = Math.max(0, parseFloat(inputConsumption.value) || 0);
+      const fuelPrice = Math.max(0, parseFloat(inputFuelPrice.value) || 0);
+      const parking = Math.max(0, parseFloat(inputParking.value) || 0);
+
+      // Belastingdienst 214-dagen norm pro-rata
+      const annualTravelDays = (travelDays / 5) * 214;
+      const annualKm = returnKm * annualTravelDays;
+
+      // Brandstofkosten
+      const fuelCostPerKm = (consumption / 100) * fuelPrice;
+      const fuelCostSingle = singleKm * fuelCostPerKm;
+      const fuelCostDaily = returnKm * fuelCostPerKm;
+      const totalCostDaily = fuelCostDaily + parking;
+
+      const totalCostWeekly = totalCostDaily * travelDays;
+      const totalCostAnnual = totalCostDaily * annualTravelDays;
+      const totalCostMonthly = totalCostAnnual / 12;
+
+      // Vergoeding (€ 0,23 / km)
+      const allowanceAnnual = returnKm * TAX_FREE_RATE * annualTravelDays;
+      const allowanceMonthly = allowanceAnnual / 12;
+      const netDiffMonthly = allowanceMonthly - totalCostMonthly;
+
+      // All-in indicatie (~€ 0,45 / km)
+      const allInMonthly = (annualKm * ALL_IN_RATE) / 12;
+
+      // DOM updates
+      resMonthlyTotal.textContent = formatCurrency(totalCostMonthly);
+      resHeroSub.textContent = `op basis van ${(Math.round(annualTravelDays * 10) / 10).toString().replace('.', ',')} reisdagen per jaar (214-norm)`;
+
+      resDailyKm.textContent = `${formatNumber(returnKm, 1)} km`;
+      resAnnualKm.textContent = `${formatNumber(Math.round(annualKm), 0)} km`;
+      resFuelPerKm.textContent = `€ ${fuelCostPerKm.toFixed(3).replace('.', ',')}`;
+      resSingleFuel.textContent = formatCurrency(fuelCostSingle);
+      resDailyFuel.textContent = formatCurrency(fuelCostDaily);
+
+      if (parking > 0) {
+        rowParking.style.display = 'flex';
+        resDailyParking.textContent = formatCurrency(parking);
+      } else {
+        rowParking.style.display = 'none';
+      }
+
+      resWeeklyTotal.textContent = formatCurrency(totalCostWeekly);
+      resAnnualTotal.textContent = formatCurrency(totalCostAnnual);
+
+      resAllowanceMonthly.textContent = formatCurrency(allowanceMonthly);
+
+      if (netDiffMonthly >= 0) {
+        resNetDiff.style.color = 'var(--color-success)';
+        resNetDiff.textContent = `+ ${formatCurrency(netDiffMonthly)} over`;
+      } else {
+        resNetDiff.style.color = 'var(--color-warning)';
+        resNetDiff.textContent = `- ${formatCurrency(Math.abs(netDiffMonthly))} tekort`;
+      }
+
+      resAllinCost.textContent = formatCurrency(allInMonthly);
+    }
+
+    // Event listeners
+    inputDistance.addEventListener('input', () => {
+      const val = inputDistance.value;
+      distPills.forEach(p => p.classList.toggle('is-active', p.dataset.km === val));
+      calculate();
+    });
+
+    radioSingle.addEventListener('change', calculate);
+    radioRound.addEventListener('change', calculate);
+
+    distPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        distPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputDistance.value = pill.dataset.km;
+        radioSingle.checked = true;
+        calculate();
+      });
+    });
+
+    inputDays.addEventListener('input', () => {
+      const val = inputDays.value;
+      dayPills.forEach(p => p.classList.toggle('is-active', p.dataset.days === val));
+      calculate();
+    });
+
+    dayPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        dayPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputDays.value = pill.dataset.days;
+        calculate();
+      });
+    });
+
+    fuelPresetBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        fuelPresetBtns.forEach(b => b.classList.remove('is-active'));
+        btn.classList.add('is-active');
+        inputConsumption.value = btn.dataset.cons;
+        inputFuelPrice.value = btn.dataset.price;
+        consumptionUnit.textContent = `${btn.dataset.unit} / 100 km`;
+        calculate();
+      });
+    });
+
+    inputConsumption.addEventListener('input', () => {
+      fuelPresetBtns.forEach(b => b.classList.remove('is-active'));
+      calculate();
+    });
+
+    inputFuelPrice.addEventListener('input', () => {
+      fuelPresetBtns.forEach(b => b.classList.remove('is-active'));
+      calculate();
+    });
+
+    inputParking.addEventListener('input', calculate);
+
+    btnReset.addEventListener('click', () => {
+      inputDistance.value = '25';
+      radioSingle.checked = true;
+      distPills.forEach(p => p.classList.toggle('is-active', p.dataset.km === '25'));
+
+      inputDays.value = '4';
+      dayPills.forEach(p => p.classList.toggle('is-active', p.dataset.days === '4'));
+
+      fuelPresetBtns.forEach((b, i) => b.classList.toggle('is-active', i === 0));
+      inputConsumption.value = '6.5';
+      consumptionUnit.textContent = 'liter / 100 km';
+      inputFuelPrice.value = '2.05';
+      inputParking.value = '0';
+
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

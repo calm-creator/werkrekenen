@@ -1,0 +1,210 @@
+---
+// src/pages/woon-werk-kosten-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import WoonWerkKostenCalculator from '../components/calculators/WoonWerkKostenCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('woon-werk-kosten-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken ik mijn werkelijke woon-werkkosten per maand?',
+    answer: 'Je berekent je maandelijkse woon-werkkosten door de dagelijkse retourafstand te vermenigvuldigen met de brandstofkosten per kilometer (verbruik per 100 km gedeeld door 100 maal de liter- of kWh-prijs), eventuele parkeerkosten op te tellen, en dit te vermenigvuldigen met je jaarlijkse reisdagen volgens de 214-dagenregeling, gedeeld door 12 maanden.'
+  },
+  {
+    question: 'Wat kost woon-werkverkeer gemiddeld per kilometer in Nederland?',
+    answer: 'Alleen de variabele brandstofkosten bedragen bij een gemiddelde benzineauto doorgaans tussen de € 0,11 en € 0,15 per kilometer. De totale kilometerprijs (all-in inclusief afschrijving, motorrijtuigenbelasting, verzekering en onderhoud volgens ANWB en Nibud) ligt gemiddeld tussen de € 0,40 en € 0,55 per kilometer.'
+  },
+  {
+    question: 'Dekt de belastingvrije kilometervergoeding van € 0,23 alle autokosten?',
+    answer: 'Nee. De fiscale onbelaste norm van € 0,23 per kilometer dekt in de meeste gevallen ruimschoots de directe brandstofkosten, maar dekt niet de volledige vaste autokosten zoals afschrijving, verzekering en periodiek onderhoud. Voor werknemers die met de fiets of lopend reizen is de vergoeding wel een zuivere vergoeding of winst.'
+  },
+  {
+    question: 'Hoe werkt de berekening van woon-werkkosten bij hybride werken?',
+    answer: 'Bij hybride werken reis je minder dagen naar kantoor. Werk je bijvoorbeeld 3 dagen op kantoor en 2 dagen thuis, dan berekent de fiscus je reiskosten op basis van 128,4 reisdagen per jaar in plaats van 214 dagen. Op je thuiswerkdagen heb je geen brandstofkosten en kun je een thuiswerkvergoeding ontvangen.'
+  },
+  {
+    question: 'Wat is het verschil tussen variabele brandstofkosten en vaste autokosten?',
+    answer: 'Variabele kosten ontstaan alleen wanneer je rijdt (brandstof, stroom, slijtage van banden en eventuele tolwegen of parkeren). Vaste kosten betaal je ook als je auto stilstaat op de oprit: maandelijkse motorrijtuigenbelasting (mrb), autoverzekering en tijdgebonden afschrijving.'
+  },
+  {
+    question: 'Zijn parkeerkosten voor woon-werkverkeer aftrekbaar of te vergoeden?',
+    answer: 'Werkgevers mogen parkeerkosten op het werk of bij een P+R-locatie onbelast vergoeden of faciliteren via een parkeervergunning. Een werknemer in loondienst kan parkeerkosten voor woon-werkverkeer echter niet zelfstandig aftrekken in de aangifte inkomstenbelasting.'
+  },
+  {
+    question: 'Hoeveel reisdagen per jaar hanteert de Belastingdienst bij woon-werkverkeer?',
+    answer: 'De Belastingdienst hanteert bij een 5-daagse werkweek de vaste 214-dagenregeling (365 dagen minus 104 weekenddagen, feestdagen, 25 vakantiedagen en gemiddeld ziekteverzuim). Bij een 4-daagse werkweek is dit 171,2 reisdagen, bij 3 dagen 128,4 reisdagen en bij 2 dagen 85,6 reisdagen per jaar.'
+  },
+  {
+    question: 'Is woon-werkverkeer met een elektrische auto goedkoper dan benzine?',
+    answer: 'Ja, qua verbruikskosten per kilometer is elektrisch rijden vaak 30% tot 50% voordeliger, zeker wanneer je thuis tegen een dynamisch of vast contract laadt (bijv. € 0,30 per kWh bij een verbruik van 18 kWh/100 km = € 0,054/km tegenover € 0,133/km voor benzine). Bij snelladers langs de snelweg is het verschil echter kleiner.'
+  },
+  {
+    question: 'Kan ik autokosten voor woon-werkverkeer aftrekken van de inkomstenbelasting?',
+    answer: 'Nee. Reiskosten per auto zijn voor werknemers in loondienst niet fiscaal aftrekbaar in box 1 van de inkomstenbelasting. Alleen wie met het openbaar vervoer reist over een afstand van meer dan 10 kilometer en aan strikte voorwaarden voldoet, kan aanspraak maken op de reisaftrek openbaar vervoer.'
+  },
+  {
+    question: 'Hoeveel bespaar ik op woon-werkkosten door 1 dag per week thuis te werken?',
+    answer: 'Door één dag per week thuis te werken bespaar je 20% van je wekelijkse brandstof- en parkeerkosten. Bij een enkele reisafstand van 35 km (70 km retour) scheelt dit op jaarbasis ruim 3.000 autokilometers en gemiddeld € 400 tot € 550 aan directe brandstof- en onderhoudskosten per jaar.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Nibud & Belastingdienst"
+>
+  <WoonWerkKostenCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat zijn woon-werk reiskosten en hoe bereken je ze?</h2>
+    <p>
+      Woon-werkkosten omvatten alle uitgaven die je als werknemer maakt voor het reizen tussen je woonadres en je werklocatie. Voor forenzen met een eigen auto bestaan de directe uitgaven uit <strong>brandstof</strong> (benzine, diesel of stroom) en eventuele <strong>parkeer- en tolgelden</strong>. Daarnaast veroorzaakt elke woon-werkkilometer slijtage, periodiek onderhoud en afschrijving.
+    </p>
+    <p>
+      Ontvang je een kilometervergoeding van je werkgever? Dan is het belangrijk om te weten of deze vergoeding je werkelijke autokosten dekt. Vergelijk je reiskosten desgewenst direct met je loon via onze calculator voor <a href="/uurloon-berekenen/">uurloon berekenen</a>.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>De formule voor directe woon-werkkosten:</strong><br />
+      <code>Brandstofkosten per km = (Verbruik per 100 km ÷ 100) × Literprijs</code><br />
+      <code>Dagkosten = (Enkele reis × 2) × Brandstof per km + Dagelijkse parkeerkosten</code><br />
+      <code>Maandkosten (214-norm) = (Dagkosten × Fiscale reisdagen per jaar) ÷ 12</code><br /><br />
+      <em>Voorbeeld:</em> Bij 25 km enkele reis (50 km retour), 6,5 l/100 km en € 2,05 per liter kost één kilometer € 0,133 aan benzine. Bij 4 reisdagen per week (171,2 dagen per jaar) bedragen de zuivere brandstofkosten <strong>€ 95,05 per maand</strong>.
+    </div>
+
+    <h2>De 214-dagenregeling van de Belastingdienst</h2>
+    <p>
+      Voor een vaste maandelijkse reiskostenvergoeding hanteert de Belastingdienst de <strong>214-dagenregeling</strong>. Bij een 5-daagse werkweek gaat de fiscus uit van 214 reisdagen per jaar (365 dagen minus weekenden, feestdagen, 25 vakantiedagen en kortdurend verzuim).
+    </p>
+    <p>
+      Werk je parttime of deels vanuit huis? Dan geldt de norm naar rato: <code>(Kantoordagen per week ÷ 5) × 214</code>. Bereken via onze tool voor <a href="/werkdagen-berekenen/">werkdagen berekenen</a> het aantal werkdagen in jouw kalenderjaar.
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Fiscale reisdagen en kosten per werkweek">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Reisdagen per Week</th>
+            <th>Fiscale Reisdagen per Jaar</th>
+            <th>Jaarlijkse Kilometers (50 km retour)</th>
+            <th>Brandstofkosten per Maand</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>1 dag per week</strong></td>
+            <td>42,8 reisdagen</td>
+            <td>2.140 km</td>
+            <td>€ 23,76 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>2 dagen per week</strong></td>
+            <td>85,6 reisdagen</td>
+            <td>4.280 km</td>
+            <td>€ 47,53 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>3 dagen per week</strong></td>
+            <td>128,4 reisdagen</td>
+            <td>6.420 km</td>
+            <td>€ 71,29 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>4 dagen per week</strong></td>
+            <td>171,2 reisdagen</td>
+            <td>8.560 km</td>
+            <td>€ 95,05 per maand</td>
+          </tr>
+          <tr>
+            <td><strong>5 dagen per week</strong> (Fulltime)</td>
+            <td>214,0 reisdagen</td>
+            <td>10.700 km</td>
+            <td>€ 118,81 per maand</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Brandstofkosten versus totale autokosten (ANWB & Nibud)</h2>
+    <p>
+      De werkelijke kosten van woon-werkverkeer per auto zijn aanzienlijk hoger dan alleen de brandstof bij de pomp. Het Nibud en de ANWB verdelen autokosten in twee categorieën:
+    </p>
+    <ul>
+      <li>
+        <strong>Variabele kosten (€ 0,16 – € 0,22 per km):</strong> Brandstof of laadstroom, bandenslijtage en regulier onderhoud per gereden kilometer.
+      </li>
+      <li>
+        <strong>Vaste lasten:</strong> Motorrijtuigenbelasting (mrb), autoverzekering en waardevermindering (afschrijving), die ook doorlopen als de auto stilstaat.
+      </li>
+      <li>
+        <strong>Totale all-in kilometerprijs:</strong> Voor een compacte middenklasser liggen de totale integrale autokosten gemiddeld rond <strong>€ 0,40 tot € 0,55 per kilometer</strong>.
+      </li>
+    </ul>
+
+    <h2>Woon-werkkosten vergelijken met je reiskostenvergoeding</h2>
+    <p>
+      Werkgevers mogen in Nederland maximaal <strong>€ 0,23 per kilometer belastingvrij</strong> uitkeren voor woon-werkverkeer. Vergelijk je dit met je brandstofkosten, dan dekt de vergoeding bij vrijwel alle personenauto's de zuivere brandstof ruimschoots.
+    </p>
+    <p>
+      Kost brandstof bijvoorbeeld € 0,13 per km, dan houd je € 0,10 per kilometer over voor onderhoud en banden. Deze vergoeding dekt echter zelden de volledige vaste autokosten zoals verzekering en afschrijving. Bereken je maximale aanspraak eenvoudig via onze module voor <a href="/reiskostenvergoeding-berekenen/">reiskostenvergoeding berekenen</a>.
+    </p>
+
+    <h2>Hybride werken: kantoor combineren met thuiswerkdagen</h2>
+    <p>
+      Wie kantoordagen afwisselt met thuiswerkdagen verlaagt direct de reiskosten. Werk je 2 dagen per week thuis, dan bespaar je 40% op brandstof en parkeren. Bovendien kun je voor thuiswerkdagen aanspraak maken op de onbelaste thuiswerkvergoeding van maximaal € 2,40 per dag.
+    </p>
+    <p>
+      Fiscaal mag een werkgever voor dezelfde werkdag niet tegelijk een thuiswerkvergoeding én kilometervergoeding toekennen. Bereken je gecombineerde voordeel via onze rekenmodule voor <a href="/thuiswerkvergoeding-berekenen/">thuiswerkvergoeding berekenen</a> en stem afspraken af op je <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+    </p>
+
+    <h2>Drie praktijkvoorbeelden van woon-werkkosten</h2>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 1: Korte forens met benzineauto (15 km enkele reis)</h3>
+      <p>
+        Sanne rijdt 5 dagen per week naar kantoor (30 km retour) met een benzineauto (5,5 l/100 km @ € 2,05).
+      </p>
+      <ul>
+        <li><strong>Brandstofkosten per kilometer:</strong> (5,5 ÷ 100) × € 2,05 = € 0,113 per km.</li>
+        <li><strong>Kosten per reisdag:</strong> 30 km × € 0,113 = € 3,38 per dag.</li>
+        <li><strong>Brandstof per maand (214-norm):</strong> (30 km × € 0,113 × 214) ÷ 12 = <strong>€ 60,32 per maand</strong>.</li>
+        <li><strong>Vergoeding (€ 0,23/km):</strong> € 123,05 per maand. Sanne houdt maandelijks € 62,73 over voor onderhoud.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 2: Forens met elektrische auto (35 km enkele reis)</h3>
+      <p>
+        Mehmet reist 4 dagen per week (70 km retour) met een elektrische auto (17 kWh/100 km @ € 0,32 per kWh thuisladen).
+      </p>
+      <ul>
+        <li><strong>Stroomkosten per kilometer:</strong> (17 ÷ 100) × € 0,32 = € 0,054 per km.</li>
+        <li><strong>Stroom per maand (171,2 dagen):</strong> (70 km × € 0,054 × 171,2) ÷ 12 = <strong>€ 54,34 per maand</strong>.</li>
+        <li><strong>Fiscale kilometervergoeding:</strong> (70 km × € 0,23 × 171,2) ÷ 12 = € 229,70 per maand. Mehmet houdt maandelijks ruim € 175 over ter dekking van overige autokosten.</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 3: Forens met parkeerkosten in de stad (40 km enkele reis)</h3>
+      <p>
+        Sophie rijdt 3 dagen per week naar Amsterdam (80 km retour). Brandstof kost € 0,13 per km plus € 8,00 parkeren per dag.
+      </p>
+      <ul>
+        <li><strong>Dagkosten (brandstof + parkeren):</strong> (80 km × € 0,13) + € 8,00 = € 18,40 per reisdag.</li>
+        <li><strong>Totale maandkosten (128,4 dagen):</strong> (€ 18,40 × 128,4) ÷ 12 = <strong>€ 196,88 per maand</strong>.</li>
+        <li><strong>Reiskostenvergoeding (€ 0,23/km):</strong> (80 km × € 0,23 × 128,4) ÷ 12 = € 196,88 per maand. De vergoeding dekt exact de som van brandstof en parkeren.</li>
+      </ul>
+    </div>
+
+    <h2>Tips om te besparen op je woon-werkkosten</h2>
+    <ol>
+      <li><strong>Hanteer een efficiënte rijstijl:</strong> Rustig accelereren en constante snelheden aanhouden bespaart tot 15% brandstof.</li>
+      <li><strong>Laad of tank prijsbewust:</strong> Vermijd dure snelwegstations en laad zoveel mogelijk voordelig thuis of op het werk.</li>
+      <li><strong>Combineer thuiswerken en carpoolen:</strong> Door dagen af te stemmen vermijd je files en verlaag je directe reiskosten.</li>
+      <li><strong>Overweeg de e-bike:</strong> Voor ritten tot 15 km levert een e-bike dezelfde onbelaste € 0,23 per km op bij minimale energiekosten.</li>
+    </ol>
+  </div>
+</CalculatorLayout>

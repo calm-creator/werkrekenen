@@ -1,0 +1,190 @@
+---
+// src/pages/salarisverhoging-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import SalarisverhogingCalculator from '../components/calculators/SalarisverhogingCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('salarisverhoging-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken je een salarisverhoging in euro’s?',
+    answer: 'Je berekent een salarisverhoging in euro’s door je huidige bruto salaris te vermenigvuldigen met het verhogingspercentage gedeeld door 100. Bijvoorbeeld: verdien je € 3.500 bruto per maand en krijg je 4% loonsverhoging? Dan stijgt je salaris met € 3.500 × 0,04 = € 140,00 bruto per maand. Je nieuwe bruto maandsalaris wordt dan € 3.640,00.'
+  },
+  {
+    question: 'Hoe bereken je hoeveel procent salarisverhoging je hebt gekregen?',
+    answer: 'Wil je het percentage berekenen vanuit een bedrag in euro’s? Deel het verhogingsbedrag door je oude salaris en vermenigvuldig de uitkomst met 100. Stijgt je salaris bijvoorbeeld van € 3.200 naar € 3.360 (+ € 160)? Dan is de berekening: (€ 160 ÷ € 3.200) × 100 = 5,0% salarisverhoging.'
+  },
+  {
+    question: 'Hoeveel houd je netto over van een bruto salarisverhoging?',
+    answer: 'Hoeveel je netto overhoudt, hangt af van je totale jaarinkomen en de geldende marginale belastingdruk. In Nederland valt een loonsverhoging in box 1 onder het schijventarief (35,82% of 49,50%), maar door de gelijktijdige afbouw van de algemene heffingskorting en arbeidskorting ligt de marginale druk voor modale inkomens vaak tussen 45% en 55%. Als vuistregel houd je van € 100 bruto verhoging circa € 45 tot € 55 netto over.'
+  },
+  {
+    question: 'Wat is het verschil tussen een procentuele en een nominale loonsverhoging?',
+    answer: 'Een procentuele loonsverhoging (bijv. 4%) levert werknemers met een hoger salaris in absolute euro’s meer op dan collega’s met een lager salaris. Een nominale loonsverhoging (bijv. + € 150 vast per maand) geeft iedereen exact hetzelfde eurobedrag, waardoor het relatieve percentage voor lagere inkomens veel groter is. Veel moderne CAO’s combineren daarom centen en procenten (bijv. € 100 vast + 2%).'
+  },
+  {
+    question: 'Heeft een salarisverhoging ook invloed op je vakantiegeld en pensioen?',
+    answer: 'Ja. Omdat je wettelijk minimaal 8% vakantiebijslag opbouwt over je werkelijke bruto jaarsalaris, stijgt je jaarlijkse vakantiegeld automatisch mee met elke loonsverhoging (+8% over het verhogingsbedrag). Ook je pensioengevend salaris neemt toe, wat leidt tot een hogere toekomstige pensioenopbouw (al kan de eigen pensioenpremie op je loonstrook ook licht stijgen).'
+  },
+  {
+    question: 'Hoe werken opeenvolgende CAO-loonsverhogingen in één jaar?',
+    answer: 'Wanneer een CAO meerdere verhogingen in hetzelfde kalenderjaar afspreekt (bijv. 3% per 1 januari en 2% per 1 juli), wordt de tweede verhoging berekend over het al verhoogde salaris. Dit rente-op-rente effect zorgt ervoor dat twee verhogingen van 3% en 2% samen niet 5,00% zijn, maar 1,03 × 1,02 = 1,0506 (oftewel 5,06% totale stijging).'
+  },
+  {
+    question: 'Is een werkgever wettelijk verplicht om een salarisverhoging te geven?',
+    answer: 'In het Burgerlijk Wetboek bestaat geen algemene wettelijke verplichting tot automatische prijscompensatie of salarisverhoging, zolang je salaris maar boven het wettelijk minimumloon blijft. Valt je functie echter onder een verplichte Collectieve Arbeidsovereenkomst (CAO), dan is de werkgever juridisch gebonden aan alle collectieve loonsverhogingen en automatische periodieken in die CAO.'
+  },
+  {
+    question: 'Wat is het verschil tussen een periodiek en een algemene CAO-loonsverhoging?',
+    answer: 'Een algemene CAO-loonsverhoging (initiële verhoging) geldt voor alle medewerkers tegelijk als correctie voor inflatie en welvaart. Een periodiek (of tredeverhoging) is een individuele stap binnen jouw functieschaal op basis van ervaring of een positieve beoordeling. Krijg je in hetzelfde jaar zowel een CAO-verhoging als een periodiek, dan worden beide verhogingen bovenop elkaar toegepast.'
+  },
+  {
+    question: 'Kan een salarisverhoging leiden tot een daling van toeslagen van de Belastingdienst?',
+    answer: 'Ja, als je recht hebt op inkomensafhankelijke toeslagen (zoals zorgtoeslag, huurtoeslag, kinderopvangtoeslag of kindgebonden budget), zorgt een hoger toetsingsinkomen voor een afbouw van deze toeslagen. In bepaalde inkomenssegmenten kan de gecombineerde belastingdruk en toeslagafbouw oplopen tot boven 60%.'
+  },
+  {
+    question: 'Vanaf welke datum gaat een salarisverhoging meestal in?',
+    answer: 'CAO-loonsverhogingen gaan in op een vooraf vastgestelde datum (vaak per 1 januari, 1 april of 1 juli). Wordt een CAO-akkoord pas maanden na de officiële ingangsdatum definitief gesloten, dan geldt de loonsverhoging met terugwerkende kracht (nabetaling). Individuele verhogingen gaan doorgaans in bij de start van een nieuw contractjaar of na een jaargesprek.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="CAO-afspraken & Burgerlijk Wetboek"
+>
+  <SalarisverhogingCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Hoe werkt salarisverhoging berekenen in de praktijk?</h2>
+    <p>
+      Heeft jouw vakbond een nieuw CAO-akkoord gesloten, heb je promotie gemaakt of heb je tijdens je jaargesprek succesvol onderhandeld over betere arbeidsvoorwaarden? Met onze online tool voor <strong>salarisverhoging berekenen</strong> ontdek je binnen enkele seconden wat deze stap betekent voor jouw financiële situatie. Je berekent direct het extra bedrag per maand, het effect over een heel werkjaar en de automatische doorwerking op je vakantiegeld.
+    </p>
+    <p>
+      De berekening van een loonsverhoging is eenvoudig, maar vraagt aandacht voor de juiste uitgangspunten. Wil je weten wat je nieuwe uurloon wordt na de verhoging? Reken dit direct door via onze module voor <a href="/uurloon-berekenen/">uurloon berekenen</a>. Werk je in deeltijd, bekijk dan ook de gevolgen voor je contract met <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>, of controleer wat overwerk oplevert via <a href="/overuren-berekenen/">overuren berekenen</a>.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Standaard rekenformule voor salarisverhoging:</strong><br />
+      <code>Extra bruto salaris per maand = Huidig bruto maandsalaris × (Verhogingspercentage ÷ 100)</code>
+      <br /><br />
+      <code>Nieuw bruto maandsalaris = Huidig bruto maandsalaris + Extra bruto salaris per maand</code>
+      <br /><br />
+      <code>Jaarlijkse stijging inclusief 8% vakantiegeld = (Extra salaris per maand × 12) × 1,08</code>
+      <br /><br />
+      <em>Rekenvoorbeeld:</em> Verdien je € 3.500 bruto per maand en bedraagt de loonsverhoging 4%? Dan ontvang je maandelijks <code>€ 3.500 × 0,04 = € 140,00 bruto extra</code>. Je nieuwe maandsalaris wordt <code>€ 3.640,00</code>. Op jaarbasis levert dit inclusief 8% vakantiegeld <code>€ 1.680 + € 134,40 = € 1.814,40 bruto extra</code> op.
+    </div>
+
+    <h2>Salarisverhoging in euro’s versus procenten: hoe reken je om?</h2>
+    <p>
+      In salarisgesprekken en CAO-teksten worden verhogingen op twee manieren aangeduid: als percentage of als vast nominaal bedrag. Je kunt beide eenvoudig naar elkaar omrekenen:
+    </p>
+    <ul>
+      <li>
+        <strong>Salarisverhoging in euro berekenen:</strong> Vermenigvuldig je basissalaris met de factor van het percentage (bijv. 3,5% = vermenigvuldigen met 0,035). Bij € 4.000 maandsalaris is dat <code>€ 4.000 × 0,035 = € 140,00</code>.
+      </li>
+      <li>
+        <strong>Salaris verhoging hoeveel procent berekenen:</strong> Krijg je een vast bedrag aangeboden, bijvoorbeeld € 175 bruto per maand extra bij een huidig salaris van € 3.500? Deel het verhogingsbedrag door je oude salaris: <code>(€ 175 ÷ € 3.500) × 100 = 5,0%</code> loonsverhoging percentage.
+      </li>
+      <li>
+        <strong>Salaris na verhoging berekenen met een factor:</strong> Je berekent het nieuwe salaris direct in één stap door het oude salaris te vermenigvuldigen met <code>1 + (percentage ÷ 100)</code>. Bij 4% vermenigvuldig je € 3.500 simpelweg met 1,04 = € 3.640.
+      </li>
+    </ul>
+
+    <h2>Procentuele verhoging versus vast bedrag (centen en procenten)</h2>
+    <p>
+      Tijdens recente loononderhandelingen in sectoren zoals het onderwijs, de zorg, overheid en retail is steeds vaker gekozen voor een combinatie van een percentage en een vast bedrag:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Vergelijking tussen procentuele en nominale salarisverhoging">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Type verhoging</th>
+            <th>Effect op lagere inkomens</th>
+            <th>Effect op hogere inkomens</th>
+            <th>Veelgebruikte toepassing</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Procentuele verhoging (bijv. 4%)</strong></td>
+            <td>Relatief bescheiden bedrag in euro's (bijv. + € 100 bij € 2.500).</td>
+            <td>Groter bedrag in euro's (bijv. + € 240 bij € 6.000).</td>
+            <td>Standaard indexatie en algemene loonrondes.</td>
+          </tr>
+          <tr>
+            <td><strong>Vaste nominale verhoging (bijv. € 150)</strong></td>
+            <td>Hoog relatief percentage (+6,0% bij € 2.500).</td>
+            <td>Lager relatief percentage (+2,5% bij € 6.000).</td>
+            <td>Koopkrachtverbetering voor basisinkomens.</td>
+          </tr>
+          <tr>
+            <td><strong>Centen én procenten (bijv. € 100 + 2%)</strong></td>
+            <td>Evenwichtige stijging met sterke koopkrachtbescherming.</td>
+            <td>Behoud van evenredige beloning voor senior functies.</td>
+            <td>Moderne CAO-akkoorden bij hoge inflatie.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Het effect op vakantiegeld, dertiende maand en pensioen</h2>
+    <p>
+      Een verhoging van je maandsalaris werkt door in vrijwel alle secundaire arbeidsvoorwaarden die aan je basissalaris zijn gekoppeld:
+    </p>
+    <ul>
+      <li>
+        <strong>Wettelijk vakantiegeld (8%):</strong> Op grond van de Wet minimumloon en minimumvakantiebijslag (WML) ontvang je over elke bruto euro salaris minimaal 8% vakantiegeld. Stijgt je jaarsalaris met € 2.000 bruto, dan ontvang je in mei automatisch € 160 extra vakantiebijslag. Bereken je vakantiegeld direct via onze tool voor <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+      </li>
+      <li>
+        <strong>Eindejaarsuitkering of dertiende maand:</strong> Kent jouw CAO een vaste eindejaarsuitkering van bijvoorbeeld 8,33% (een volledig dertiende maandsalaris)? Dan stijgt deze uitkering 1-op-1 mee met je nieuwe loonniveau.
+      </li>
+      <li>
+        <strong>Pensioenopbouw:</strong> Een hoger salaris verhoogt je pensioengevend loon. Doordat de franchise (het deel waarover je geen pensioen opbouwt wegens de AOW) gelijk blijft, groeit je pensioengrondslag naar verhouding nog sneller.
+      </li>
+    </ul>
+
+    <h2>Bruto versus netto: waarom houd je niet alles over?</h2>
+    <p>
+      Een salarisverhoging bruto berekenen is wiskundig eenvoudig, maar werknemers willen vooral weten: <em>wat hou ik onderaan de streep netto over?</em> In Nederland is het verschil tussen bruto en netto aanzienlijk door de werking van het belastingstelsel:
+    </p>
+    <ol>
+      <li>
+        <strong>Inkomstenbelasting box 1:</strong> Over je extra inkomen betaal je het tarief van de schijf waarin de verhoging valt (35,82% in schijf 1 of 49,50% in schijf 2).
+      </li>
+      <li>
+        <strong>Afbouw van heffingskortingen (de marginale druk):</strong> De algemene heffingskorting en de arbeidskorting worden lager naarmate je meer verdient. Voor inkomens tussen ca. € 28.000 en € 75.000 zorgt deze afbouw voor een extra belastingdruk van ongeveer 11% tot 15%.
+      </li>
+      <li>
+        <strong>Toeslagen van de Belastingdienst:</strong> Ontvang je zorgtoeslag of huurtoeslag, dan kan een hoger toetsingsinkomen leiden tot een vermindering van je maandelijkse toeslag.
+      </li>
+    </ol>
+    <p>
+      Hierdoor ligt de uiteindelijke <strong>netto opbrengst</strong> van een bruto loonsverhoging voor de meeste werknemers tussen de <strong>45% en 55%</strong> van het brutobedrag.
+    </p>
+
+    <h2>Meerdere loonsverhogingen in één jaar: het samengestelde effect</h2>
+    <p>
+      Spreekt een CAO twee verhogingen af in hetzelfde jaar (bijvoorbeeld 3% per 1 januari en 2% per 1 juli)? Dan mag je deze percentages niet simpelweg bij elkaar optellen (3% + 2% = 5%).
+    </p>
+    <p>
+      Omdat de tweede verhoging wordt berekend over het al verhoogde salaris van januari, ontstaat een <em>samengesteld percentage</em> (rente-op-rente):
+    </p>
+    <div class="callout callout-info">
+      <code>Totale factor = 1,03 × 1,02 = 1,0506 (een totale stijging van 5,06%)</code>
+      <br /><br />
+      <em>Voorbeeld op € 3.000:</em> Na 3% per januari verdien je € 3.090. De 2% in juli wordt berekend over € 3.090 = € 3.151,80 (in plaats van € 3.150 bij een simpele optelsom).
+    </div>
+
+    <h2>Veelgemaakte fouten bij salarisverhoging berekenen</h2>
+    <ul>
+      <li><strong>Vakantiegeld vergeten:</strong> Alleen kijken naar 12 keer het extra maandsalaris en vergeten dat er nog 8% vakantiebijslag bovenop komt.</li>
+      <li><strong>Vierwekenloon verwarren met maandloon:</strong> Krijg je per 4 weken betaald (13 periodes per jaar)? Dan moet je de maandformule corrigeren via <code>(Jaarsalaris ÷ 13)</code>.</li>
+      <li><strong>Netto aannames doen op basis van je huidige loonstrook:</strong> Denken dat je netto hetzelfde percentage overhoudt als van je basissalaris, terwijl een verhoging altijd tegen het hogere marginale tarief wordt belast.</li>
+    </ul>
+  </div>
+</CalculatorLayout>
