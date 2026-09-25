@@ -1051,3 +1051,305 @@ export function calculateWeekloon({
   }
 }
 
+/* =========================================================================
+   18. FTE berekenen
+   FTE = uren per week ÷ fulltime uren per week
+   Deeltijdpercentage = FTE × 100
+   Omgekeerd: Uren per week = FTE × fulltime uren per week
+   ========================================================================= */
+export interface FteResult {
+  weeklyHours: number;
+  fulltimeHours: number;
+  fte: number; // 2 decimalen (bijv. 0.80 of 0.78)
+  fte4Decimals: number; // 4 decimalen voor exacte weergave (bijv. 0.7778)
+  ftePercentage: number; // bijv. 80 of 77.78
+  rawFte: number; // onafgerond
+  isFulltime: boolean;
+}
+
+export interface FteToHoursResult {
+  targetFte: number;
+  fulltimeHours: number;
+  calculatedHours: number;
+  ftePercentage: number;
+}
+
+export function calculateFte(
+  weeklyHours: number,
+  fulltimeHours: number = 40
+): FteResult {
+  const safeHours = Math.max(0, weeklyHours);
+  const safeFulltime = Math.max(0.1, fulltimeHours);
+  const rawFte = safeHours / safeFulltime;
+  const fte = Math.round(rawFte * 100) / 100;
+  const fte4Decimals = Math.round(rawFte * 10000) / 10000;
+  const ftePercentage = Math.round(rawFte * 10000) / 100;
+
+  return {
+    weeklyHours: Math.round(safeHours * 100) / 100,
+    fulltimeHours: Math.round(safeFulltime * 100) / 100,
+    fte,
+    fte4Decimals,
+    ftePercentage: Math.round(ftePercentage * 100) / 100,
+    rawFte,
+    isFulltime: Math.abs(rawFte - 1.0) < 0.0001
+  };
+}
+
+export function calculateFteToHours(
+  targetFte: number,
+  fulltimeHours: number = 40
+): FteToHoursResult {
+  const safeFte = Math.max(0, targetFte);
+  const safeFulltime = Math.max(0.1, fulltimeHours);
+  const calculatedHours = safeFte * safeFulltime;
+
+  return {
+    targetFte: Math.round(safeFte * 10000) / 10000,
+    fulltimeHours: Math.round(safeFulltime * 100) / 100,
+    calculatedHours: Math.round(calculatedHours * 100) / 100,
+    ftePercentage: Math.round(safeFte * 10000) / 100
+  };
+}
+
+/* =========================================================================
+   19. Werkgeverslasten berekenen (2026)
+   Wettelijke werkgeverspremies en werknemersverzekeringen:
+   AWf (laag 2,74%, hoog 7,74%)
+   Aof (laag 6,27%, hoog 7,63%)
+   Wko (0,50%)
+   Whk (gedifferentieerd per werkgever, standaard 1,22%)
+   Zvw werkgeversheffing (6,57%)
+   Maximum premieloon 2026: € 79.409 per jaar
+   ========================================================================= */
+export interface WerkgeverslastenOptions {
+  period: 'month' | 'year';
+  salary: number;
+  awfType?: 'low' | 'high';
+  aofType?: 'low' | 'high';
+  whkPercentage?: number;
+  includeVacationPay?: boolean;
+}
+
+export interface WerkgeverslastenResult {
+  period: 'month' | 'year';
+  inputSalary: number;
+  annualGrossSalary: number;
+  monthlyGrossSalary: number;
+  includeVacationPay: boolean;
+  vacationPayAmount: number;
+  cappedWageBaseAnnual: number;
+  cappedWageBaseMonthly: number;
+  isCapped: boolean;
+  maxPremiumWageAnnual: number;
+  awfType: 'low' | 'high';
+  awfPercentage: number;
+  awfAmountAnnual: number;
+  awfAmountMonthly: number;
+  aofType: 'low' | 'high';
+  aofPercentage: number;
+  aofAmountAnnual: number;
+  aofAmountMonthly: number;
+  wkoPercentage: number;
+  wkoAmountAnnual: number;
+  wkoAmountMonthly: number;
+  whkPercentage: number;
+  whkAmountAnnual: number;
+  whkAmountMonthly: number;
+  zvwPercentage: number;
+  zvwAmountAnnual: number;
+  zvwAmountMonthly: number;
+  totalStatutoryContributionsAnnual: number;
+  totalStatutoryContributionsMonthly: number;
+  totalEmployerCostAnnual: number;
+  totalEmployerCostMonthly: number;
+  effectiveMarkupPercentage: number;
+}
+
+export interface QuickEmployerCostResult {
+  monthlySalary: number;
+  annualSalary: number;
+  indicativePercentage: number;
+  estimatedContributionsMonthly: number;
+  estimatedContributionsAnnual: number;
+  estimatedTotalCostMonthly: number;
+  estimatedTotalCostAnnual: number;
+}
+
+export function calculateWerkgeverslasten({
+  period,
+  salary,
+  awfType = 'low',
+  aofType = 'low',
+  whkPercentage = DUTCH_RATES.employerRates.whkDefault,
+  includeVacationPay = false
+}: WerkgeverslastenOptions): WerkgeverslastenResult {
+  const rates = DUTCH_RATES.employerRates;
+  const safeSalary = Math.max(0, salary);
+
+  // Basis jaarsalaris berekenen
+  const baseAnnual = period === 'month' ? safeSalary * 12 : safeSalary;
+  const vacationPayAmount = includeVacationPay ? baseAnnual * 0.08 : 0;
+  const annualGrossSalary = baseAnnual + vacationPayAmount;
+  const monthlyGrossSalary = annualGrossSalary / 12;
+
+  // Maximum premieloon aftopping (2026: € 79.409)
+  const maxCap = rates.maxPremiumWageAnnual;
+  const isCapped = annualGrossSalary > maxCap;
+  const cappedWageBaseAnnual = Math.min(annualGrossSalary, maxCap);
+  const cappedWageBaseMonthly = cappedWageBaseAnnual / 12;
+
+  // Premiepercentages
+  const awfPercentage = awfType === 'high' ? rates.awfHigh : rates.awfLow;
+  const aofPercentage = aofType === 'high' ? rates.aofHigh : rates.aofLow;
+  const wkoPercentage = rates.wko;
+  const safeWhk = Math.max(0, Math.min(20, whkPercentage));
+  const zvwPercentage = rates.zvwEmployer;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  // Premiebedragen per jaar op basis van gemaximeerd premieloon
+  const awfAmountAnnual = round2(cappedWageBaseAnnual * (awfPercentage / 100));
+  const aofAmountAnnual = round2(cappedWageBaseAnnual * (aofPercentage / 100));
+  const wkoAmountAnnual = round2(cappedWageBaseAnnual * (wkoPercentage / 100));
+  const whkAmountAnnual = round2(cappedWageBaseAnnual * (safeWhk / 100));
+  const zvwAmountAnnual = round2(cappedWageBaseAnnual * (zvwPercentage / 100));
+
+  const totalStatutoryContributionsAnnual = round2(
+    awfAmountAnnual + aofAmountAnnual + wkoAmountAnnual + whkAmountAnnual + zvwAmountAnnual
+  );
+  const totalEmployerCostAnnual = round2(annualGrossSalary + totalStatutoryContributionsAnnual);
+
+  // Maandelijkse bedragen
+  const awfAmountMonthly = round2(awfAmountAnnual / 12);
+  const aofAmountMonthly = round2(aofAmountAnnual / 12);
+  const wkoAmountMonthly = round2(wkoAmountAnnual / 12);
+  const whkAmountMonthly = round2(whkAmountAnnual / 12);
+  const zvwAmountMonthly = round2(zvwAmountAnnual / 12);
+  const totalStatutoryContributionsMonthly = round2(totalStatutoryContributionsAnnual / 12);
+  const totalEmployerCostMonthly = round2(totalEmployerCostAnnual / 12);
+
+  const effectiveMarkupPercentage = annualGrossSalary > 0
+    ? round2((totalStatutoryContributionsAnnual / annualGrossSalary) * 100)
+    : 0;
+
+  return {
+    period,
+    inputSalary: round2(safeSalary),
+    annualGrossSalary: round2(annualGrossSalary),
+    monthlyGrossSalary: round2(monthlyGrossSalary),
+    includeVacationPay,
+    vacationPayAmount: round2(vacationPayAmount),
+    cappedWageBaseAnnual: round2(cappedWageBaseAnnual),
+    cappedWageBaseMonthly: round2(cappedWageBaseMonthly),
+    isCapped,
+    maxPremiumWageAnnual: maxCap,
+    awfType,
+    awfPercentage,
+    awfAmountAnnual,
+    awfAmountMonthly,
+    aofType,
+    aofPercentage,
+    aofAmountAnnual,
+    aofAmountMonthly,
+    wkoPercentage,
+    wkoAmountAnnual,
+    wkoAmountMonthly,
+    whkPercentage: round2(safeWhk),
+    whkAmountAnnual,
+    whkAmountMonthly,
+    zvwPercentage,
+    zvwAmountAnnual,
+    zvwAmountMonthly,
+    totalStatutoryContributionsAnnual,
+    totalStatutoryContributionsMonthly,
+    totalEmployerCostAnnual,
+    totalEmployerCostMonthly,
+    effectiveMarkupPercentage
+  };
+}
+
+export function calculateQuickEmployerCost(
+  monthlySalary: number,
+  indicativePercentage: number = 23
+): QuickEmployerCostResult {
+  const safeSalary = Math.max(0, monthlySalary);
+  const safePercentage = Math.max(0, Math.min(100, indicativePercentage));
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  const annualSalary = safeSalary * 12;
+  const estimatedContributionsMonthly = round2(safeSalary * (safePercentage / 100));
+  const estimatedContributionsAnnual = round2(annualSalary * (safePercentage / 100));
+  const estimatedTotalCostMonthly = round2(safeSalary + estimatedContributionsMonthly);
+  const estimatedTotalCostAnnual = round2(annualSalary + estimatedContributionsAnnual);
+
+  return {
+    monthlySalary: round2(safeSalary),
+    annualSalary: round2(annualSalary),
+    indicativePercentage: safePercentage,
+    estimatedContributionsMonthly,
+    estimatedContributionsAnnual,
+    estimatedTotalCostMonthly,
+    estimatedTotalCostAnnual
+  };
+}
+
+/* =========================================================================
+   19. 13e Maand Berekenen
+   Formule:
+   Volledig jaar: Bruto 13e maand = Bruto maandsalaris * (percentage / 100)
+   Deel van het jaar: Pro-rata = (Bruto maandsalaris * (percentage / 100)) * (gewerkte maanden / 12)
+   Indicatieve maandelijkse opbouw = Volledig jaar bedrag / 12
+   ========================================================================= */
+export interface DertiendeMaandOptions {
+  monthlySalary: number;
+  percentage?: number; // default: 100
+  periodMode?: 'full_year' | 'partial_year'; // default: 'full_year'
+  workedMonths?: number; // 1 - 12 (default: 12)
+}
+
+export interface DertiendeMaandResult {
+  monthlySalary: number;
+  percentage: number;
+  periodMode: 'full_year' | 'partial_year';
+  workedMonths: number;
+  proRataFactor: number;
+  fullYearAmount: number;
+  estimatedGross13thMonth: number;
+  monthlyAccrual: number;
+  annualSalaryWithout13th: number;
+  annualSalaryWith13th: number;
+  isPartialYear: boolean;
+}
+
+export function calculateDertiendeMaand(options: DertiendeMaandOptions): DertiendeMaandResult {
+  const safeSalary = Math.max(0, options.monthlySalary);
+  const safePercentage = Math.max(0, options.percentage ?? 100);
+  const periodMode = options.periodMode ?? 'full_year';
+  const rawMonths = options.workedMonths ?? 12;
+  const safeWorkedMonths = periodMode === 'partial_year' ? Math.min(12, Math.max(1, Math.round(rawMonths))) : 12;
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  const fullYearAmount = round2(safeSalary * (safePercentage / 100));
+  const proRataFactor = round2(safeWorkedMonths / 12);
+  const estimatedGross13thMonth = round2(fullYearAmount * (safeWorkedMonths / 12));
+  const monthlyAccrual = round2(fullYearAmount / 12);
+  const annualSalaryWithout13th = round2(safeSalary * 12);
+  const annualSalaryWith13th = round2(annualSalaryWithout13th + estimatedGross13thMonth);
+  const isPartialYear = periodMode === 'partial_year' && safeWorkedMonths < 12;
+
+  return {
+    monthlySalary: round2(safeSalary),
+    percentage: round2(safePercentage),
+    periodMode,
+    workedMonths: safeWorkedMonths,
+    proRataFactor,
+    fullYearAmount,
+    estimatedGross13thMonth,
+    monthlyAccrual,
+    annualSalaryWithout13th,
+    annualSalaryWith13th,
+    isPartialYear
+  };
+}

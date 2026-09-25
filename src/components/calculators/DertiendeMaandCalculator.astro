@@ -1,0 +1,497 @@
+---
+// src/components/calculators/DertiendeMaandCalculator.astro
+---
+
+<div class="calc-grid" id="dertiende-maand-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Salaris & periode invoeren</h2>
+      <span class="rate-year-tag">Eindejaarsuitkering</span>
+    </div>
+
+    <!-- Veld: Bruto maandsalaris -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label for="input-monthly-salary" class="form-label" id="label-monthly-salary">
+        Bruto maandsalaris
+      </label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-monthly-salary"
+          class="form-input input-has-prefix"
+          value="3000"
+          min="0"
+          step="50"
+          aria-describedby="hint-monthly-salary"
+        />
+      </div>
+      <div class="quick-pills" id="pills-salary" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill salary-pill" data-val="2000">€ 2.000</button>
+        <button type="button" class="quick-pill salary-pill" data-val="2500">€ 2.500</button>
+        <button type="button" class="quick-pill salary-pill is-active" data-val="3000">€ 3.000</button>
+        <button type="button" class="quick-pill salary-pill" data-val="3500">€ 3.500</button>
+        <button type="button" class="quick-pill salary-pill" data-val="4500">€ 4.500</button>
+        <button type="button" class="quick-pill salary-pill" data-val="5500">€ 5.500</button>
+      </div>
+      <span class="form-hint" id="hint-monthly-salary">
+        Vul je bruto basissalaris per maand in (bij een deeltijdbaan: je daadwerkelijke parttime maandsalaris).
+      </span>
+    </div>
+
+    <!-- Veld: 13e maand percentage -->
+    <div class="form-group">
+      <label for="input-percentage" class="form-label" id="label-percentage">
+        13e maand / eindejaarsuitkering percentage
+      </label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-percentage"
+          class="form-input input-has-suffix"
+          value="100"
+          min="0"
+          max="200"
+          step="0.1"
+          aria-describedby="hint-percentage"
+        />
+        <span class="input-suffix">%</span>
+      </div>
+      <div class="quick-pills" id="pills-percentage" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill pct-pill" data-val="50">50%</button>
+        <button type="button" class="quick-pill pct-pill" data-val="75">75%</button>
+        <button type="button" class="quick-pill pct-pill" data-val="83.33">83,33% (8,33% jr)</button>
+        <button type="button" class="quick-pill pct-pill is-active" data-val="100">100% (1 maandsalaris)</button>
+        <button type="button" class="quick-pill pct-pill" data-val="125">125%</button>
+      </div>
+      <span class="form-hint" id="hint-percentage">
+        100% staat gelijk aan exact één extra bruto maandsalaris. Veel CAO's gebruiken 100%, 83,33% (gelijk aan 8,33% van het jaarsalaris) of een ander afgesproken percentage.
+      </span>
+    </div>
+
+    <!-- Keuze: Dienstperiode (Heel jaar vs Deel van het jaar) -->
+    <div class="form-group">
+      <label class="form-label">Dienstperiode in het opbouwjaar</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="period-full" name="service-period" value="full_year" checked />
+          <label for="period-full">
+            <strong>Heel jaar gewerkt</strong>
+            <small>Volledige opbouw (12 van de 12 maanden)</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="period-partial" name="service-period" value="partial_year" />
+          <label for="period-partial">
+            <strong>Een deel van het jaar</strong>
+            <small>Pro-rata opbouw bij tussentijdse start/uitdienst</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Veld: Aantal gewerkte maanden (alleen zichtbaar bij deel van het jaar) -->
+    <div class="form-group" id="group-worked-months" style="display: none;">
+      <label for="input-worked-months" class="form-label" id="label-worked-months">
+        Aantal gewerkte maanden in dit jaar
+      </label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-worked-months"
+          class="form-input input-has-suffix"
+          value="6"
+          min="1"
+          max="12"
+          step="1"
+          aria-describedby="hint-worked-months"
+        />
+        <span class="input-suffix">maanden</span>
+      </div>
+      <div class="quick-pills" id="pills-months" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill month-pill" data-val="3">3 mnd</button>
+        <button type="button" class="quick-pill month-pill is-active" data-val="6">6 mnd</button>
+        <button type="button" class="quick-pill month-pill" data-val="8">8 mnd</button>
+        <button type="button" class="quick-pill month-pill" data-val="9">9 mnd</button>
+        <button type="button" class="quick-pill month-pill" data-val="10">10 mnd</button>
+        <button type="button" class="quick-pill month-pill" data-val="11">11 mnd</button>
+      </div>
+      <span class="form-hint" id="hint-worked-months">
+        Het aantal maanden dat je in dit kalender- of opbouwjaar in dienst was (bijv. 6 maanden bij start per 1 juli).
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-13th" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Geschatte bruto 13e maand</span>
+      <div class="result-hero-value" id="res-hero-amount">€ 3.000,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">Bij 100% over een volledig werkjaar (12 maanden)</span>
+    </div>
+
+    <!-- Pro-rata callout melding -->
+    <div class="callout callout-info" id="alert-prorata" style="display: none; margin: 1rem 0 0.5rem 0; font-size: 0.8125rem; padding: 0.625rem 0.75rem;">
+      <strong>Pro-rata berekening actief:</strong> Je hebt <span id="res-callout-months">6</span> van de 12 maanden gewerkt (<span id="res-callout-pct">50,0%</span>). De 13e maand is naar rato berekend op basis van een evenredige maandelijkse opbouw.
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-subtitle">Specificatie van de berekening</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Bruto maandsalaris</span>
+        <span class="result-row-value font-medium" id="res-monthly-salary">€ 3.000,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">13e maand percentage</span>
+        <span class="result-row-value" id="res-percentage">100%</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Gewerkte periode</span>
+        <span class="result-row-value" id="res-period-text">12 maanden (volledig jaar)</span>
+      </div>
+
+      <div class="result-row" id="row-fullyear-amount" style="display: none;">
+        <span class="result-row-label">13e maand bij volledig jaar</span>
+        <span class="result-row-value text-muted" id="res-fullyear-amount">€ 3.000,00</span>
+      </div>
+
+      <div class="result-row" id="row-prorata-factor" style="display: none;">
+        <span class="result-row-label">Pro-rata correctie</span>
+        <span class="result-badge-sub" id="res-prorata-factor">50,0% van jaaraanspraak</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Indicatieve opbouw per maand</span>
+        <span class="result-row-value font-medium" id="res-monthly-accrual">€ 250,00 / mnd</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Bruto jaarsalaris (incl. 13e maand)</span>
+        <span class="result-row-value font-bold text-primary" id="res-annual-total">€ 39.000,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle">Rekenformule</div>
+
+      <div class="calc-formula-box" id="res-formula-box" style="background: var(--color-bg-subtle, #f8fafc); border: 1px solid var(--color-border, #e2e8f0); border-radius: 0.5rem; padding: 0.75rem 1rem; font-family: monospace; font-size: 0.875rem; color: var(--color-text, #1e293b); margin-top: 0.5rem;">
+        € 3.000,00 × 100% = € 3.000,00 bruto
+      </div>
+    </div>
+
+    <!-- Belasting & netto toelichting -->
+    <div class="callout callout-warning" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Let op belasting (bijzonder tarief):</strong> Dit betreft een bruto bedrag. De 13e maand wordt door de Belastingdienst belast als een bijzondere beloning. Je netto uitkering valt daardoor lager uit door inhouding van loonheffing en eventuele pensioenpremies.
+    </div>
+  </div>
+</div>
+
+<!-- Referentietabel voor snelle inzichten -->
+<div class="table-container" style="margin-top: 2rem;">
+  <div class="table-title">Voorbeeldberekening 13e maand bij 100% uitkering</div>
+  <p class="table-subtitle" style="font-size: 0.875rem; color: var(--color-text-muted, #64748b); margin-bottom: 0.75rem;">
+    Overzicht van de bruto 13e maand bij verschillende maandsalarissen (uitgaande van 100% en evenredige opbouw).
+  </p>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Bruto maandsalaris</th>
+          <th>Volledig jaar (12 mnd)</th>
+          <th>6 maanden (50%)</th>
+          <th>3 maanden (25%)</th>
+          <th>Opbouw per maand</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>€ 2.000</td>
+          <td class="font-bold">€ 2.000,00</td>
+          <td>€ 1.000,00</td>
+          <td>€ 500,00</td>
+          <td>€ 166,67</td>
+        </tr>
+        <tr>
+          <td>€ 2.500</td>
+          <td class="font-bold">€ 2.500,00</td>
+          <td>€ 1.250,00</td>
+          <td>€ 625,00</td>
+          <td>€ 208,33</td>
+        </tr>
+        <tr>
+          <td>€ 3.000</td>
+          <td class="font-bold">€ 3.000,00</td>
+          <td>€ 1.500,00</td>
+          <td>€ 750,00</td>
+          <td>€ 250,00</td>
+        </tr>
+        <tr>
+          <td>€ 3.500</td>
+          <td class="font-bold">€ 3.500,00</td>
+          <td>€ 1.750,00</td>
+          <td>€ 875,00</td>
+          <td>€ 291,67</td>
+        </tr>
+        <tr>
+          <td>€ 4.000</td>
+          <td class="font-bold">€ 4.000,00</td>
+          <td>€ 2.000,00</td>
+          <td>€ 1.000,00</td>
+          <td>€ 333,33</td>
+        </tr>
+        <tr>
+          <td>€ 4.500</td>
+          <td class="font-bold">€ 4.500,00</td>
+          <td>€ 2.250,00</td>
+          <td>€ 1.125,00</td>
+          <td>€ 375,00</td>
+        </tr>
+        <tr>
+          <td>€ 5.000</td>
+          <td class="font-bold">€ 5.000,00</td>
+          <td>€ 2.500,00</td>
+          <td>€ 1.250,00</td>
+          <td>€ 416,67</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('dertiende-maand-calc');
+    if (!calc) return;
+
+    // Inputs
+    const inputSalary = calc.querySelector('#input-monthly-salary') as HTMLInputElement;
+    const inputPercentage = calc.querySelector('#input-percentage') as HTMLInputElement;
+    const periodRadios = calc.querySelectorAll('input[name="service-period"]') as NodeListOf<HTMLInputElement>;
+    const groupWorkedMonths = calc.querySelector('#group-worked-months') as HTMLElement;
+    const inputWorkedMonths = calc.querySelector('#input-worked-months') as HTMLInputElement;
+    const btnReset = calc.querySelector('#btn-reset-13th') as HTMLButtonElement;
+
+    // Pills
+    const salaryPills = calc.querySelectorAll('.salary-pill') as NodeListOf<HTMLButtonElement>;
+    const pctPills = calc.querySelectorAll('.pct-pill') as NodeListOf<HTMLButtonElement>;
+    const monthPills = calc.querySelectorAll('.month-pill') as NodeListOf<HTMLButtonElement>;
+
+    // Outputs
+    const resHeroAmount = calc.querySelector('#res-hero-amount') as HTMLElement;
+    const resHeroSub = calc.querySelector('#res-hero-sub') as HTMLElement;
+    const alertProrata = calc.querySelector('#alert-prorata') as HTMLElement;
+    const resCalloutMonths = calc.querySelector('#res-callout-months') as HTMLElement;
+    const resCalloutPct = calc.querySelector('#res-callout-pct') as HTMLElement;
+
+    const resMonthlySalary = calc.querySelector('#res-monthly-salary') as HTMLElement;
+    const resPercentage = calc.querySelector('#res-percentage') as HTMLElement;
+    const resPeriodText = calc.querySelector('#res-period-text') as HTMLElement;
+    const rowFullyearAmount = calc.querySelector('#row-fullyear-amount') as HTMLElement;
+    const resFullyearAmount = calc.querySelector('#res-fullyear-amount') as HTMLElement;
+    const rowProrataFactor = calc.querySelector('#row-prorata-factor') as HTMLElement;
+    const resProrataFactor = calc.querySelector('#res-prorata-factor') as HTMLElement;
+    const resMonthlyAccrual = calc.querySelector('#res-monthly-accrual') as HTMLElement;
+    const resAnnualTotal = calc.querySelector('#res-annual-total') as HTMLElement;
+    const resFormulaBox = calc.querySelector('#res-formula-box') as HTMLElement;
+
+    const formatEUR = (val: number): string => {
+      return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(val);
+    };
+
+    const formatPercent = (val: number): string => {
+      return new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: val % 1 === 0 ? 0 : 1,
+        maximumFractionDigits: 2
+      }).format(val) + '%';
+    };
+
+    function calculate() {
+      const salary = Math.max(0, parseFloat(inputSalary.value) || 0);
+      const percentage = Math.max(0, parseFloat(inputPercentage.value) || 0);
+
+      let isPartial = false;
+      periodRadios.forEach(r => {
+        if (r.checked && r.value === 'partial_year') {
+          isPartial = true;
+        }
+      });
+
+      // Show/hide worked months group
+      if (groupWorkedMonths) {
+        groupWorkedMonths.style.display = isPartial ? 'block' : 'none';
+      }
+
+      const rawMonths = isPartial ? (parseInt(inputWorkedMonths.value, 10) || 12) : 12;
+      const workedMonths = Math.min(12, Math.max(1, rawMonths));
+
+      // Calculations
+      const fullYearAmount = salary * (percentage / 100);
+      const proRataFactor = workedMonths / 12;
+      const final13thMonth = fullYearAmount * proRataFactor;
+      const monthlyAccrual = fullYearAmount / 12;
+      const annualWithout13th = salary * 12;
+      const annualWith13th = annualWithout13th + final13thMonth;
+
+      // Update Hero
+      resHeroAmount.textContent = formatEUR(final13thMonth);
+      if (isPartial && workedMonths < 12) {
+        resHeroSub.textContent = `Pro-rata: ${workedMonths} van de 12 maanden gewerkt (${formatPercent(proRataFactor * 100)}) bij ${formatPercent(percentage)}`;
+      } else {
+        resHeroSub.textContent = `Bij ${formatPercent(percentage)} over een volledig werkjaar (12 maanden)`;
+      }
+
+      // Update Callout Alert
+      if (alertProrata && resCalloutMonths && resCalloutPct) {
+        if (isPartial && workedMonths < 12) {
+          alertProrata.style.display = 'block';
+          resCalloutMonths.textContent = workedMonths.toString();
+          resCalloutPct.textContent = formatPercent(proRataFactor * 100);
+        } else {
+          alertProrata.style.display = 'none';
+        }
+      }
+
+      // Breakdown rows
+      resMonthlySalary.textContent = formatEUR(salary);
+      resPercentage.textContent = formatPercent(percentage);
+
+      if (isPartial && workedMonths < 12) {
+        resPeriodText.textContent = `${workedMonths} van de 12 maanden (naar rato)`;
+        rowFullyearAmount.style.display = 'flex';
+        resFullyearAmount.textContent = formatEUR(fullYearAmount);
+        rowProrataFactor.style.display = 'flex';
+        resProrataFactor.textContent = `${formatPercent(proRataFactor * 100)} van jaaraanspraak`;
+      } else {
+        resPeriodText.textContent = '12 maanden (volledig jaar)';
+        rowFullyearAmount.style.display = 'none';
+        rowProrataFactor.style.display = 'none';
+      }
+
+      resMonthlyAccrual.textContent = `${formatEUR(monthlyAccrual)} / mnd`;
+      resAnnualTotal.textContent = formatEUR(annualWith13th);
+
+      // Formula Box
+      if (isPartial && workedMonths < 12) {
+        resFormulaBox.textContent = `${formatEUR(salary)} × ${formatPercent(percentage)} × (${workedMonths} / 12) = ${formatEUR(final13thMonth)} bruto`;
+      } else {
+        resFormulaBox.textContent = `${formatEUR(salary)} × ${formatPercent(percentage)} = ${formatEUR(final13thMonth)} bruto`;
+      }
+    }
+
+    // Input event listeners
+    inputSalary.addEventListener('input', () => {
+      const val = parseFloat(inputSalary.value);
+      salaryPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.val || '0') === val));
+      calculate();
+    });
+
+    salaryPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        salaryPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputSalary.value = pill.dataset.val || '3000';
+        calculate();
+      });
+    });
+
+    inputPercentage.addEventListener('input', () => {
+      const val = parseFloat(inputPercentage.value);
+      pctPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.val || '0') === val));
+      calculate();
+    });
+
+    pctPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        pctPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputPercentage.value = pill.dataset.val || '100';
+        calculate();
+      });
+    });
+
+    periodRadios.forEach(radio => {
+      radio.addEventListener('change', calculate);
+    });
+
+    inputWorkedMonths.addEventListener('input', () => {
+      const val = parseInt(inputWorkedMonths.value, 10);
+      monthPills.forEach(p => p.classList.toggle('is-active', parseInt(p.dataset.val || '0', 10) === val));
+      calculate();
+    });
+
+    monthPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        monthPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputWorkedMonths.value = pill.dataset.val || '6';
+        calculate();
+      });
+    });
+
+    btnReset.addEventListener('click', () => {
+      inputSalary.value = '3000';
+      salaryPills.forEach(p => p.classList.toggle('is-active', p.dataset.val === '3000'));
+
+      inputPercentage.value = '100';
+      pctPills.forEach(p => p.classList.toggle('is-active', p.dataset.val === '100'));
+
+      const radioFull = calc.querySelector('#period-full') as HTMLInputElement;
+      if (radioFull) radioFull.checked = true;
+
+      inputWorkedMonths.value = '6';
+      monthPills.forEach(p => p.classList.toggle('is-active', p.dataset.val === '6'));
+
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    border-radius: 9999px;
+  }
+
+  .calc-formula-box {
+    overflow-x: auto;
+    word-break: break-all;
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

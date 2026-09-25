@@ -156,7 +156,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken je parttime salaris op basis van je deeltijdfactor en gewerkte uren. Vergelijk direct met het fulltime salaris (36, 38 of 40 uur).',
     icon: 'pie-chart',
     popular: true,
-    relatedSlugs: ['uurloon-berekenen', 'salarisverhoging-berekenen', 'vakantiegeld-berekenen']
+    relatedSlugs: ['fte-berekenen', 'uurloon-berekenen', 'salarisverhoging-berekenen', 'vakantiegeld-berekenen']
   },
   {
     id: 'salarisverhoging',
@@ -248,6 +248,45 @@ export const CALCULATORS: CalculatorMeta[] = [
     icon: 'coins',
     popular: true,
     relatedSlugs: ['uurloon-berekenen', 'uurloon-naar-maandloon-berekenen', 'maandloon-naar-uurloon-berekenen', 'parttime-salaris-berekenen']
+  },
+  {
+    id: 'fte',
+    slug: 'fte-berekenen',
+    title: 'FTE berekenen',
+    shortTitle: 'FTE',
+    category: 'werkuren',
+    categoryTitle: 'Werkuren & vakantie',
+    description: 'Bereken eenvoudig je FTE (Fulltime Equivalent) en deeltijdpercentage op basis van je gewerkte contracturen en de fulltime norm van je werkgever of CAO (bijv. 36, 38 of 40 uur).',
+    metaDescription: 'Bereken direct je FTE en deeltijdpercentage op basis van je wekelijkse uren en de fulltime norm (36, 38 of 40 uur). Eenvoudig, nauwkeurig en snel.',
+    icon: 'pie-chart',
+    popular: true,
+    relatedSlugs: ['parttime-salaris-berekenen', 'werkuren-per-jaar-berekenen', 'uurloon-berekenen', 'maandloon-naar-uurloon-berekenen']
+  },
+  {
+    id: 'werkgeverslasten',
+    slug: 'werkgeverslasten-berekenen',
+    title: 'Werkgeverslasten berekenen',
+    shortTitle: 'Werkgeverslasten',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken direct de totale werkgeverslasten en werkgeverskosten per maand en per jaar op basis van de officiële premies en regels voor 2026.',
+    metaDescription: 'Bereken direct de totale werkgeverslasten en loonkosten in 2026. Inclusief AWf, Aof, Whk, Zvw en het wettelijk maximum premieloon van € 79.409.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['parttime-salaris-berekenen', 'fte-berekenen', 'salarisverhoging-berekenen', 'uurloon-naar-maandloon-berekenen']
+  },
+  {
+    id: 'dertiende-maand',
+    slug: '13e-maand-berekenen',
+    title: '13e maand berekenen',
+    shortTitle: '13e Maand',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken direct je bruto 13e maand of eindejaarsuitkering, inclusief pro-rata opbouw bij een deel van het jaar gewerkt of parttime dienstverband.',
+    metaDescription: 'Bereken direct je bruto 13e maand of eindejaarsuitkering. Inclusief pro-rata berekening bij tussentijdse in- of uitdiensttreding en handige rekenvoorbeelden.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['vakantiegeld-berekenen', 'salarisverhoging-berekenen', 'parttime-salaris-berekenen', 'maandloon-naar-uurloon-berekenen']
   }
 ];
 

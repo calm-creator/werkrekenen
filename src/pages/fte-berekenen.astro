@@ -1,0 +1,211 @@
+---
+// src/pages/fte-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import FteCalculator from '../components/calculators/FteCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('fte-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat betekent FTE precies en waar staat de afkorting voor?',
+    answer: 'FTE staat voor Fulltime Equivalent, in het Nederlands ook wel voltijdequivalent genoemd. Het is een rekeneenheid waarmee de omvang van een dienstverband of arbeidsplaats wordt uitgedrukt ten opzichte van een volledige voltijdse werkweek (1,00 FTE). Een medewerker die parttime werkt, heeft een FTE-waarde tussen 0,00 en 1,00.'
+  },
+  {
+    question: 'Hoeveel uur per week is 1 FTE in Nederland?',
+    answer: 'In Nederland is er geen wettelijk vastgelegde norm voor 1 FTE. De exacte omvang van 1,00 FTE hangt af van de toepasselijke CAO of de bedrijfsregeling van je werkgever. De meest voorkomende fulltime normen zijn 36 uur per week (veelal bij de overheid, ziekenhuizen en het onderwijs), 38 uur per week (veel commerciële sectoren) en 40 uur per week (bouw, logistiek en zakelijke dienstverlening).'
+  },
+  {
+    question: 'Hoe bereken ik mijn eigen FTE op basis van mijn contracturen?',
+    answer: 'Je berekent je FTE door je wekelijkse contracturen te delen door het aantal uren van een fulltime werkweek binnen jouw organisatie. De wiskundige formule luidt: FTE = Jouw wekelijkse uren ÷ Fulltime uren volgens CAO. Werk je bijvoorbeeld 32 uur per week bij een fulltime norm van 40 uur, dan is je FTE 32 ÷ 40 = 0,80 FTE.'
+  },
+  {
+    question: 'Hoeveel FTE is een werkweek van 32 uur?',
+    answer: 'Dat hangt af van de geldende fulltime werkweek. Bij een standaard 40-urige werkweek is 32 uur precies 0,80 FTE (80%). Geldt bij jouw werkgever of CAO echter een fulltime werkweek van 36 uur (zoals bij gemeenten of in de zorg), dan staat 32 uur gelijk aan 32 ÷ 36 = 0,89 FTE (88,89%). Bij een norm van 38 uur is 32 uur gelijk aan 0,84 FTE (84,21%).'
+  },
+  {
+    question: 'Hoeveel FTE is een werkweek van 24 uur?',
+    answer: 'Bij een fulltime norm van 40 uur per week is 24 uur exact 0,60 FTE (24 ÷ 40 = 0,60), wat neerkomt op 60% van een fulltime baan. Is de fulltime werkweek binnen jouw organisatie 36 uur, dan staat 24 uur gelijk aan 24 ÷ 36 = 0,67 FTE (66,67%). Bij een 38-urige werkweek is 24 uur gelijk aan 0,63 FTE (63,16%).'
+  },
+  {
+    question: 'Hoe reken ik een FTE om naar het aantal wekelijkse werkuren?',
+    answer: 'Om van een FTE-omvang naar werkuren te rekenen, vermenigvuldig je de FTE-waarde met het aantal uren van de geldende fulltime werkweek: Uren per week = FTE × Fulltime norm. Een vacature voor 0,80 FTE bij een organisatie met een 40-urige werkweek betekent dus 0,80 × 40 = 32 uur per week. Is de norm 36 uur, dan is 0,80 FTE gelijk aan 0,80 × 36 = 28,8 uur per week.'
+  },
+  {
+    question: 'Is 0,8 FTE altijd hetzelfde als 80% werken?',
+    answer: 'Ja, het deeltijdpercentage is altijd direct gekoppeld aan de FTE-waarde door deze met 100 te vermenigvuldigen: 0,80 FTE staat exact gelijk aan een deeltijdpercentage van 80%. Let wel op dat 80% altijd slaat op het percentage van de specifieke fulltime werkweek van jouw werkgever, en niet automatisch op 80% van 40 uur.'
+  },
+  {
+    question: 'Wat is het verschil tussen FTE en de werktijdfactor (WTF)?',
+    answer: 'FTE en de werktijdfactor (WTF) zijn inhoudelijk hetzelfde. In de meeste sectoren en in het algemene HR-vakjargon spreekt men van FTE, terwijl in het Nederlandse onderwijs (primair, voortgezet en hoger onderwijs) traditiegetrouw de term werktijdfactor wordt gebruikt. Een werktijdfactor van 0,7500 betekent precies hetzelfde als 0,75 FTE.'
+  },
+  {
+    question: 'Wat is het verschil tussen FTE (arbeidsvolume) en het aantal medewerkers (headcount)?',
+    answer: 'Het aantal medewerkers (ook wel headcount of "aantal koppen" genoemd door het CBS) telt het feitelijke aantal fysieke personen op de loonlijst. FTE meet daarentegen het totale arbeidsvolume uitgedrukt in voltijdbanen. Een afdeling met vier deeltijdmedewerkers die ieder 20 uur per week werken (bij een 40-urige norm) telt 4 medewerkers in headcount, maar gezamenlijk slechts 2,00 FTE.'
+  },
+  {
+    question: 'Heeft mijn FTE-waarde direct invloed op mijn parttime salaris en vakantiedagen?',
+    answer: 'Ja. In het Nederlandse arbeidsrecht worden arbeidsvoorwaarden zoals het bruto basissalaris, wettelijke vakantiedagen en vakantiebijslag pro rato berekend op basis van je FTE of deeltijdpercentage. Heb je een contract van 0,80 FTE, dan ontvang je 80% van het fulltime schaalsalaris en bouw je 80% van de fulltime vakantie-uren op.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="CBS Arbeidsvolume & CAO-normen"
+>
+  <FteCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is FTE en waar staat de afkorting voor?</h2>
+    <p>
+      De afkorting <strong>FTE</strong> staat voor <strong>Fulltime Equivalent</strong>, in het Nederlands ook wel aangeduid als <em>voltijdequivalent</em> (vte). Het is een internationaal erkende rekeneenheid in het personeelsbeheer en de salarisadministratie waarmee de omvang van een arbeidscontract wordt vergeleken met een volledige fulltime werkweek.
+    </p>
+    <p>
+      Eén voltijdbaan staat gelijk aan <strong>1,00 FTE</strong>. Werk je in deeltijd (parttime), dan werk je een fractie van een volledige werkweek en is jouw FTE-waarde een getal tussen de 0,00 en 1,00. Werk je bijvoorbeeld 32 uur per week bij een werkgever waar een fulltime baan 40 uur telt? Dan is jouw dienstverband 0,80 FTE. Werk je 20 uur, dan heb je een contract van 0,50 FTE.
+    </p>
+
+    <h2>Hoe bereken je FTE? De basisformule</h2>
+    <p>
+      Het berekenen van je FTE is een eenvoudige verhoudingsberekening. Je deelt het aantal uren dat jij wekelijks contractueel werkt door het aantal uren dat binnen jouw organisatie als een volledige werkweek geldt:
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Wiskundige formule voor FTE berekenen:</strong><br />
+      <code>FTE = Aantal contracturen per week ÷ Fulltime uren per week (CAO-norm)</code>
+      <br /><br />
+      <strong>Formule voor het deeltijdpercentage:</strong><br />
+      <code>Deeltijdpercentage = FTE × 100%</code>
+    </div>
+
+    <p>
+      Wil je vervolgens weten wat deze deeltijdfactor betekent voor je inkomen op je bankrekening? Bereken dan eenvoudig je bijbehorende maandloon via onze module voor <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a> of controleer je vaste basistarief per gewerkt uur via <a href="/uurloon-berekenen/">uurloon berekenen</a>.
+    </p>
+
+    <h2>Waarom de fulltime werkweek per CAO verschilt (36, 38 of 40 uur)</h2>
+    <p>
+      Een van de meest gemaakte fouten bij het berekenen van FTE is de aanname dat een voltijdbaan in Nederland altijd uit 40 uur bestaat. In het Nederlandse arbeidsrecht bestaat er <strong>geen wettelijke definitie van het aantal uren in een fulltime werkweek</strong>. De wetgever schrijft in de Arbeidstijdenwet slechts maximale werk- en rusttijden voor, maar laat de normale arbeidsduur over aan sociale partners via collectieve arbeidsovereenkomsten (CAO's) of individuele arbeidsovereenkomsten.
+    </p>
+    <p>
+      In de praktijk komen in Nederland drie fulltime standaarden zeer veel voor:
+    </p>
+    <ul>
+      <li>
+        <strong>36 uur per week (1,00 FTE):</strong> Zeer gangbaar bij de Rijksoverheid, gemeenten, provincies, waterschappen, ziekenhuizen, de geestelijke gezondheidszorg (GGZ) en banken.
+      </li>
+      <li>
+        <strong>38 uur per week (1,00 FTE):</strong> Veelvoorkomend in het onderwijs, de detailhandel, horeca, groothandel en diverse grafische of facilitaire bedrijfstakken.
+      </li>
+      <li>
+        <strong>40 uur per week (1,00 FTE):</strong> De traditionele norm in de bouw, metaal, transport en logistiek, ICT en commerciële zakelijke dienstverlening.
+      </li>
+    </ul>
+
+    <p>
+      Omdat de noemer in de formule verschilt, levert hetzelfde aantal gewerkte uren een andere FTE-waarde op afhankelijk van jouw sector. Werk je bijvoorbeeld 36 uur per week? In de zorg of bij een gemeente werk je dan precies <strong>1,00 FTE</strong> (fulltime). Werk je echter 36 uur in de bouw bij een 40-urige norm, dan werk je 36 ÷ 40 = <strong>0,90 FTE</strong> (parttime).
+    </p>
+
+    <h2>Rekenvoorbeelden: FTE berekenen voor 36, 32, 24 en 20 uur</h2>
+    <p>
+      Onderstaande tabel toont hoe gangbare contracturen uitvallen bij de meest voorkomende Nederlandse fulltime normen:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel met FTE berekeningen bij verschillende werkweken">
+      <table>
+        <thead>
+          <tr>
+            <th>Wekelijkse uren</th>
+            <th>Bij 36 uur fulltime</th>
+            <th>Bij 38 uur fulltime</th>
+            <th>Bij 40 uur fulltime</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>40 uur</strong></td>
+            <td>1,11 FTE (111%)</td>
+            <td>1,05 FTE (105%)</td>
+            <td><strong>1,00 FTE (100%)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>36 uur</strong></td>
+            <td><strong>1,00 FTE (100%)</strong></td>
+            <td>0,95 FTE (94,7%)</td>
+            <td>0,90 FTE (90,0%)</td>
+          </tr>
+          <tr>
+            <td><strong>32 uur (4 dagen)</strong></td>
+            <td>0,89 FTE (88,9%)</td>
+            <td>0,84 FTE (84,2%)</td>
+            <td><strong>0,80 FTE (80,0%)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>24 uur (3 dagen)</strong></td>
+            <td>0,67 FTE (66,7%)</td>
+            <td>0,63 FTE (63,2%)</td>
+            <td><strong>0,60 FTE (60,0%)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>20 uur</strong></td>
+            <td>0,56 FTE (55,6%)</td>
+            <td>0,53 FTE (52,6%)</td>
+            <td><strong>0,50 FTE (50,0%)</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>FTE, deeltijdpercentage en de werktijdfactor (WTF)</h2>
+    <p>
+      In salarissystemen en cao-teksten worden verschillende termen gebruikt die in essentie hetzelfde meten:
+    </p>
+    <ul>
+      <li><strong>FTE (Fulltime Equivalent):</strong> Uitgedrukt als decimaal getal, meestal afgerond op twee decimalen (bijv. <code>0,80</code>).</li>
+      <li><strong>Deeltijdpercentage:</strong> De FTE vermenigvuldigd met 100% (bijv. <code>80%</code>).</li>
+      <li><strong>Werktijdfactor (WTF):</strong> De gangbare term in het Nederlandse onderwijs (PO, VO en MBO). Een leraar met 0,8000 WTF werkt vier dagen per week.</li>
+    </ul>
+
+    <p>
+      Wil je jouw maandinkomen herleiden vanuit je uurtarief of omgekeerd? Gebruik onze tools voor <a href="/uurloon-naar-maandloon-berekenen/">uurloon naar maandloon berekenen</a> of <a href="/maandloon-naar-uurloon-berekenen/">maandloon naar uurloon berekenen</a>.
+    </p>
+
+    <h2>Verschil tussen FTE en aantal werknemers (arbeidsvolume vs. koppen)</h2>
+    <p>
+      Het <strong>Centraal Bureau voor de Statistiek (CBS)</strong> onderscheidt het <em>aantal werkzame personen</em> (headcount of "aantal koppen") van het <em>arbeidsvolume in voltijdbanen (FTE)</em>.
+    </p>
+    <p>
+      Headcount telt hoeveel individuele personen op de loonlijst staan, ongeacht hun contracturen. FTE meet de feitelijke capaciteit:
+    </p>
+    <ul>
+      <li><strong>10 voltijdmedewerkers</strong> van elk 40 uur vormen 10 personen en <strong>10,00 FTE</strong>.</li>
+      <li><strong>20 deeltijdmedewerkers</strong> van elk 20 uur (bij 40 uur norm) vormen 20 personen, maar exact hetzelfde volume van <strong>10,00 FTE</strong>.</li>
+    </ul>
+    <p>
+      Vier parttime medewerkers zijn dus zelden gelijk aan 4 FTE. Voor formatiebeheer en personeelsplanning is sturen op FTE daarom essentieel. Wil je direct inzicht in de totale personeelskosten van een functie? Bereken dit via onze module voor <a href="/werkgeverslasten-berekenen/">werkgeverslasten berekenen</a>.
+    </p>
+
+    <h2>Omgekeerd rekenen: Van gewenste FTE naar contracturen</h2>
+    <p>
+      Zie je een vacature voor bijvoorbeeld <strong>0,75 FTE</strong> of <strong>0,80 FTE</strong>? Bereken eenvoudig je wekelijkse uren:
+    </p>
+    <div class="callout callout-info">
+      <strong>Formule uren berekenen uit FTE:</strong><br />
+      <code>Contracturen per week = Gewenste FTE × Fulltime uren per week</code>
+      <br /><br />
+      <em>Voorbeelden:</em><br />
+      • 0,80 FTE bij 40 uur norm: <code>0,80 × 40 = 32 uur per week</code> (4 dagen van 8 uur)<br />
+      • 0,75 FTE bij 36 uur norm: <code>0,75 × 36 = 27 uur per week</code><br />
+      • 0,50 FTE bij 38 uur norm: <code>0,50 × 38 = 19 uur per week</code>
+    </div>
+
+    <h2>Invloed van FTE op vakantiedagen en jaaruren</h2>
+    <p>
+      Volgens artikel 7:634 Burgerlijk Wetboek heeft iedere werknemer wettelijk recht op minimaal viermaal de wekelijkse arbeidsduur aan vakantie per jaar. Werk je fulltime 40 uur (1,00 FTE), dan ontvang je 160 vakantie-uren (20 dagen). Werk je 32 uur (0,80 FTE), dan bedraagt dit <code>4 × 32 = 128 uur</code> (16 dagen van 8 uur, wat 4 vakantieweken blijft).
+    </p>
+    <p>
+      Wil je jouw jaarlijkse werkuren berekenen na aftrek van feestdagen en verlof? Gebruik dan onze calculator voor <a href="/werkuren-per-jaar-berekenen/">werkuren per jaar berekenen</a>.
+    </p>
+  </div>
+</CalculatorLayout>

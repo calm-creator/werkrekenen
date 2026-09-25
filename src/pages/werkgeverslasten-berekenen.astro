@@ -1,0 +1,205 @@
+---
+// src/pages/werkgeverslasten-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import WerkgeverslastenCalculator from '../components/calculators/WerkgeverslastenCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+import { EMPLOYER_RATES_2026 } from '../data/dutchRates';
+
+const meta = getCalculatorBySlug('werkgeverslasten-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat is het verschil tussen werkgeverslasten en werkgeverskosten?',
+    answer: 'Werkgeverslasten zijn de verplichte wettelijke premies die een werkgever bovenop het bruto salaris afdraagt aan de Belastingdienst (zoals AWf, Aof, Whk en de werkgeversheffing Zvw). Werkgeverskosten (of totale loonkosten) is het complete kostenplaatje: het bruto salaris vermeerderd met de werkgeverslasten én eventuele secundaire kosten zoals pensioenpremies, vakantiegeld, reiskostenvergoeding en een verzuimverzekering.'
+  },
+  {
+    question: 'Hoeveel procent werkgeverslasten komen er gemiddeld bovenop het bruto salaris?',
+    answer: 'Voor uitsluitend de wettelijke premies voor werknemersverzekeringen en de Zvw bedragen de werkgeverslasten in 2026 doorgaans circa 17% tot 24% bovenop het bruto jaarloon. Worden ook het wettelijke vakantiegeld (8%) en een gemiddelde werkgeversbijdrage aan pensioen (circa 5% tot 10%) meegerekend, dan liggen de totale werkgeverskosten meestal tussen 28% en 35% boven het bruto basissalaris.'
+  },
+  {
+    question: 'Welke premies vallen onder de verplichte wettelijke werkgeverslasten in 2026?',
+    answer: 'De verplichte wettelijke werkgeverspremies in Nederland bestaan uit vijf componenten: de premie Algemeen Werkloosheidsfonds (AWf: 2,74% laag of 7,74% hoog), de premie Arbeidsongeschiktheidsfonds (Aof: 6,27% klein of 7,63% groot), de opslag kinderopvang (Wko: 0,50%), de gedifferentieerde premie Werkhervattingskas (Whk: gemiddeld 1,22%) en de werkgeversheffing Zorgverzekeringswet (Zvw: 6,57%).'
+  },
+  {
+    question: 'Wat is het maximum premieloon voor werkgevers in 2026?',
+    answer: 'In 2026 bedraagt het wettelijk maximum premieloon voor de werknemersverzekeringen en de Zvw € 79.409 per jaar (oftewel € 6.617,42 per maand). Over het deel van het bruto jaarsalaris dat boven dit grensbedrag uitkomt, hoeft de werkgever geen premies werknemersverzekeringen of Zvw-heffing meer af te dragen. Daardoor daalt het effectieve lastenpercentage bij hogere inkomens.'
+  },
+  {
+    question: 'Waarom betaal je voor sommige werknemers een hoge en voor anderen een lage AWf-premie?',
+    answer: 'Op grond van de Wet arbeidsmarkt in balans (WAB) betalen werkgevers voor vaste werknemers met een schriftelijk contract voor onbepaalde tijd de lage AWf-premie (2,74% in 2026). Voor werknemers met een tijdelijk contract, flexkrachten of oproepkrachten geldt de hoge AWf-premie (7,74% in 2026). Dit verschil van 5,00% stimuleert werkgevers om vaste contracten aan te bieden.'
+  },
+  {
+    question: 'Waarom verschilt de Aof-premie tussen kleine en grote werkgevers?',
+    answer: 'Kleine werkgevers (met een premieplichtige loonsom tot maximaal 25 maal het gemiddelde premieloon) betalen een gereduceerde Aof-premie (6,27% in 2026) ter compensatie van de zware loondoorbetalingsverplichting bij ziekte. Middelgrote en grote werkgevers betalen het hoge tarief (7,63% in 2026).'
+  },
+  {
+    question: 'Wat is de Whk-premie en hoe wordt deze vastgesteld?',
+    answer: 'De Whk (Werkhervattingskas) financiert de WGA- en Ziektewetuitkeringen van (ex-)werknemers. Deze premie is gedifferentieerd: kleine werkgevers betalen een sectorale vaste premie, terwijl voor middelgrote en grote bedrijven ook de individuele schadelast van de afgelopen twee jaar meeweegt. Iedere werkgever ontvangt hiervoor jaarlijks eind november een beschikking van de Belastingdienst.'
+  },
+  {
+    question: 'Telt 8% vakantiegeld mee voor de berekening van de werkgeverslasten?',
+    answer: 'Ja. In Nederland bouwt iedere werknemer op grond van de Wet minimumloon en minimumvakantiebijslag (WML) minimaal 8% vakantiebijslag op over het bruto basissalaris. Omdat vakantiegeld deel uitmaakt van het fiscale loon voor de werknemersverzekeringen, worden de werkgeverspremies geheven over het totale jaarsalaris inclusief vakantiegeld (tot aan het maximum premieloon).'
+  },
+  {
+    question: 'Betaalt een werkgever ook pensioenpremie bovenop de wettelijke werkgeverslasten?',
+    answer: 'Pensioenopbouw is in Nederland niet voor ieder bedrijf wettelijk verplicht, maar geldt wel voor circa 75% van alle werknemers via een verplichtgestelde bedrijfstak-CAO (zoals Bouw, Zorg, Metaal of Horeca). De werkgeversbijdrage aan het pensioen bedraagt gemiddeld tussen 5% en 15% van de pensioengrondslag en komt bovenop de wettelijke sociale premies.'
+  },
+  {
+    question: 'Wat kost een werknemer met een bruto maandsalaris van € 3.500 in totaal per jaar?',
+    answer: 'Bij een maandsalaris van € 3.500 bedraagt het bruto jaarloon € 42.000. De wettelijke werkgeverspremies in 2026 (bij een vast contract en kleine werkgever) bedragen ongeveer € 7.266 per jaar (17,30%). De totale loonkosten voor de werkgever bedragen dan € 49.266 per jaar (€ 4.105,50 per maand). Reken je 8% vakantiegeld mee (€ 3.360), dan stijgen de totale werkgeverskosten naar circa € 53.207 per jaar.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={EMPLOYER_RATES_2026.year}
+  officialSource="Belastingdienst & UWV premieoverzicht 2026"
+>
+  <WerkgeverslastenCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat zijn werkgeverslasten en werkgeverskosten?</h2>
+    <p>
+      Wie als ondernemer of manager personeel aanneemt in Nederland, ontdekt al snel dat het overeengekomen <strong>bruto salaris</strong> slechts een onderdeel vormt van de totale financiële verplichting. Bovenop het brutoloon betaalt iedere werkgever verplichte premies voor de sociale zekerheid en zorg.
+    </p>
+    <p>
+      In de financiële en HR-praktijk worden twee begrippen vaak door elkaar gebruikt, maar ze hebben een wezenlijk andere betekenis:
+    </p>
+    <ul>
+      <li>
+        <strong>Wettelijke werkgeverslasten:</strong> Dit zijn de verplichte afdrachten aan de Belastingdienst voor werknemersverzekeringen en de Zorgverzekeringswet (AWf, Aof, Whk, Wko en Zvw). In 2026 bedragen deze circa <strong>17% tot 24%</strong> van het bruto premieloon.
+      </li>
+      <li>
+        <strong>Totale werkgeverskosten (loonkosten):</strong> Dit is het complete bedrag dat een werknemer de organisatie kost: het bruto basissalaris vermeerderd met de wettelijke lasten én alle aanvullende arbeidsvoorwaarden zoals vakantiegeld, pensioen, reiskosten en verzekeringen. Dit ligt vaak <strong>25% tot 35%</strong> boven het bruto basissalaris.
+      </li>
+    </ul>
+
+    <h2>Overzicht van de 5 wettelijke werkgeverspremies in 2026</h2>
+    <p>
+      De Belastingdienst int maandelijks via de loonaangifte vijf wettelijke werkgeverspremies die worden berekend over het brutoloon:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Overzicht wettelijke werkgeverspremies 2026">
+      <table>
+        <thead>
+          <tr>
+            <th>Premiecomponent</th>
+            <th>Tarief 2026</th>
+            <th>Doel en Toelichting</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>AWf-premie</strong> (Werkloosheidsfonds)</td>
+            <td>2,74% (laag) / 7,74% (hoog)</td>
+            <td>Financiert WW-uitkeringen. Laag tarief voor schriftelijke vaste contracten; hoog voor tijdelijk/oproep (WAB).</td>
+          </tr>
+          <tr>
+            <td><strong>Aof-premie</strong> (Arbeidsongeschiktheid)</td>
+            <td>6,27% (klein) / 7,63% (groot)</td>
+            <td>Financiert WIA- en Wajong-uitkeringen. Kleine werkgevers krijgen korting wegens zware ziektelast.</td>
+          </tr>
+          <tr>
+            <td><strong>Wko-opslag</strong> (Kinderopvang)</td>
+            <td>0,50%</td>
+            <td>Vaste rijksopslag voor de financiering van de kinderopvangtoeslag.</td>
+          </tr>
+          <tr>
+            <td><strong>Whk-premie</strong> (Werkhervattingskas)</td>
+            <td>Gedifferentieerd (gem. 1,22%)</td>
+            <td>Dekt WGA en Ziektewet-flex. Vastgesteld per werkgever via individuele beschikking van de Belastingdienst.</td>
+          </tr>
+          <tr>
+            <td><strong>Werkgeversheffing Zvw</strong></td>
+            <td>6,57%</td>
+            <td>Verplichte inkomensafhankelijke bijdrage aan de Zorgverzekeringswet.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Het maximum premieloon in 2026: € 79.409</h2>
+    <p>
+      Een essentieel aspect van het Nederlandse loonbelastingstelsel is het <strong>maximum premieloon</strong> (ook wel het maximum bijdrage-inkomen genoemd). Voor 2026 is dit plafond door het Ministerie van Sociale Zaken en Werkgelegenheid vastgesteld op <strong>€ 79.409 per jaar</strong> (ongeveer € 6.617,42 per maand).
+    </p>
+    <p>
+      Verdient een werknemer meer dan € 79.409 per jaar? Dan betaalt de werkgever over het meerdere boven dit bedrag <strong>€ 0 aan werknemersverzekeringen en Zvw-premie</strong>. Hierdoor daalt het percentage van de wettelijke werkgeverslasten bij hogere inkomens aanzienlijk. Bij een jaarloon van € 100.000 bedragen de werkgeverslasten in procenten minder dan bij een jaarloon van € 40.000.
+    </p>
+
+    <h2>Rekenvoorbeelden werkgeverslasten bij verschillende salarissen</h2>
+    <p>
+      Onderstaande praktijkvoorbeelden illustreren de opbouw van de wettelijke werkgeverskosten in 2026 bij een vast contract (lage AWf 2,74%) en een kleine werkgever (lage Aof 6,27%, Whk 1,22% en Zvw 6,57%):
+    </p>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 1: Modaal salaris van € 3.500 bruto per maand</h3>
+      <p>
+        Een werknemer met een vast contract verdient € 3.500 bruto per maand (€ 42.000 per jaar, exclusief vakantiegeld):
+      </p>
+      <ul>
+        <li><strong>AWf-premie (2,74%):</strong> € 1.150,80 per jaar (€ 95,90 / maand)</li>
+        <li><strong>Aof-premie (6,27%):</strong> € 2.633,40 per jaar (€ 219,45 / maand)</li>
+        <li><strong>Wko-opslag (0,50%):</strong> € 210,00 per jaar (€ 17,50 / maand)</li>
+        <li><strong>Whk-premie (1,22%):</strong> € 512,40 per jaar (€ 42,70 / maand)</li>
+        <li><strong>Zvw-heffing (6,57%):</strong> € 2.759,40 per jaar (€ 229,95 / maand)</li>
+        <li><strong>Totale wettelijke lasten:</strong> <strong>€ 7.266,00 per jaar</strong> (17,30% opslag)</li>
+        <li><strong>Totale loonkosten:</strong> <strong>€ 49.266,00 per jaar</strong> (€ 4.105,50 per maand)</li>
+      </ul>
+    </div>
+
+    <div class="callout callout-info">
+      <h3>Voorbeeld 2: Startsalaris van € 2.500 bruto per maand</h3>
+      <p>
+        Bij een maandsalaris van € 2.500 bedraagt het jaarloon € 30.000. De wettelijke premies tellen op tot 17,30% van € 30.000 = <strong>€ 5.190 per jaar</strong> (€ 432,50 per maand). De totale werkgeverskosten bedragen € 35.190 per jaar (€ 2.932,50 per maand).
+      </p>
+    </div>
+
+    <h2>Welke personeelskosten komen hier nog bovenop?</h2>
+    <p>
+      De wettelijke premies zijn verplicht, maar vormen niet het volledige kostenplaatje van een werkgever. In de praktijk moet je als werkgever rekening houden met aanvullende arbeidsvoorwaarden en personeelskosten:
+    </p>
+    <ul>
+      <li>
+        <strong>Wettelijk vakantiegeld (8%):</strong> Op grond van de Wet minimumloon en minimumvakantiebijslag heeft iedere werknemer recht op ten minste 8% vakantiegeld over het brutoloon. Bereken de exacte opbouw via onze tool voor <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+      </li>
+      <li>
+        <strong>Pensioenpremies:</strong> Veel CAO's verplichten deelname aan een bedrijfstakpensioenfonds (zoals ABP, PFZW of PMT). De werkgeversbijdrage bedraagt doorgaans tussen 5% en 15% van de pensioengrondslag.
+      </li>
+      <li>
+        <strong>Reiskostenvergoeding:</strong> Werkgevers mogen in 2026 maximaal € 0,23 per zakelijke of woon-werkkilometer belastingvrij vergoeden. Bereken de maandelijkse kosten via <a href="/reiskostenvergoeding-berekenen/">reiskostenvergoeding berekenen</a>.
+      </li>
+      <li>
+        <strong>Ziekteverzuim en Arbodienst:</strong> In Nederland geldt de wettelijke verplichting om zieke werknemers gedurende 104 weken minimaal 70% van het loon door te betalen. Veel werkgevers sluiten hiervoor een ziekteverzuimverzekering af (circa 1,5% tot 3,5% van de loonsom).
+      </li>
+      <li>
+        <strong>Werkplek- en opleidingskosten:</strong> Kosten voor een laptop, telefoon, bureaustoel, softwarelicenties en jaarlijks scholingsbudget.
+      </li>
+    </ul>
+
+    <h2>FTE, deeltijd en salarisverhogingen doorrekenen</h2>
+    <p>
+      Neem je een deeltijdmedewerker in dienst? Dan worden zowel het salaris als de werkgeverslasten pro rato berekend op basis van de werktijdfactor. Controleer eenvoudig het bijbehorende contractpercentage met onze tool voor <a href="/fte-berekenen/">FTE berekenen</a> of bereken direct het salaris via <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+    </p>
+    <p>
+      Overweeg je een salarisverhoging toe te kennen aan een medewerker? Houd er dan rekening mee dat iedere bruto loonsverhoging ook leidt tot hogere afdrachten aan sociale premies. Bereken de gecombineerde impact vooraf met onze calculator voor <a href="/salarisverhoging-berekenen/">salarisverhoging berekenen</a>.
+    </p>
+
+    <h2>Vier praktische tips voor werkgevers en HR</h2>
+    <ol>
+      <li>
+        <strong>Kies bewust voor vaste contracten (AWf-voordeel):</strong> Het verschil tussen de lage AWf-premie (2,74%) en de hoge AWf-premie (7,74%) bedraagt exact 5,00 procentpunt. Bij een bruto jaarsalaris van € 40.000 bespaart een vast contract je maar liefst <code>€ 2.000 per jaar</code> aan premielasten per medewerker.
+      </li>
+      <li>
+        <strong>Controleer de jaarlijkse Whk-beschikking:</strong> De Belastingdienst stuurt iedere werkgever eind november de gedifferentieerde Whk-premie voor het komende jaar. Controleer deze beschikking altijd zorgvuldig op foutieve toerekeningen van ex-werknemers, want bezwaar maken kan duizenden euro's schelen.
+      </li>
+      <li>
+        <strong>Let op de loonsomgrens van de Aof-premie:</strong> Groeit jouw onderneming richting de grens tussen kleine en middelgrote werkgevers (25 maal het gemiddelde premieloon)? Dan stijgt je Aof-tarief van 6,27% naar 7,63%. Houd hier rekening mee in je meerjarenbegroting.
+      </li>
+      <li>
+        <strong>Gebruik de Werkkostenregeling (WKR):</strong> Benut de vrije ruimte binnen de WKR slim voor onbelaste vergoedingen en verstrekkingen, zodat je secundaire arbeidsvoorwaarden kunt bieden zonder dat hierop sociale werkgeverspremies drukken.
+      </li>
+    </ol>
+  </div>
+</CalculatorLayout>

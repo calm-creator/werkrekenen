@@ -1,0 +1,156 @@
+---
+// src/pages/13e-maand-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import DertiendeMaandCalculator from '../components/calculators/DertiendeMaandCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('13e-maand-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken je de hoogte van een 13e maand?',
+    answer: 'Je berekent een 13e maand door je bruto maandsalaris te vermenigvuldigen met het toepasselijke percentage. Bij een standaard 13e maand van 100% ontvang je exact één extra bruto maandsalaris. Heb je een deel van het jaar gewerkt, dan vermenigvuldig je dit bedrag met de gewerkte maanden gedeeld door 12 voor een pro-rata berekening.'
+  },
+  {
+    question: 'Hoeveel is een 13e maand bij een maandsalaris van € 3.000?',
+    answer: 'Bij een bruto maandsalaris van € 3.000 en een volledige toekenning van 100% bedraagt je bruto 13e maand exact € 3.000. Heb je bijvoorbeeld 6 maanden in het betreffende opbouwjaar gewerkt, dan bedraagt de pro-rata uitkering € 3.000 × (6 ÷ 12) = € 1.500 bruto.'
+  },
+  {
+    question: 'Is een werkgever in Nederland wettelijk verplicht om een 13e maand te betalen?',
+    answer: 'Nee. In tegenstelling tot de wettelijke vakantiebijslag van minimaal 8% bestaat er in het Burgerlijk Wetboek geen wettelijk recht op een 13e maand. Je hebt er alleen recht op als dit expliciet is overeengekomen in je individuele arbeidsovereenkomst, een bindende CAO of het personeelsreglement van je werkgever.'
+  },
+  {
+    question: 'Wat is het verschil tussen een 13e maand en een eindejaarsuitkering?',
+    answer: 'Een 13e maand is doorgaans gelijk aan exact één extra bruto maandsalaris (100% van je maandloon of 8,33% van je jaarloon). Een eindejaarsuitkering kan flexibeler worden ingevuld: dit kan een vast geldbedrag zijn (bijv. € 500), een afwijkend percentage (bijvoorbeeld 4,5% of 6% in bepaalde CAO-sectoren) of een resultaat- en winstafhankelijke bonus.'
+  },
+  {
+    question: 'Krijg je een 13e maand als je parttime werkt?',
+    answer: 'Ja, als voltijdmedewerkers binnen jouw organisatie recht hebben op een 13e maand, hebben parttimers daar naar evenredigheid eveneens recht op conform de wet gelijke behandeling. Het percentage van 100% wordt dan berekend over jouw daadwerkelijke deeltijdsalaris.'
+  },
+  {
+    question: 'Hoeveel 13e maand krijg ik als ik niet het hele jaar in dienst ben geweest?',
+    answer: 'Wanneer je halverwege het jaar in dienst treedt of de organisatie verlaat, passen de meeste CAO\'s en werkgevers een pro-rata regeling toe. Je ontvangt dan een evenredig deel op basis van het aantal gewerkte maanden: Bruto bedrag × (aantal maanden in dienst ÷ 12). Raadpleeg je CAO voor eventuele voorwaarden.'
+  },
+  {
+    question: 'Waarom wordt er zoveel belasting ingehouden op de 13e maand?',
+    answer: 'Een 13e maand wordt door de Belastingdienst aangemerkt als een eenmalige bijzondere beloning. Werkgevers moeten hierop de tabel voor bijzondere beloningen toepassen. Hierin zit niet alleen het reguliere inkomstenbelastingtarief verwerkt, maar ook een verrekening van de afbouw van de algemene heffingskorting en arbeidskorting.'
+  },
+  {
+    question: 'Bouw je vakantiegeld op over je 13e maand?',
+    answer: 'In de meeste gevallen niet. Volgens artikel 7:655 van het Burgerlijk Wetboek wordt de wettelijke 8% vakantiebijslag berekend over het reguliere loon, met uitsluiting van eenmalige uitkeringen zoals winstuitkeringen en een 13e maand. Sommige gunstige CAO\'s bepalen echter uitdrukkelijk dat de 13e maand wel tot de grondslag behoort.'
+  },
+  {
+    question: 'Heb je recht op een 13e maand als je uit dienst treedt vóór december?',
+    answer: 'Dit verschilt per CAO en arbeidscontract. In veel collectieve regelingen wordt bij uitdiensttreding de tot dan toe opgebouwde aanspraak pro-rata afgerekend op de eindafrekening. Bepaalde regelingen stellen echter als eis dat de werknemer op een vaste peildatum (bijv. 1 december) nog ononderbroken in dienst moet zijn.'
+  },
+  {
+    question: 'Telt een 13e maand mee voor de berekening van een hypotheek of transitievergoeding?',
+    answer: 'Ja, een vaste, structurele 13e maand of vaste eindejaarsuitkering telt mee als vast inkomen voor je maximale hypotheek volgens de NHG-normen en voor de wettelijke transitievergoeding bij ontslag. Variabele of eenmalige winstafhankelijke gratificaties tellen hierbij niet zonder meer volledig mee.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="CAO-afspraken & Rijksoverheid"
+>
+  <DertiendeMaandCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is een 13e maand en hoe werkt deze extra uitkering?</h2>
+    <p>
+      Een <strong>13e maand</strong> is een periodieke extra uitkering die werkgevers aan het einde van het kalenderjaar – meestal in november of december – uitkeren aan werknemers. In de standaardvorm staat deze gratificatie gelijk aan <strong>exact één extra bruto maandsalaris</strong> (100%). Hierdoor ontvangt een medewerker over een heel kalenderjaar niet twaalf, maar dertien maandlonen.
+    </p>
+    <p>
+      Veel werknemers vragen zich af of een dertiende maand een wettelijk recht is in Nederland. Het antwoord is helder: <strong>er bestaat in Nederland geen algemeen wettelijk recht op een 13e maand</strong>. Terwijl de wettelijke vakantiebijslag van minimaal 8% voor iedere werknemer dwingend is vastgelegd in artikel 7:655 van het Burgerlijk Wetboek, is een 13e maand een secundaire arbeidsvoorwaarde. Je hebt er uitsluitend recht op wanneer dit expliciet is overeengekomen in je individuele arbeidsovereenkomst, een geldende CAO of het personeelsreglement van je werkgever.
+    </p>
+
+    <h2>Hoe bereken je een 13e maand? Formule en rekenvoorbeelden</h2>
+    <p>
+      De wiskundige berekening van een 13e maand voor een volledig opbouwjaar is ongecompliceerd. Je vermenigvuldigt het afgesproken bruto maandsalaris met het uitkeringspercentage:
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Basisformule voor een volledig werkjaar:</strong><br />
+      <code>Bruto 13e maand = Bruto maandsalaris × (13e maand percentage ÷ 100)</code>
+      <br /><br />
+      <strong>Indicatieve maandelijkse opbouw:</strong><br />
+      <code>Maandelijkse opbouw = Bruto 13e maand (volledig jaar) ÷ 12</code>
+    </div>
+
+    <p>
+      Om te zien hoe deze berekening in de praktijk uitpakt, behandelen we vier concrete situaties:
+    </p>
+    <ul>
+      <li>
+        <strong>Voorbeeld 1 (€ 2.500 bruto bij 100%):</strong> Bij een maandsalaris van € 2.500 en 100% toekenning bedraagt de uitkering exact € 2.500 bruto. De werknemer bouwt circa € 208,33 per gewerkte maand op.
+      </li>
+      <li>
+        <strong>Voorbeeld 2 (€ 3.000 bruto bij 100%):</strong> Bij een maandsalaris van € 3.000 en 100% toekenning ontvangt de werknemer € 3.000 bruto. De opbouw bedraagt € 250,00 per kalendermaand.
+      </li>
+      <li>
+        <strong>Voorbeeld 3 (€ 3.500 bruto bij 100%):</strong> Bij een salaris van € 3.500 levert een volledige 13e maand een bedrag op van € 3.500 bruto, ofwel € 291,67 per maand.
+      </li>
+      <li>
+        <strong>Voorbeeld 4 (€ 3.000 bruto bij 75%):</strong> Bepaalt een CAO een afwijkend percentage van bijvoorbeeld 75%? Dan geldt: € 3.000 × 75% = € 2.250 bruto, met een opbouw van € 187,50 per maand.
+      </li>
+    </ul>
+
+    <h2>Pro-rata berekening bij tussentijdse indiensttreding of vertrek</h2>
+    <p>
+      Wat als je niet het hele kalenderjaar in dienst bent geweest, bijvoorbeeld door een start per 1 juli of uitdiensttreding per 1 oktober? In veruit de meeste CAO's geldt in dat geval een <strong>pro-rata toekenning</strong> (naar evenredigheid van de gewerkte maanden).
+    </p>
+    <p>
+      De wiskundige formule voor een pro-rata toekenning luidt:
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Pro-rata formule voor een deel van het jaar:</strong><br />
+      <code>Pro-rata 13e maand = [Bruto maandsalaris × (Percentage ÷ 100)] × (Gewerkte maanden ÷ 12)</code>
+    </div>
+
+    <p>
+      Stel dat je een maandsalaris van € 3.000 hebt, aanspraak hebt op 100% uitkering, maar per 1 juli in dienst bent getreden (6 maanden gewerkt). De berekening is:
+    </p>
+    <p>
+      <code>€ 3.000 × 100% × (6 ÷ 12) = € 1.500 bruto</code>
+    </p>
+    <p>
+      <em>Let op:</em> Controleer altijd je CAO. Sommige regelingen hanteren een wachttijd (zoals 6 maanden aaneengesloten dienst) of vereisen dat je op de betaaldatum (veelal 1 december) nog in dienst bent om aanspraak te maken bij vrijwillig vertrek.
+    </p>
+
+    <h2>13e maand berekenen bij een parttime dienstverband</h2>
+    <p>
+      Werk je in deeltijd (bijvoorbeeld 24 of 32 uur per week)? Volgens de wet gelijke behandeling mag een parttimer niet worden benadeeld ten opzichte van een fulltime collega. Als een werkgever een 13e maand toekent, hebben parttime medewerkers hier naar rato van hun deeltijdfactor recht op.
+    </p>
+    <p>
+      In de praktijk vul je in de calculator eenvoudig jouw <strong>daadwerkelijke parttime bruto maandsalaris</strong> in. Verdient een voltijdcollega bijvoorbeeld € 4.000 bruto bij 40 uur, en verdien jij bij 32 uur (0,80 FTE) maandelijks € 3.200 bruto? Dan is jouw 13e maand bij 100% toekenning gelijk aan € 3.200 bruto. Wil je controleren hoe jouw deeltijdpercentage precies is opgebouwd? Gebruik dan onze tool voor <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a> of bekijk de verhouding via <a href="/fte-berekenen/">FTE berekenen</a>.
+    </p>
+
+    <h2>Verschil tussen een 13e maand en een eindejaarsuitkering</h2>
+    <p>
+      De termen <em>13e maand</em> en <em>eindejaarsuitkering</em> worden regelmatig door elkaar gebruikt, maar zijn administratief niet altijd identiek:
+    </p>
+    <ul>
+      <li>
+        <strong>13e maand:</strong> Is vrijwel altijd gekoppeld aan het exacte maandloon. Het bedrag bedraagt 100% van één vast maandsalaris, wat rekenkundig overeenkomt met 8,33% van het jaarsalaris (1 ÷ 12 = 8,333%).
+      </li>
+      <li>
+        <strong>Eindejaarsuitkering:</strong> Heeft een bredere definitie. Dit kan een vastgesteld percentage zijn (zoals 8,33% bij de overheid, of 5% in andere sectoren), een vast geldbedrag (bijvoorbeeld € 750), of een variabele bonus afhankelijk van bedrijfsresultaten.
+      </li>
+    </ul>
+
+    <h2>Belasting over de 13e maand: Waarom houd je netto minder over?</h2>
+    <p>
+      Wanneer de 13e maand in december op je salarisstrook staat, valt het nettobedrag voor veel werknemers tegen. De oorzaak hiervan ligt in de fiscale behandeling door de Belastingdienst.
+    </p>
+    <p>
+      Een 13e maand geldt als <strong>loon uit bijzondere beloning</strong> (eenmalige beloning). Hierop past de werkgever de <em>tabel voor bijzondere beloningen</em> toe. Dit tarief is gebaseerd op je jaarloon van het voorgaande jaar. Omdat heffingskortingen (de algemene heffingskorting en arbeidskorting) afnemen naarmate je inkomen stijgt, verrekent het bijzonder tarief direct deze afbouw. Daardoor ligt de inhouding in de praktijk vaak tussen de 37% en 49,5%.
+    </p>
+    <p>
+      Telt het vakantiegeld mee over je 13e maand? Volgens de Wet minimumloon en minimumvakantiebijslag (WML) wordt vakantiegeld berekend over het reguliere basissalaris en niet over eenmalige uitkeringen. Omgekeerd bouw je over de 13e maand meestal geen 8% vakantiegeld op, tenzij jouw CAO dit uitdrukkelijk voorschrijft. Wil je weten wat je reguliere vakantiebijslag bedraagt? Bereken dit direct via <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+    </p>
+  </div>
+</CalculatorLayout>

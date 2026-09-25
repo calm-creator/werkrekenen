@@ -1,0 +1,771 @@
+---
+// src/components/calculators/WerkgeverslastenCalculator.astro
+import { DUTCH_RATES, EMPLOYER_RATES_2026 } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="werkgeverslasten-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Loon & premies invoeren</h2>
+      <span class="rate-year-tag">Tarieven {EMPLOYER_RATES_2026.year}</span>
+    </div>
+
+    <!-- Modus: Gedetailleerd vs Snelle schatting -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label class="form-label">Type berekening</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="mode-detailed" name="calc-mode" value="detailed" checked />
+          <label for="mode-detailed">
+            <strong>Premieberekening {EMPLOYER_RATES_2026.year}</strong>
+            <small>Officiële premies (AWf, Aof, Whk, Zvw)</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="mode-quick" name="calc-mode" value="quick" />
+          <label for="mode-quick">
+            <strong>Snelle schatting</strong>
+            <small>Indicatief percentage (vuistregel)</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Periode keuze (Maand vs Jaar) -->
+    <div class="form-group">
+      <label class="form-label">Salarisperiode</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="period-month" name="salary-period" value="month" checked />
+          <label for="period-month">Per maand</label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="period-year" name="salary-period" value="year" />
+          <label for="period-year">Per jaar</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bruto salaris invoer -->
+    <div class="form-group">
+      <label for="input-salary" class="form-label" id="label-salary">Bruto maandsalaris</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-salary"
+          class="form-input input-has-prefix"
+          value="3500"
+          min="0"
+          step="50"
+          aria-describedby="hint-salary"
+        />
+      </div>
+      <div class="quick-pills" id="pills-month" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill salary-pill" data-val="2500">€ 2.500</button>
+        <button type="button" class="quick-pill salary-pill" data-val="3000">€ 3.000</button>
+        <button type="button" class="quick-pill salary-pill is-active" data-val="3500">€ 3.500</button>
+        <button type="button" class="quick-pill salary-pill" data-val="4500">€ 4.500</button>
+        <button type="button" class="quick-pill salary-pill" data-val="6000">€ 6.000</button>
+        <button type="button" class="quick-pill salary-pill" data-val="7500">€ 7.500</button>
+      </div>
+      <div class="quick-pills" id="pills-year" style="margin-top: 0.5rem; display: none;">
+        <button type="button" class="quick-pill salary-pill" data-val="30000">€ 30.000</button>
+        <button type="button" class="quick-pill salary-pill is-active" data-val="42000">€ 42.000</button>
+        <button type="button" class="quick-pill salary-pill" data-val="54000">€ 54.000</button>
+        <button type="button" class="quick-pill salary-pill" data-val="70000">€ 70.000</button>
+        <button type="button" class="quick-pill salary-pill" data-val="80000">€ 80.000</button>
+        <button type="button" class="quick-pill salary-pill" data-val="100000">€ 100.000</button>
+      </div>
+      <span class="form-hint" id="hint-salary">Het afgesproken bruto basissalaris van de werknemer.</span>
+    </div>
+
+    <!-- Vakantiegeld toggle -->
+    <div class="form-checkbox-card" id="group-vacation">
+      <label class="form-checkbox-label" for="check-include-vacation">
+        <input type="checkbox" id="check-include-vacation" class="checkbox-input" />
+        <div class="checkbox-text">
+          <span class="checkbox-title">Inclusief 8% wettelijk vakantiegeld meerekenen</span>
+          <span class="checkbox-desc">Voegt 8% vakantiebijslag toe aan het bruto jaarloon voor de premieheffing.</span>
+        </div>
+      </label>
+    </div>
+
+    <!-- Gedetailleerde opties (AWf, Aof, Whk) -->
+    <div id="section-detailed-inputs">
+      <!-- AWf-premie -->
+      <div class="form-group" style="margin-top: 1rem;">
+        <label class="form-label">Contracttype (AWf-premie)</label>
+        <div class="form-radio-group">
+          <div class="form-radio-card">
+            <input type="radio" id="awf-low" name="awf-type" value="low" checked />
+            <label for="awf-low">
+              <strong>Lage premie ({EMPLOYER_RATES_2026.awfLow.toFixed(2).replace('.', ',')}%)</strong>
+              <small>Vast contract (onbepaalde tijd, schriftelijk)</small>
+            </label>
+          </div>
+          <div class="form-radio-card">
+            <input type="radio" id="awf-high" name="awf-type" value="high" />
+            <label for="awf-high">
+              <strong>Hoge premie ({EMPLOYER_RATES_2026.awfHigh.toFixed(2).replace('.', ',')}%)</strong>
+              <small>Tijdelijk contract / oproepovereenkomst</small>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Aof-premie -->
+      <div class="form-group">
+        <label class="form-label">Grootte werkgever (Aof-premie)</label>
+        <div class="form-radio-group">
+          <div class="form-radio-card">
+            <input type="radio" id="aof-low" name="aof-type" value="low" checked />
+            <label for="aof-low">
+              <strong>Klein ({EMPLOYER_RATES_2026.aofLow.toFixed(2).replace('.', ',')}%)</strong>
+              <small>Loonsom &le; 25&times; gemiddeld premieloon</small>
+            </label>
+          </div>
+          <div class="form-radio-card">
+            <input type="radio" id="aof-high" name="aof-type" value="high" />
+            <label for="aof-high">
+              <strong>Middelgroot / Groot ({EMPLOYER_RATES_2026.aofHigh.toFixed(2).replace('.', ',')}%)</strong>
+              <small>Loonsom &gt; 25&times; gemiddeld premieloon</small>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Whk-premie invoer -->
+      <div class="form-group">
+        <div class="form-label-row">
+          <label for="input-whk" class="form-label">Gedifferentieerde premie Whk</label>
+          <span class="rate-status-tag">Sectorafhankelijk</span>
+        </div>
+        <div class="input-wrapper">
+          <input
+            type="number"
+            id="input-whk"
+            class="form-input input-has-suffix"
+            value={EMPLOYER_RATES_2026.whkDefault.toFixed(2)}
+            min="0"
+            max="15"
+            step="0.01"
+          />
+          <span class="input-suffix">%</span>
+        </div>
+        <div class="quick-pills" style="margin-top: 0.5rem;">
+          <button type="button" class="quick-pill whk-pill" data-val="0.85">0,85% (laag)</button>
+          <button type="button" class="quick-pill whk-pill is-active" data-val={EMPLOYER_RATES_2026.whkDefault.toFixed(2)}>
+            {EMPLOYER_RATES_2026.whkDefault.toFixed(2).replace('.', ',')}% (gemiddeld)
+          </button>
+          <button type="button" class="quick-pill whk-pill" data-val="1.65">1,65%</button>
+          <button type="button" class="quick-pill whk-pill" data-val="2.20">2,20% (hoog)</button>
+        </div>
+        <span class="form-hint">
+          De Whk-premie (WGA + ZW-flex) verschilt per werkgever en sector. {EMPLOYER_RATES_2026.whkDefault.toFixed(2).replace('.', ',')}% is het gemiddelde sectorpercentage voor {EMPLOYER_RATES_2026.year}.
+        </span>
+      </div>
+    </div>
+
+    <!-- Snelle schatting percentage invoer (alleen zichtbaar in quick mode) -->
+    <div id="section-quick-inputs" style="display: none;">
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="input-quick-pct" class="form-label">Geschat opslagpercentage werkgeverslasten</label>
+        <div class="input-wrapper">
+          <input
+            type="number"
+            id="input-quick-pct"
+            class="form-input input-has-suffix"
+            value="23"
+            min="5"
+            max="60"
+            step="1"
+          />
+          <span class="input-suffix">%</span>
+        </div>
+        <div class="quick-pills" style="margin-top: 0.5rem;">
+          <button type="button" class="quick-pill qpct-pill" data-val="20">20% (minimaal)</button>
+          <button type="button" class="quick-pill qpct-pill is-active" data-val="23">23% (gemiddeld wettelijk)</button>
+          <button type="button" class="quick-pill qpct-pill" data-val="28">28%</button>
+          <button type="button" class="quick-pill qpct-pill" data-val="32">32% (incl. pensioen)</button>
+        </div>
+        <span class="form-hint">
+          Gangbare vuistregel in Nederland: circa 20% tot 25% voor wettelijke premies, of 30% tot 35% inclusief pensioen en secundaire arbeidsvoorwaarden.
+        </span>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-costs" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Totale werkgeverskosten per jaar</span>
+      <div class="result-hero-value" id="res-hero-annual">€ 49.266,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">circa € 4.105,50 per maand (17,3% opslag op brutoloon)</span>
+    </div>
+
+    <!-- Plafond melding indien van toepassing -->
+    <div class="callout callout-warning" id="alert-wage-cap" style="display: none; margin: 1rem 0 0.5rem 0; font-size: 0.8125rem; padding: 0.625rem 0.75rem;">
+      <strong>Maximum premieloon bereikt:</strong> Het jaarsalaris overschrijdt het wettelijk maximum van € {EMPLOYER_RATES_2026.maxPremiumWageAnnual.toLocaleString('nl-NL')} ({EMPLOYER_RATES_2026.year}). Over het loon boven dit bedrag betaal je € 0 aan werknemersverzekeringen en Zvw.
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-subtitle">Kostenoverzicht per jaar & maand</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Bruto salaris</span>
+        <span class="result-row-value font-medium" id="res-gross-salary">€ 42.000,00 / jaar</span>
+      </div>
+
+      <div class="result-row" id="row-vacation-amount" style="display: none;">
+        <span class="result-row-label">Vakantiegeld (8%)</span>
+        <span class="result-row-value text-muted" id="res-vacation-amount">+ € 3.360,00</span>
+      </div>
+
+      <div class="result-row">
+        <div>
+          <span class="result-row-label">Totale werkgeverslasten</span>
+          <span class="result-badge-sub" id="res-markup-badge">17,3% van bruto salaris</span>
+        </div>
+        <span class="result-row-value font-bold text-primary" id="res-total-contributions">€ 7.266,00 / jaar</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Totale werkgeverskosten (per maand)</span>
+        <span class="result-row-value font-bold" id="res-total-monthly">€ 4.105,50 / maand</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle">Specificatie wettelijke premies ({EMPLOYER_RATES_2026.year})</div>
+
+      <div class="result-row">
+        <span class="result-row-label" id="label-awf">AWf-premie ({EMPLOYER_RATES_2026.awfLow.toFixed(2).replace('.', ',')}%)</span>
+        <span class="result-row-value" id="res-awf">€ 1.150,80</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label" id="label-aof">Aof-premie ({EMPLOYER_RATES_2026.aofLow.toFixed(2).replace('.', ',')}%)</span>
+        <span class="result-row-value" id="res-aof">€ 2.633,40</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Opslag kinderopvang (Wko 0,50%)</span>
+        <span class="result-row-value" id="res-wko">€ 210,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label" id="label-whk">Whk-premie ({EMPLOYER_RATES_2026.whkDefault.toFixed(2).replace('.', ',')}%)</span>
+        <span class="result-row-value" id="res-whk">€ 512,40</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Werkgeversheffing Zvw ({EMPLOYER_RATES_2026.zvwEmployer.toFixed(2).replace('.', ',')}%)</span>
+        <span class="result-row-value" id="res-zvw">€ 2.759,40</span>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.875rem;">
+      <p style="margin: 0 0 0.5rem 0;">
+        <strong>Let op:</strong> Bovenstaande berekening toont de verplichte wettelijke werkgeverspremies conform de Belastingdienst ({EMPLOYER_RATES_2026.year}).
+      </p>
+      <p style="margin: 0; color: var(--text-subtle);">
+        Optionele kosten zoals een pensioenregeling (vaak 5% tot 15%), reiskostenvergoeding, ziekteverzuimverzekering en opleidingskosten zijn werkgever- of CAO-afhankelijk en niet inbegrepen.
+      </p>
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .rate-year-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.2rem 0.5rem;
+    border-radius: var(--radius-sm);
+  }
+
+  .rate-status-tag {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--text-subtle);
+  }
+
+  .form-label-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.35rem;
+  }
+
+  .form-checkbox-card {
+    margin-top: 0.75rem;
+    margin-bottom: 1rem;
+    padding: 0.75rem 0.875rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-color);
+  }
+
+  .form-checkbox-label {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    cursor: pointer;
+  }
+
+  .checkbox-input {
+    margin-top: 0.2rem;
+    cursor: pointer;
+    accent-color: var(--color-primary);
+    width: 1.125rem;
+    height: 1.125rem;
+    flex-shrink: 0;
+  }
+
+  .checkbox-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    min-width: 0;
+  }
+
+  .checkbox-title {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .checkbox-desc {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    line-height: 1.35;
+  }
+
+  .quick-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .quick-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .quick-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .quick-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .result-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .result-badge-sub {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-subtle);
+    font-weight: normal;
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .text-muted {
+    color: var(--text-muted);
+  }
+
+  .font-medium {
+    font-weight: 500;
+  }
+
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 480px) {
+    .quick-pills {
+      gap: 0.25rem;
+    }
+    .quick-pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+    }
+    .form-checkbox-card {
+      padding: 0.625rem;
+    }
+    .checkbox-title {
+      font-size: 0.8125rem;
+    }
+    .checkbox-desc {
+      font-size: 0.75rem;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('werkgeverslasten-calc');
+    if (!calc) return;
+
+    // Rates config from data
+    const RATES = {
+      maxPremiumWageAnnual: 79409,
+      awfLow: 2.74,
+      awfHigh: 7.74,
+      aofLow: 6.27,
+      aofHigh: 7.63,
+      wko: 0.50,
+      whkDefault: 1.22,
+      zvwEmployer: 6.57
+    };
+
+    // Mode & Period
+    const modeRadios = calc.querySelectorAll('input[name="calc-mode"]');
+    const periodRadios = calc.querySelectorAll('input[name="salary-period"]');
+    const labelSalary = calc.querySelector('#label-salary');
+    const inputSalary = calc.querySelector('#input-salary');
+    const pillsMonth = calc.querySelector('#pills-month');
+    const pillsYear = calc.querySelector('#pills-year');
+    const checkVacation = calc.querySelector('#check-include-vacation');
+    const sectionDetailed = calc.querySelector('#section-detailed-inputs');
+    const sectionQuick = calc.querySelector('#section-quick-inputs');
+
+    // Detailed options
+    const awfRadios = calc.querySelectorAll('input[name="awf-type"]');
+    const aofRadios = calc.querySelectorAll('input[name="aof-type"]');
+    const inputWhk = calc.querySelector('#input-whk');
+    const whkPills = calc.querySelectorAll('.whk-pill');
+
+    // Quick option
+    const inputQuickPct = calc.querySelector('#input-quick-pct');
+    const qpctPills = calc.querySelectorAll('.qpct-pill');
+
+    // Results elements
+    const resHeroAnnual = calc.querySelector('#res-hero-annual');
+    const resHeroSub = calc.querySelector('#res-hero-sub');
+    const alertWageCap = calc.querySelector('#alert-wage-cap');
+    const resGrossSalary = calc.querySelector('#res-gross-salary');
+    const rowVacationAmount = calc.querySelector('#row-vacation-amount');
+    const resVacationAmount = calc.querySelector('#res-vacation-amount');
+    const resMarkupBadge = calc.querySelector('#res-markup-badge');
+    const resTotalContributions = calc.querySelector('#res-total-contributions');
+    const resTotalMonthly = calc.querySelector('#res-total-monthly');
+
+    const labelAwf = calc.querySelector('#label-awf');
+    const resAwf = calc.querySelector('#res-awf');
+    const labelAof = calc.querySelector('#label-aof');
+    const resAof = calc.querySelector('#res-aof');
+    const resWko = calc.querySelector('#res-wko');
+    const labelWhk = calc.querySelector('#label-whk');
+    const resWhk = calc.querySelector('#res-whk');
+    const resZvw = calc.querySelector('#res-zvw');
+
+    const btnReset = calc.querySelector('#btn-reset-costs');
+
+    const formatCurrency = (val) =>
+      new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(val);
+    const formatNumber = (val, dec = 1) =>
+      new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: dec }).format(val);
+
+    function getMode() {
+      const checked = calc.querySelector('input[name="calc-mode"]:checked');
+      return checked ? checked.value : 'detailed';
+    }
+
+    function getPeriod() {
+      const checked = calc.querySelector('input[name="salary-period"]:checked');
+      return checked ? checked.value : 'month';
+    }
+
+    function getAwfType() {
+      const checked = calc.querySelector('input[name="awf-type"]:checked');
+      return checked ? checked.value : 'low';
+    }
+
+    function getAofType() {
+      const checked = calc.querySelector('input[name="aof-type"]:checked');
+      return checked ? checked.value : 'low';
+    }
+
+    function calculate() {
+      const mode = getMode();
+      const period = getPeriod();
+      const salary = Math.max(0, parseFloat(inputSalary.value) || 0);
+      const hasVacation = checkVacation.checked;
+
+      const baseAnnual = period === 'month' ? salary * 12 : salary;
+      const vacationPay = hasVacation ? baseAnnual * 0.08 : 0;
+      const grossAnnual = baseAnnual + vacationPay;
+      const grossMonthly = grossAnnual / 12;
+
+      if (hasVacation) {
+        rowVacationAmount.style.display = 'flex';
+        resVacationAmount.textContent = `+ ${formatCurrency(vacationPay)} / jaar`;
+      } else {
+        rowVacationAmount.style.display = 'none';
+      }
+
+      if (mode === 'detailed') {
+        const awfType = getAwfType();
+        const aofType = getAofType();
+        const awfPct = awfType === 'high' ? RATES.awfHigh : RATES.awfLow;
+        const aofPct = aofType === 'high' ? RATES.aofHigh : RATES.aofLow;
+        const wkoPct = RATES.wko;
+        const whkPct = Math.max(0, parseFloat(inputWhk.value) || 0);
+        const zvwPct = RATES.zvwEmployer;
+
+        // Wage base capped at € 79.409
+        const isCapped = grossAnnual > RATES.maxPremiumWageAnnual;
+        const cappedWage = Math.min(grossAnnual, RATES.maxPremiumWageAnnual);
+
+        alertWageCap.style.display = isCapped ? 'block' : 'none';
+
+        const awfAmount = cappedWage * (awfPct / 100);
+        const aofAmount = cappedWage * (aofPct / 100);
+        const wkoAmount = cappedWage * (wkoPct / 100);
+        const whkAmount = cappedWage * (whkPct / 100);
+        const zvwAmount = cappedWage * (zvwPct / 100);
+
+        const totalContributionsAnnual = awfAmount + aofAmount + wkoAmount + whkAmount + zvwAmount;
+        const totalEmployerCostAnnual = grossAnnual + totalContributionsAnnual;
+        const totalEmployerCostMonthly = totalEmployerCostAnnual / 12;
+
+        const effectiveMarkup = grossAnnual > 0 ? (totalContributionsAnnual / grossAnnual) * 100 : 0;
+
+        resHeroAnnual.textContent = `${formatCurrency(totalEmployerCostAnnual)} / jaar`;
+        resHeroSub.textContent = `circa ${formatCurrency(totalEmployerCostMonthly)} per maand (${formatNumber(effectiveMarkup, 1)}% opslag op brutoloon)`;
+
+        resGrossSalary.textContent = `${formatCurrency(grossAnnual)} / jaar (${formatCurrency(grossMonthly)} / mnd)`;
+        resMarkupBadge.textContent = `${formatNumber(effectiveMarkup, 1)}% van bruto salaris`;
+        resTotalContributions.textContent = `${formatCurrency(totalContributionsAnnual)} / jaar`;
+        resTotalMonthly.textContent = `${formatCurrency(totalEmployerCostMonthly)} / maand`;
+
+        labelAwf.textContent = `AWf-premie (${formatNumber(awfPct, 2)}%)`;
+        resAwf.textContent = formatCurrency(awfAmount);
+
+        labelAof.textContent = `Aof-premie (${formatNumber(aofPct, 2)}%)`;
+        resAof.textContent = formatCurrency(aofAmount);
+
+        resWko.textContent = formatCurrency(wkoAmount);
+
+        labelWhk.textContent = `Whk-premie (${formatNumber(whkPct, 2)}%)`;
+        resWhk.textContent = formatCurrency(whkAmount);
+
+        resZvw.textContent = formatCurrency(zvwAmount);
+      } else {
+        // Quick estimate mode
+        alertWageCap.style.display = 'none';
+        const qpct = Math.max(0, parseFloat(inputQuickPct.value) || 23);
+        const totalContributionsAnnual = grossAnnual * (qpct / 100);
+        const totalEmployerCostAnnual = grossAnnual + totalContributionsAnnual;
+        const totalEmployerCostMonthly = totalEmployerCostAnnual / 12;
+
+        resHeroAnnual.textContent = `${formatCurrency(totalEmployerCostAnnual)} / jaar`;
+        resHeroSub.textContent = `circa ${formatCurrency(totalEmployerCostMonthly)} per maand (${formatNumber(qpct, 1)}% geschatte vuistregel)`;
+
+        resGrossSalary.textContent = `${formatCurrency(grossAnnual)} / jaar`;
+        resMarkupBadge.textContent = `${formatNumber(qpct, 1)}% indicatieve vuistregel`;
+        resTotalContributions.textContent = `${formatCurrency(totalContributionsAnnual)} / jaar`;
+        resTotalMonthly.textContent = `${formatCurrency(totalEmployerCostMonthly)} / maand`;
+
+        labelAwf.textContent = `AWf-premie (indicatief)`;
+        resAwf.textContent = formatCurrency(grossAnnual * (RATES.awfLow / 100));
+
+        labelAof.textContent = `Aof-premie (indicatief)`;
+        resAof.textContent = formatCurrency(grossAnnual * (RATES.aofLow / 100));
+
+        resWko.textContent = formatCurrency(grossAnnual * (RATES.wko / 100));
+
+        labelWhk.textContent = `Whk-premie (indicatief)`;
+        resWhk.textContent = formatCurrency(grossAnnual * (RATES.whkDefault / 100));
+
+        resZvw.textContent = formatCurrency(grossAnnual * (RATES.zvwEmployer / 100));
+      }
+    }
+
+    // Event listeners: Mode toggle
+    modeRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const mode = getMode();
+        if (mode === 'detailed') {
+          sectionDetailed.style.display = 'block';
+          sectionQuick.style.display = 'none';
+        } else {
+          sectionDetailed.style.display = 'none';
+          sectionQuick.style.display = 'block';
+        }
+        calculate();
+      });
+    });
+
+    // Event listeners: Period toggle
+    periodRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const period = getPeriod();
+        if (period === 'month') {
+          labelSalary.textContent = 'Bruto maandsalaris';
+          pillsMonth.style.display = 'flex';
+          pillsYear.style.display = 'none';
+          inputSalary.value = '3500';
+          syncSalaryPills(3500, pillsMonth);
+        } else {
+          labelSalary.textContent = 'Bruto jaarsalaris';
+          pillsMonth.style.display = 'none';
+          pillsYear.style.display = 'flex';
+          inputSalary.value = '42000';
+          syncSalaryPills(42000, pillsYear);
+        }
+        calculate();
+      });
+    });
+
+    function syncSalaryPills(val, container) {
+      const pills = container.querySelectorAll('.salary-pill');
+      pills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.val) === val));
+    }
+
+    inputSalary.addEventListener('input', () => {
+      const val = parseFloat(inputSalary.value);
+      const period = getPeriod();
+      const container = period === 'month' ? pillsMonth : pillsYear;
+      syncSalaryPills(val, container);
+      calculate();
+    });
+
+    calc.querySelectorAll('.salary-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        const val = parseFloat(pill.dataset.val);
+        inputSalary.value = val;
+        const period = getPeriod();
+        const container = period === 'month' ? pillsMonth : pillsYear;
+        syncSalaryPills(val, container);
+        calculate();
+      });
+    });
+
+    checkVacation.addEventListener('change', calculate);
+    awfRadios.forEach(r => r.addEventListener('change', calculate));
+    aofRadios.forEach(r => r.addEventListener('change', calculate));
+
+    inputWhk.addEventListener('input', () => {
+      const val = parseFloat(inputWhk.value);
+      whkPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.val) === val));
+      calculate();
+    });
+
+    whkPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        whkPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputWhk.value = pill.dataset.val;
+        calculate();
+      });
+    });
+
+    inputQuickPct.addEventListener('input', () => {
+      const val = parseFloat(inputQuickPct.value);
+      qpctPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.val) === val));
+      calculate();
+    });
+
+    qpctPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        qpctPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputQuickPct.value = pill.dataset.val;
+        calculate();
+      });
+    });
+
+    btnReset.addEventListener('click', () => {
+      const modeDetailed = calc.querySelector('#mode-detailed');
+      if (modeDetailed) modeDetailed.checked = true;
+      sectionDetailed.style.display = 'block';
+      sectionQuick.style.display = 'none';
+
+      const periodMonth = calc.querySelector('#period-month');
+      if (periodMonth) periodMonth.checked = true;
+      labelSalary.textContent = 'Bruto maandsalaris';
+      pillsMonth.style.display = 'flex';
+      pillsYear.style.display = 'none';
+      inputSalary.value = '3500';
+      syncSalaryPills(3500, pillsMonth);
+
+      checkVacation.checked = false;
+
+      const awfLow = calc.querySelector('#awf-low');
+      if (awfLow) awfLow.checked = true;
+
+      const aofLow = calc.querySelector('#aof-low');
+      if (aofLow) aofLow.checked = true;
+
+      inputWhk.value = RATES.whkDefault.toFixed(2);
+      whkPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.val) === RATES.whkDefault));
+
+      inputQuickPct.value = '23';
+      qpctPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.val) === 23));
+
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>

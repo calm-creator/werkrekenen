@@ -18,7 +18,12 @@ import {
   calculateWerkurenPerJaar,
   calculateWoonWerkKosten,
   calculateKilometervergoeding,
-  calculateWeekloon
+  calculateWeekloon,
+  calculateFte,
+  calculateFteToHours,
+  calculateWerkgeverslasten,
+  calculateQuickEmployerCost,
+  calculateDertiendeMaand
 } from '../src/utils/calculations.ts';
 
 console.log('--- Testing WerkRekenen calculation engines ---');
@@ -634,7 +639,230 @@ console.log('--- Testing WerkRekenen calculation engines ---');
   console.log('✓ Weekloon calculations passed');
 }
 
-console.log('All 16 calculation engines passed tests successfully!');
+// 17. FTE Berekenen
+{
+  // 40 / 40 = 1,00 FTE (100%)
+  const res1 = calculateFte(40, 40);
+  assert.strictEqual(res1.fte, 1.0);
+  assert.strictEqual(res1.ftePercentage, 100);
+  assert.strictEqual(res1.isFulltime, true);
+
+  // 36 / 36 = 1,00 FTE (100%)
+  const res2 = calculateFte(36, 36);
+  assert.strictEqual(res2.fte, 1.0);
+  assert.strictEqual(res2.ftePercentage, 100);
+  assert.strictEqual(res2.isFulltime, true);
+
+  // 32 / 40 = 0,80 FTE (80%)
+  const res3 = calculateFte(32, 40);
+  assert.strictEqual(res3.fte, 0.8);
+  assert.strictEqual(res3.ftePercentage, 80);
+  assert.strictEqual(res3.isFulltime, false);
+
+  // 24 / 40 = 0,60 FTE (60%)
+  const res4 = calculateFte(24, 40);
+  assert.strictEqual(res4.fte, 0.6);
+  assert.strictEqual(res4.ftePercentage, 60);
+
+  // 28 / 36 = 0,7778 FTE (77.78%)
+  const res5 = calculateFte(28, 36);
+  assert.strictEqual(res5.fte, 0.78);
+  assert.strictEqual(res5.fte4Decimals, 0.7778);
+  assert.strictEqual(res5.ftePercentage, 77.78);
+
+  // 20 / 38 = 0,5263 FTE (52.63%)
+  const res6 = calculateFte(20, 38);
+  assert.strictEqual(res6.fte, 0.53);
+  assert.strictEqual(res6.fte4Decimals, 0.5263);
+  assert.strictEqual(res6.ftePercentage, 52.63);
+
+  // Decimals: 37.5 / 40 = 0.9375 FTE (93.75%)
+  const res7 = calculateFte(37.5, 40);
+  assert.strictEqual(res7.fte, 0.94);
+  assert.strictEqual(res7.fte4Decimals, 0.9375);
+  assert.strictEqual(res7.ftePercentage, 93.75);
+
+  // Reverse: 0.80 FTE * 40 = 32 hours
+  const rev1 = calculateFteToHours(0.8, 40);
+  assert.strictEqual(rev1.calculatedHours, 32);
+  assert.strictEqual(rev1.ftePercentage, 80);
+
+  // Reverse: 0.50 FTE * 36 = 18 hours
+  const rev2 = calculateFteToHours(0.5, 36);
+  assert.strictEqual(rev2.calculatedHours, 18);
+  assert.strictEqual(rev2.ftePercentage, 50);
+
+  console.log('✓ FTE calculations passed');
+}
+
+// 18. Werkgeverslasten Berekenen (2026)
+{
+  // Test 1: Monthly salary € 3.500 (Annual € 42.000), AWf low, Aof low, Whk 1.22%
+  const res1 = calculateWerkgeverslasten({
+    period: 'month',
+    salary: 3500,
+    awfType: 'low',
+    aofType: 'low',
+    whkPercentage: 1.22,
+    includeVacationPay: false
+  });
+  assert.strictEqual(res1.annualGrossSalary, 42000);
+  assert.strictEqual(res1.isCapped, false);
+  assert.strictEqual(res1.awfAmountAnnual, 1150.80);
+  assert.strictEqual(res1.aofAmountAnnual, 2633.40);
+  assert.strictEqual(res1.wkoAmountAnnual, 210.00);
+  assert.strictEqual(res1.whkAmountAnnual, 512.40);
+  assert.strictEqual(res1.zvwAmountAnnual, 2759.40);
+  assert.strictEqual(res1.totalStatutoryContributionsAnnual, 7266.00);
+  assert.strictEqual(res1.totalEmployerCostAnnual, 49266.00);
+  assert.strictEqual(res1.effectiveMarkupPercentage, 17.30);
+
+  // Test 2: Salary above 2026 wage ceiling (€ 100.000), AWf high, Aof high, Whk 1.50%
+  const res2 = calculateWerkgeverslasten({
+    period: 'year',
+    salary: 100000,
+    awfType: 'high',
+    aofType: 'high',
+    whkPercentage: 1.50,
+    includeVacationPay: false
+  });
+  assert.strictEqual(res2.isCapped, true);
+  assert.strictEqual(res2.cappedWageBaseAnnual, 79409);
+  assert.strictEqual(res2.awfAmountAnnual, 6146.26);
+  assert.strictEqual(res2.aofAmountAnnual, 6058.91);
+  assert.strictEqual(res2.wkoAmountAnnual, 397.05);
+  assert.strictEqual(res2.whkAmountAnnual, 1191.14);
+  assert.strictEqual(res2.zvwAmountAnnual, 5217.17);
+  assert.strictEqual(res2.totalStatutoryContributionsAnnual, 19010.53);
+  assert.strictEqual(res2.totalEmployerCostAnnual, 119010.53);
+  assert.strictEqual(res2.effectiveMarkupPercentage, 19.01);
+
+  // Test 3: Monthly salary € 3.000 with 8% vacation pay toggle
+  const res3 = calculateWerkgeverslasten({
+    period: 'month',
+    salary: 3000,
+    awfType: 'low',
+    aofType: 'low',
+    whkPercentage: 1.22,
+    includeVacationPay: true
+  });
+  assert.strictEqual(res3.vacationPayAmount, 2880);
+  assert.strictEqual(res3.annualGrossSalary, 38880);
+  assert.strictEqual(res3.isCapped, false);
+
+  // Test 4: Quick employer cost estimation
+  const quick = calculateQuickEmployerCost(3500, 23);
+  assert.strictEqual(quick.estimatedContributionsMonthly, 805);
+  assert.strictEqual(quick.estimatedTotalCostMonthly, 4305);
+  assert.strictEqual(quick.estimatedTotalCostAnnual, 51660);
+
+  console.log('✓ Werkgeverslasten calculations passed');
+}
+
+// 19. 13e Maand Berekenen
+{
+  // Test 1: € 2.500 monthly salary, 100%, full year
+  const res1 = calculateDertiendeMaand({
+    monthlySalary: 2500,
+    percentage: 100,
+    periodMode: 'full_year'
+  });
+  assert.strictEqual(res1.monthlySalary, 2500);
+  assert.strictEqual(res1.percentage, 100);
+  assert.strictEqual(res1.workedMonths, 12);
+  assert.strictEqual(res1.fullYearAmount, 2500);
+  assert.strictEqual(res1.estimatedGross13thMonth, 2500);
+  assert.strictEqual(res1.monthlyAccrual, 208.33);
+  assert.strictEqual(res1.annualSalaryWithout13th, 30000);
+  assert.strictEqual(res1.annualSalaryWith13th, 32500);
+  assert.strictEqual(res1.isPartialYear, false);
+
+  // Test 2: € 3.500 monthly salary, 100%, full year
+  const res2 = calculateDertiendeMaand({
+    monthlySalary: 3500,
+    percentage: 100,
+    periodMode: 'full_year'
+  });
+  assert.strictEqual(res2.estimatedGross13thMonth, 3500);
+  assert.strictEqual(res2.monthlyAccrual, 291.67);
+
+  // Test 3: € 3.000 monthly salary, 75%, full year
+  const res3 = calculateDertiendeMaand({
+    monthlySalary: 3000,
+    percentage: 75,
+    periodMode: 'full_year'
+  });
+  assert.strictEqual(res3.fullYearAmount, 2250);
+  assert.strictEqual(res3.estimatedGross13thMonth, 2250);
+  assert.strictEqual(res3.monthlyAccrual, 187.50);
+
+  // Test 4: € 3.000 monthly salary, 100%, 6 months partial year
+  const res4 = calculateDertiendeMaand({
+    monthlySalary: 3000,
+    percentage: 100,
+    periodMode: 'partial_year',
+    workedMonths: 6
+  });
+  assert.strictEqual(res4.workedMonths, 6);
+  assert.strictEqual(res4.fullYearAmount, 3000);
+  assert.strictEqual(res4.estimatedGross13thMonth, 1500);
+  assert.strictEqual(res4.monthlyAccrual, 250);
+  assert.strictEqual(res4.annualSalaryWith13th, 37500);
+  assert.strictEqual(res4.isPartialYear, true);
+
+  // Test 5: € 3.000 monthly salary, 50%
+  const res5 = calculateDertiendeMaand({
+    monthlySalary: 3000,
+    percentage: 50,
+    periodMode: 'full_year'
+  });
+  assert.strictEqual(res5.estimatedGross13thMonth, 1500);
+
+  // Test 6: € 3.000 monthly salary, 125%
+  const res6 = calculateDertiendeMaand({
+    monthlySalary: 3000,
+    percentage: 125,
+    periodMode: 'full_year'
+  });
+  assert.strictEqual(res6.estimatedGross13thMonth, 375000 / 100);
+
+  // Test 7: Decimal values: € 3.456,78, 100%, 8 months
+  const res7 = calculateDertiendeMaand({
+    monthlySalary: 3456.78,
+    percentage: 100,
+    periodMode: 'partial_year',
+    workedMonths: 8
+  });
+  // 3456.78 * (8/12) = 2304.52
+  assert.strictEqual(res7.estimatedGross13thMonth, 2304.52);
+
+  // Test 8: 1 month partial year
+  const res8 = calculateDertiendeMaand({
+    monthlySalary: 3000,
+    percentage: 100,
+    periodMode: 'partial_year',
+    workedMonths: 1
+  });
+  assert.strictEqual(res8.estimatedGross13thMonth, 250);
+
+  // Test 9: 12 months in partial_year mode
+  const res9 = calculateDertiendeMaand({
+    monthlySalary: 3000,
+    percentage: 100,
+    periodMode: 'partial_year',
+    workedMonths: 12
+  });
+  assert.strictEqual(res9.estimatedGross13thMonth, 3000);
+  assert.strictEqual(res9.isPartialYear, false);
+
+  // Test 10: 0 salary
+  const resZero = calculateDertiendeMaand({ monthlySalary: 0 });
+  assert.strictEqual(resZero.estimatedGross13thMonth, 0);
+
+  console.log('✓ 13e Maand calculations passed');
+}
+
+console.log('All 19 calculation engines passed tests successfully!');
 
 
 

@@ -1,0 +1,509 @@
+---
+// src/components/calculators/FteCalculator.astro
+---
+
+<div class="calc-grid" id="fte-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <h2 class="calc-section-title">FTE & uren berekenen</h2>
+
+    <!-- Keuze: Invoertype (Uren naar FTE vs FTE naar Uren) -->
+    <div class="form-group">
+      <label class="form-label">Wat wil je berekenen?</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="mode-hours-to-fte" name="calc-mode" value="hours_to_fte" checked />
+          <label for="mode-hours-to-fte">
+            <strong>Uren naar FTE</strong>
+            <small>Bereken FTE en percentage uit contracturen</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="mode-fte-to-hours" name="calc-mode" value="fte_to_hours" />
+          <label for="mode-fte-to-hours">
+            <strong>FTE naar uren</strong>
+            <small>Bereken contracturen uit gewenste FTE</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Veld: Contracturen per week (zichtbaar in mode hours_to_fte) -->
+    <div class="form-group" id="group-parttime-hours">
+      <label for="input-fte-hours" class="form-label">Jouw contracturen per week</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-fte-hours"
+          class="form-input input-has-suffix"
+          value="32"
+          min="1"
+          max="80"
+          step="0.5"
+          aria-describedby="hint-fte-hours"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill hour-pill" data-hours="16">16 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="24">24 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="28">28 uur</button>
+        <button type="button" class="quick-pill hour-pill is-active" data-hours="32">32 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="36">36 uur</button>
+        <button type="button" class="quick-pill hour-pill" data-hours="40">40 uur</button>
+      </div>
+      <span class="form-hint" id="hint-fte-hours">
+        Het aantal uren dat je wekelijks werkt volgens je arbeidsovereenkomst (bijv. 32 of 24 uur).
+      </span>
+    </div>
+
+    <!-- Veld: Gewenste FTE (zichtbaar in mode fte_to_hours) -->
+    <div class="form-group" id="group-desired-fte" style="display: none;">
+      <label for="input-reverse-fte" class="form-label">Gewenste FTE</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-reverse-fte"
+          class="form-input input-has-suffix"
+          value="0.80"
+          min="0.05"
+          max="2.00"
+          step="0.05"
+          aria-describedby="hint-reverse-fte"
+        />
+        <span class="input-suffix">FTE</span>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill fte-pill" data-fte="0.50">0,50 FTE</button>
+        <button type="button" class="quick-pill fte-pill" data-fte="0.60">0,60 FTE</button>
+        <button type="button" class="quick-pill fte-pill" data-fte="0.75">0,75 FTE</button>
+        <button type="button" class="quick-pill fte-pill is-active" data-fte="0.80">0,80 FTE</button>
+        <button type="button" class="quick-pill fte-pill" data-fte="1.00">1,00 FTE</button>
+      </div>
+      <span class="form-hint" id="hint-reverse-fte">
+        De omvang van de functie of deeltijdfactor (bijv. 0,80 voor 80% van een fulltime baan).
+      </span>
+    </div>
+
+    <!-- Veld: Fulltime uren per week (in beide modi zichtbaar) -->
+    <div class="form-group">
+      <label for="input-fte-fulltime" class="form-label">Fulltime werkweek van jouw werkgever of CAO</label>
+      <div class="input-wrapper">
+        <input
+          type="number"
+          id="input-fte-fulltime"
+          class="form-input input-has-suffix"
+          value="40"
+          min="10"
+          max="60"
+          step="0.5"
+          aria-describedby="hint-fte-fulltime"
+        />
+        <span class="input-suffix">uur / week</span>
+      </div>
+      <div class="quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill ft-pill" data-ft="36">36 uur (CAO)</button>
+        <button type="button" class="quick-pill ft-pill" data-ft="38">38 uur</button>
+        <button type="button" class="quick-pill ft-pill is-active" data-ft="40">40 uur (gangbaar)</button>
+      </div>
+      <span class="form-hint" id="hint-fte-fulltime">
+        Het aantal wekelijkse uren voor 1,00 FTE. In Nederland hanteren overheid en zorg vaak 36 uur, en het bedrijfsleven vaak 38 of 40 uur.
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-fte" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label" id="res-hero-label">Fulltime Equivalent (FTE)</span>
+      <div class="result-hero-value" id="res-hero-value">0,80 FTE</div>
+      <span class="result-hero-sub" id="res-hero-sub">Dat is 80% van een fulltime dienstverband.</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-subtitle">Specificatie van de Berekening</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Contracturen per week</span>
+        <span class="result-row-value font-medium" id="res-breakdown-hours">32 uur / week</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Fulltime werkweek (1,00 FTE)</span>
+        <span class="result-row-value" id="res-breakdown-fulltime">40 uur / week</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Deeltijdpercentage (werktijdfactor)</span>
+        <span class="result-row-value text-primary font-bold" id="res-breakdown-percentage">80%</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Formule & Berekening</span>
+        <span class="result-row-value text-muted" id="res-breakdown-formula">32 ÷ 40 = 0,80 FTE</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-note" id="res-breakdown-note">
+        <strong>1,00 FTE</strong> vertegenwoordigt één volledige voltijdbaan van 40 uur per week volgens jouw instelling.
+      </div>
+
+      <!-- Snelle referentietabel voor de huidige fulltime norm -->
+      <div class="fte-benchmarks-box" style="margin-top: 1rem;">
+        <span class="benchmark-title" id="benchmark-title">Veelvoorkomende deeltijduren bij 40 uur fulltime:</span>
+        <div class="benchmark-grid" id="benchmark-grid">
+          <!-- Gevuld via JavaScript -->
+        </div>
+      </div>
+    </div>
+
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem; padding: 0.875rem;">
+      <strong>Belangrijk:</strong> De Nederlandse wet kent geen wettelijk vastgelegde fulltime werkweek. Of 1,00 FTE gelijk staat aan 36, 38 of 40 uur, is vastgelegd in jouw CAO of arbeidsovereenkomst.
+    </div>
+  </div>
+</div>
+
+<style>
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 1.25rem;
+  }
+
+  .quick-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .quick-pill {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+    transition: all 0.15s ease;
+    cursor: pointer;
+  }
+
+  .quick-pill:hover {
+    color: var(--text-main);
+    border-color: var(--border-strong);
+  }
+
+  .quick-pill.is-active {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .result-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .result-note {
+    font-size: 0.8125rem;
+    line-height: 1.45;
+    color: var(--text-muted);
+    background: var(--bg-subtle);
+    padding: 0.625rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border-color);
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  .font-medium {
+    font-weight: 500;
+  }
+
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .fte-benchmarks-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    padding: 0.75rem;
+  }
+
+  .benchmark-title {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-subtle);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    margin-bottom: 0.5rem;
+  }
+
+  .benchmark-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.35rem;
+  }
+
+  .benchmark-item {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.4rem;
+    background: var(--bg-subtle);
+    border-radius: var(--radius-sm);
+  }
+
+  .benchmark-hours {
+    color: var(--text-muted);
+  }
+
+  .benchmark-val {
+    font-weight: 600;
+    color: var(--text-main);
+  }
+
+  .form-actions {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  @media (max-width: 480px) {
+    .quick-pills {
+      gap: 0.25rem;
+    }
+    .quick-pill {
+      font-size: 0.75rem;
+      padding: 0.2rem 0.5rem;
+    }
+    .benchmark-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script is:inline>
+  (() => {
+    const calc = document.getElementById('fte-calc');
+    if (!calc) return;
+
+    // Modus radios
+    const modeRadios = calc.querySelectorAll('input[name="calc-mode"]');
+    const groupParttime = calc.querySelector('#group-parttime-hours');
+    const groupDesiredFte = calc.querySelector('#group-desired-fte');
+
+    // Inputs
+    const inputHours = calc.querySelector('#input-fte-hours');
+    const inputReverseFte = calc.querySelector('#input-reverse-fte');
+    const inputFulltime = calc.querySelector('#input-fte-fulltime');
+    const btnReset = calc.querySelector('#btn-reset-fte');
+
+    // Pills
+    const hourPills = calc.querySelectorAll('.hour-pill');
+    const ftePills = calc.querySelectorAll('.fte-pill');
+    const ftPills = calc.querySelectorAll('.ft-pill');
+
+    // Results elements
+    const resHeroLabel = calc.querySelector('#res-hero-label');
+    const resHeroValue = calc.querySelector('#res-hero-value');
+    const resHeroSub = calc.querySelector('#res-hero-sub');
+
+    const resBreakdownHours = calc.querySelector('#res-breakdown-hours');
+    const resBreakdownFulltime = calc.querySelector('#res-breakdown-fulltime');
+    const resBreakdownPercentage = calc.querySelector('#res-breakdown-percentage');
+    const resBreakdownFormula = calc.querySelector('#res-breakdown-formula');
+    const resBreakdownNote = calc.querySelector('#res-breakdown-note');
+    const benchmarkTitle = calc.querySelector('#benchmark-title');
+    const benchmarkGrid = calc.querySelector('#benchmark-grid');
+
+    const formatNumber = (val, maxDec = 2) =>
+      new Intl.NumberFormat('nl-NL', { minimumFractionDigits: 0, maximumFractionDigits: maxDec }).format(val);
+
+    function getMode() {
+      const checked = calc.querySelector('input[name="calc-mode"]:checked');
+      return checked ? checked.value : 'hours_to_fte';
+    }
+
+    function updateBenchmarkGrid(ftHours) {
+      if (!benchmarkGrid) return;
+      benchmarkTitle.textContent = `Veelvoorkomende deeltijduren bij ${formatNumber(ftHours)} uur fulltime:`;
+
+      const standardHoursList = [
+        ftHours,
+        Math.round(ftHours * 0.8 * 10) / 10,
+        Math.round(ftHours * 0.6 * 10) / 10,
+        Math.round(ftHours * 0.5 * 10) / 10
+      ];
+
+      // Remove duplicates if any
+      const uniqueHours = Array.from(new Set(standardHoursList)).sort((a, b) => b - a);
+
+      let html = '';
+      uniqueHours.forEach(h => {
+        const factor = h / ftHours;
+        const fteStr = formatNumber(factor, 2);
+        const pctStr = formatNumber(factor * 100, 1);
+        html += `
+          <div class="benchmark-item">
+            <span class="benchmark-hours">${formatNumber(h)} uur</span>
+            <span class="benchmark-val">${fteStr} FTE (${pctStr}%)</span>
+          </div>
+        `;
+      });
+      benchmarkGrid.innerHTML = html;
+    }
+
+    function calculate() {
+      const mode = getMode();
+      const ftHours = Math.max(1, parseFloat(inputFulltime.value) || 40);
+
+      updateBenchmarkGrid(ftHours);
+
+      if (mode === 'hours_to_fte') {
+        const ptHours = Math.max(0, parseFloat(inputHours.value) || 0);
+        const rawFte = ptHours / ftHours;
+        const fteRounded = Math.round(rawFte * 100) / 100;
+        const fte4Dec = Math.round(rawFte * 10000) / 10000;
+        const pct = Math.round(rawFte * 10000) / 100;
+
+        resHeroLabel.textContent = 'Fulltime Equivalent (FTE)';
+        resHeroValue.textContent = `${formatNumber(fteRounded, 2)} FTE`;
+        resHeroSub.textContent = `Dat is ${formatNumber(pct, 1)}% van een fulltime dienstverband (bij ${formatNumber(ftHours)} uur fulltime norm).`;
+
+        resBreakdownHours.textContent = `${formatNumber(ptHours, 2)} uur / week`;
+        resBreakdownFulltime.textContent = `${formatNumber(ftHours, 2)} uur / week`;
+        resBreakdownPercentage.textContent = `${formatNumber(pct, 2)}%`;
+
+        let fteDisplayForFormula = formatNumber(fteRounded, 2);
+        if (fteRounded !== fte4Dec && Math.abs(rawFte * 100 - Math.round(rawFte * 100)) > 0.001) {
+          fteDisplayForFormula = `${formatNumber(fteRounded, 2)} (exact ${formatNumber(fte4Dec, 4)})`;
+        }
+        resBreakdownFormula.textContent = `${formatNumber(ptHours, 2)} ÷ ${formatNumber(ftHours, 2)} = ${fteDisplayForFormula} FTE`;
+
+        resBreakdownNote.innerHTML = `<strong>1,00 FTE</strong> vertegenwoordigt één volledige voltijdbaan van ${formatNumber(ftHours)} uur per week volgens jouw instelling.`;
+      } else {
+        const desiredFte = Math.max(0, parseFloat(inputReverseFte.value) || 0);
+        const calculatedHours = desiredFte * ftHours;
+        const pct = Math.round(desiredFte * 10000) / 100;
+
+        resHeroLabel.textContent = 'Wekelijkse arbeidsduur';
+        resHeroValue.textContent = `${formatNumber(calculatedHours, 2)} uur / week`;
+        resHeroSub.textContent = `bij ${formatNumber(desiredFte, 2)} FTE op basis van ${formatNumber(ftHours)} uur fulltime norm.`;
+
+        resBreakdownHours.textContent = `${formatNumber(calculatedHours, 2)} uur / week`;
+        resBreakdownFulltime.textContent = `${formatNumber(ftHours, 2)} uur / week`;
+        resBreakdownPercentage.textContent = `${formatNumber(pct, 1)}%`;
+        resBreakdownFormula.textContent = `${formatNumber(desiredFte, 2)} × ${formatNumber(ftHours, 2)} = ${formatNumber(calculatedHours, 2)} uur / week`;
+
+        resBreakdownNote.innerHTML = `Met <strong>${formatNumber(desiredFte, 2)} FTE</strong> werk je ${formatNumber(pct, 1)}% van de voltijdnorm (${formatNumber(ftHours)} uur).`;
+      }
+    }
+
+    // Toggle modes
+    modeRadios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        const mode = getMode();
+        if (mode === 'hours_to_fte') {
+          groupParttime.style.display = 'block';
+          groupDesiredFte.style.display = 'none';
+        } else {
+          groupParttime.style.display = 'none';
+          groupDesiredFte.style.display = 'block';
+        }
+        calculate();
+      });
+    });
+
+    // Inputs listener
+    inputHours.addEventListener('input', () => {
+      const val = parseFloat(inputHours.value);
+      hourPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.hours) === val));
+      calculate();
+    });
+
+    hourPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        hourPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputHours.value = pill.dataset.hours;
+        calculate();
+      });
+    });
+
+    inputReverseFte.addEventListener('input', () => {
+      const val = parseFloat(inputReverseFte.value);
+      ftePills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.fte) === val));
+      calculate();
+    });
+
+    ftePills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        ftePills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputReverseFte.value = pill.dataset.fte;
+        calculate();
+      });
+    });
+
+    inputFulltime.addEventListener('input', () => {
+      const val = parseFloat(inputFulltime.value);
+      ftPills.forEach(p => p.classList.toggle('is-active', parseFloat(p.dataset.ft) === val));
+      calculate();
+    });
+
+    ftPills.forEach(pill => {
+      pill.addEventListener('click', () => {
+        ftPills.forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        inputFulltime.value = pill.dataset.ft;
+        calculate();
+      });
+    });
+
+    // Reset knop
+    btnReset.addEventListener('click', () => {
+      inputHours.value = '32';
+      inputReverseFte.value = '0.80';
+      inputFulltime.value = '40';
+
+      const mode1 = calc.querySelector('#mode-hours-to-fte');
+      if (mode1) mode1.checked = true;
+
+      groupParttime.style.display = 'block';
+      groupDesiredFte.style.display = 'none';
+
+      hourPills.forEach(p => p.classList.toggle('is-active', p.dataset.hours === '32'));
+      ftePills.forEach(p => p.classList.toggle('is-active', p.dataset.fte === '0.80'));
+      ftPills.forEach(p => p.classList.toggle('is-active', p.dataset.ft === '40'));
+
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>
