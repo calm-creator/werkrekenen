@@ -12,13 +12,15 @@ export interface Props {
   faqItems: FaqItem[];
   applicableYear?: number;
   officialSource?: string;
+  customTitle?: string;
 }
 
 const {
   calculator,
   faqItems,
   applicableYear = DUTCH_RATES.year,
-  officialSource = 'Belastingdienst / Rijksoverheid'
+  officialSource = 'Belastingdienst / Rijksoverheid',
+  customTitle
 } = Astro.props;
 
 const relatedTools = getRelatedCalculators(calculator.slug);
@@ -46,7 +48,7 @@ const webAppSchema = {
 ---
 
 <BaseLayout
-  title={calculator.title}
+  title={customTitle ?? calculator.title}
   description={calculator.metaDescription}
   schema={webAppSchema}
 >

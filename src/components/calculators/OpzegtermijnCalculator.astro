@@ -1,0 +1,458 @@
+---
+// src/components/calculators/OpzegtermijnCalculator.astro
+---
+
+<div class="calc-grid" id="opzegtermijn-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Situatie & data invoeren</h2>
+      <span class="rate-year-tag">Art. 7:672 BW</span>
+    </div>
+
+    <!-- Veld 1: Wie zegt de arbeidsovereenkomst op? -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label class="form-label" for="select-initiator">Wie zegt de arbeidsovereenkomst op?</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="initiator-employee" name="initiator" value="werknemer" checked />
+          <label for="initiator-employee">
+            <strong>Werknemer</strong>
+            <small>Ik neem zelf ontslag (standaard 1 maand)</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="initiator-employer" name="initiator" value="werkgever" />
+          <label for="initiator-employer">
+            <strong>Werkgever</strong>
+            <small>Werkgever zegt op (afhankelijk van dienstjaren)</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Veld 2: Datum van opzegging -->
+    <div class="form-group">
+      <label for="input-notice-date" class="form-label">Datum van opzegging</label>
+      <input
+        type="date"
+        id="input-notice-date"
+        class="form-input"
+        aria-describedby="hint-notice-date"
+      />
+      <span class="form-hint" id="hint-notice-date">
+        De datum waarop de schriftelijke opzegging (ontslagbrief) door de andere partij wordt ontvangen.
+      </span>
+    </div>
+
+    <!-- Veld 3: Datum indiensttreding (ALLEEN zichtbaar bij Werkgever) -->
+    <div class="form-group" id="group-start-date" style="display: none;">
+      <label for="input-start-date" class="form-label">Datum indiensttreding</label>
+      <input
+        type="date"
+        id="input-start-date"
+        class="form-input"
+        aria-describedby="hint-start-date"
+      />
+      <span class="form-hint" id="hint-start-date">
+        De officiële startdatum van het dienstverband. Bepaalt de diensttijd voor de wettelijke werkgeverstermijn.
+      </span>
+    </div>
+
+    <!-- Veld 4: Type arbeidscontract -->
+    <div class="form-group">
+      <label class="form-label">Type arbeidscontract</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="contract-permanent" name="contract-type" value="vast" checked />
+          <label for="contract-permanent">
+            <strong>Vast contract</strong>
+            <small>Arbeidsovereenkomst voor onbepaalde tijd</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="contract-temporary" name="contract-type" value="tijdelijk" />
+          <label for="contract-temporary">
+            <strong>Tijdelijk contract</strong>
+            <small>Arbeidsovereenkomst voor bepaalde tijd</small>
+          </label>
+        </div>
+      </div>
+      <span class="form-hint">
+        Bij een tijdelijk contract is tussentijds opzeggen wettelijk alleen toegestaan als er een schriftelijk opzegbeding in het contract staat.
+      </span>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" id="btn-reset-opzegtermijn" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero">
+      <span class="result-hero-label">Wettelijke opzegtermijn</span>
+      <div class="result-hero-value" id="res-hero-period">1 maand</div>
+      <span class="result-hero-sub" id="res-hero-enddate">Verwachte einddatum: laden...</span>
+    </div>
+
+    <!-- Tijdelijk contract callout -->
+    <div class="callout callout-info" id="alert-temporary" style="display: none; margin: 1rem 0 0.5rem 0; font-size: 0.8125rem; padding: 0.625rem 0.75rem;">
+      <strong>Let op bij een tijdelijk contract:</strong> Een arbeidsovereenkomst voor bepaalde tijd eindigt meestal van rechtswege op de overeengekomen einddatum. Tussentijds opzeggen kan alleen als dit schriftelijk in het contract is vastgelegd via een tussentijds opzegbeding. Onderstaand resultaat toont de indicatieve termijn mits zo'n beding van toepassing is.
+    </div>
+
+    <!-- Diensttijd badge indien werkgever -->
+    <div class="callout callout-info" id="alert-service-bracket" style="display: none; margin: 1rem 0 0.5rem 0; font-size: 0.8125rem; padding: 0.625rem 0.75rem;">
+      <strong id="res-bracket-title">Diensttijd:</strong> <span id="res-bracket-desc">...</span>
+    </div>
+
+    <div class="result-breakdown">
+      <div class="result-subtitle">Overzicht van de opzegging</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Wie zegt op</span>
+        <span class="result-row-value font-medium" id="res-initiator-text">Werknemer</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Type contract</span>
+        <span class="result-row-value" id="res-contract-text">Vast contract</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Datum van opzegging</span>
+        <span class="result-row-value" id="res-notice-date-text">-</span>
+      </div>
+
+      <div class="result-row" id="row-service-duration" style="display: none;">
+        <span class="result-row-label">Diensttijd op datum opzegging</span>
+        <span class="result-row-value font-medium" id="res-service-duration-text">-</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Startdatum opzegtermijn</span>
+        <span class="result-row-value" id="res-start-notice-text">-</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Wettelijke opzegtermijn</span>
+        <span class="result-row-value font-bold text-primary" id="res-period-text">1 maand</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Verwachte einddatum (laatste dag)</span>
+        <span class="result-row-value font-bold" id="res-end-date-text">-</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle">Toelichting op de berekening</div>
+
+      <div class="calc-formula-box" id="res-explanation-box" style="background: var(--color-bg-subtle, #f8fafc); border: 1px solid var(--color-border, #e2e8f0); border-radius: 0.5rem; padding: 0.75rem 1rem; font-size: 0.875rem; line-height: 1.5; color: var(--color-text, #1e293b); margin-top: 0.5rem;">
+        Berekening wordt geladen...
+      </div>
+    </div>
+
+    <!-- Belangrijke contract / CAO waarschuwing -->
+    <div class="callout callout-warning" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Let op:</strong> Je arbeidsovereenkomst of CAO kan afwijkende afspraken over de opzegtermijn bevatten. Controleer daarom altijd je contract en de toepasselijke CAO.
+    </div>
+  </div>
+</div>
+
+<!-- Referentietabel wettelijke opzegtermijnen -->
+<div class="table-container" style="margin-top: 2rem;">
+  <div class="table-title">Wettelijke opzegtermijnen in Nederland (art. 7:672 BW)</div>
+  <p class="table-subtitle" style="font-size: 0.875rem; color: var(--color-text-muted, #64748b); margin-bottom: 0.75rem;">
+    Overzicht van de wettelijke termijnen bij opzegging van een vast contract tegen het einde van de kalendermaand.
+  </p>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Partij</th>
+          <th>Diensttijd werknemer</th>
+          <th>Wettelijke termijn</th>
+          <th>Principe ingangsdatum</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="font-bold">Werknemer</td>
+          <td>Ongeacht aantal dienstjaren</td>
+          <td class="font-bold text-primary">1 maand</td>
+          <td>Eerste dag volgende maand</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Werkgever</td>
+          <td>Korter dan 5 jaar</td>
+          <td class="font-bold">1 maand</td>
+          <td>Eerste dag volgende maand</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Werkgever</td>
+          <td>5 tot minder dan 10 jaar</td>
+          <td class="font-bold">2 maanden</td>
+          <td>Eerste dag volgende maand</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Werkgever</td>
+          <td>10 tot minder dan 15 jaar</td>
+          <td class="font-bold">3 maanden</td>
+          <td>Eerste dag volgende maand</td>
+        </tr>
+        <tr>
+          <td class="font-bold">Werkgever</td>
+          <td>15 jaar of langer</td>
+          <td class="font-bold">4 maanden</td>
+          <td>Eerste dag volgende maand</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('opzegtermijn-calc');
+    if (!calc) return;
+
+    // Elements
+    const initiatorRadios = calc.querySelectorAll('input[name="initiator"]') as NodeListOf<HTMLInputElement>;
+    const contractRadios = calc.querySelectorAll('input[name="contract-type"]') as NodeListOf<HTMLInputElement>;
+    const inputNoticeDate = calc.querySelector('#input-notice-date') as HTMLInputElement;
+    const groupStartDate = calc.querySelector('#group-start-date') as HTMLElement;
+    const inputStartDate = calc.querySelector('#input-start-date') as HTMLInputElement;
+    const btnReset = calc.querySelector('#btn-reset-opzegtermijn') as HTMLButtonElement;
+
+    // Outputs
+    const resHeroPeriod = calc.querySelector('#res-hero-period') as HTMLElement;
+    const resHeroEnddate = calc.querySelector('#res-hero-enddate') as HTMLElement;
+    const alertTemporary = calc.querySelector('#alert-temporary') as HTMLElement;
+    const alertServiceBracket = calc.querySelector('#alert-service-bracket') as HTMLElement;
+    const resBracketTitle = calc.querySelector('#res-bracket-title') as HTMLElement;
+    const resBracketDesc = calc.querySelector('#res-bracket-desc') as HTMLElement;
+
+    const resInitiatorText = calc.querySelector('#res-initiator-text') as HTMLElement;
+    const resContractText = calc.querySelector('#res-contract-text') as HTMLElement;
+    const resNoticeDateText = calc.querySelector('#res-notice-date-text') as HTMLElement;
+    const rowServiceDuration = calc.querySelector('#row-service-duration') as HTMLElement;
+    const resServiceDurationText = calc.querySelector('#res-service-duration-text') as HTMLElement;
+    const resStartNoticeText = calc.querySelector('#res-start-notice-text') as HTMLElement;
+    const resPeriodText = calc.querySelector('#res-period-text') as HTMLElement;
+    const resEndDateText = calc.querySelector('#res-end-date-text') as HTMLElement;
+    const resExplanationBox = calc.querySelector('#res-explanation-box') as HTMLElement;
+
+    // Helpers
+    const toIsoDate = (d: Date): string => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const parseDateSafe = (dStr: string): Date => {
+      const parts = dStr.split('-').map(Number);
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+      return new Date();
+    };
+
+    const formatDateDutch = (d: Date): string => {
+      return new Intl.DateTimeFormat('nl-NL', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(d);
+    };
+
+    // Standaard datums instellen: vandaag voor opzegging, 3 jaar geleden voor indiensttreding
+    const today = new Date();
+    inputNoticeDate.value = toIsoDate(today);
+
+    const defaultStart = new Date(today.getFullYear() - 3, today.getMonth(), today.getDate());
+    inputStartDate.value = toIsoDate(defaultStart);
+
+    function calculate() {
+      let initiator: 'werknemer' | 'werkgever' = 'werknemer';
+      initiatorRadios.forEach(r => {
+        if (r.checked) initiator = r.value as 'werknemer' | 'werkgever';
+      });
+
+      let contractType: 'vast' | 'tijdelijk' = 'vast';
+      contractRadios.forEach(r => {
+        if (r.checked) contractType = r.value as 'vast' | 'tijdelijk';
+      });
+
+      // Toon indiensttreding veld alleen als werkgever opzegt
+      if (groupStartDate) {
+        groupStartDate.style.display = initiator === 'werkgever' ? 'block' : 'none';
+      }
+
+      const noticeD = parseDateSafe(inputNoticeDate.value || toIsoDate(new Date()));
+      const formattedNoticeDate = formatDateDutch(noticeD);
+
+      let yearsOfService = 0;
+      let monthsOfService = 0;
+
+      if (initiator === 'werkgever') {
+        const startD = parseDateSafe(inputStartDate.value || toIsoDate(defaultStart));
+        let y = noticeD.getFullYear() - startD.getFullYear();
+        let m = noticeD.getMonth() - startD.getMonth();
+        let dayDiff = noticeD.getDate() - startD.getDate();
+
+        if (dayDiff < 0) {
+          m--;
+        }
+        if (m < 0) {
+          y--;
+          m += 12;
+        }
+        yearsOfService = Math.max(0, y);
+        monthsOfService = Math.max(0, m);
+      }
+
+      // Wettelijke termijn bepalen
+      let noticePeriodMonths = 1;
+      let bracketDesc = '';
+
+      if (initiator === 'werknemer') {
+        noticePeriodMonths = 1;
+        bracketDesc = 'Standaard wettelijke termijn voor werknemer (1 maand)';
+      } else {
+        if (yearsOfService < 5) {
+          noticePeriodMonths = 1;
+          bracketDesc = 'Minder dan 5 jaar in dienst: 1 maand opzegtermijn';
+        } else if (yearsOfService < 10) {
+          noticePeriodMonths = 2;
+          bracketDesc = '5 tot 10 jaar in dienst: 2 maanden opzegtermijn';
+        } else if (yearsOfService < 15) {
+          noticePeriodMonths = 3;
+          bracketDesc = '10 tot 15 jaar in dienst: 3 maanden opzegtermijn';
+        } else {
+          noticePeriodMonths = 4;
+          bracketDesc = '15 jaar of langer in dienst: 4 maanden opzegtermijn';
+        }
+      }
+
+      const periodText = noticePeriodMonths === 1 ? '1 maand' : `${noticePeriodMonths} maanden`;
+
+      // Start van de opzegtermijn: 1e dag van volgende maand
+      const nYear = noticeD.getFullYear();
+      const nMonth = noticeD.getMonth();
+      const startOfNotice = new Date(nYear, nMonth + 1, 1);
+      const formattedStartOfNotice = formatDateDutch(startOfNotice);
+
+      // Einddatum: laatste dag van de maand waarin de termijn afloopt
+      const expectedEndD = new Date(nYear, nMonth + noticePeriodMonths + 1, 0);
+      const formattedExpectedEnd = formatDateDutch(expectedEndD);
+
+      const isTemporary = contractType === 'tijdelijk';
+
+      // Update UI outputs
+      resHeroPeriod.textContent = periodText;
+      resHeroEnddate.textContent = `Verwachte einddatum: ${formattedExpectedEnd}`;
+
+      // Alerts
+      if (alertTemporary) {
+        alertTemporary.style.display = isTemporary ? 'block' : 'none';
+      }
+
+      if (alertServiceBracket && resBracketTitle && resBracketDesc) {
+        if (initiator === 'werkgever') {
+          alertServiceBracket.style.display = 'block';
+          const durStr = `${yearsOfService} jaar${monthsOfService > 0 ? ` en ${monthsOfService} maanden` : ''}`;
+          resBracketTitle.textContent = `Diensttijd: ${durStr}`;
+          resBracketDesc.textContent = bracketDesc;
+        } else {
+          alertServiceBracket.style.display = 'none';
+        }
+      }
+
+      // Breakdown rows
+      resInitiatorText.textContent = initiator === 'werknemer' ? 'Werknemer (zelf ontslag nemen)' : 'Werkgever (ontslag door werkgever)';
+      resContractText.textContent = isTemporary ? 'Tijdelijk contract (bepaalde tijd)' : 'Vast contract (onbepaalde tijd)';
+      resNoticeDateText.textContent = formattedNoticeDate;
+
+      if (initiator === 'werkgever') {
+        rowServiceDuration.style.display = 'flex';
+        resServiceDurationText.textContent = `${yearsOfService} jaar${monthsOfService > 0 ? ` en ${monthsOfService} mnd` : ''}`;
+      } else {
+        rowServiceDuration.style.display = 'none';
+      }
+
+      resStartNoticeText.textContent = `${formattedStartOfNotice} (1e van de maand)`;
+      resPeriodText.textContent = periodText;
+      resEndDateText.textContent = formattedExpectedEnd;
+
+      // Toelichting opstellen
+      if (isTemporary) {
+        resExplanationBox.textContent = `Bij een tijdelijk contract eindigt de arbeidsovereenkomst meestal van rechtswege op de afgesproken einddatum. Tussentijds opzeggen kan alleen als dit volgens de arbeidsovereenkomst (schriftelijk tussentijds opzegbeding) en de wettelijke regels mogelijk is. Indien tussentijds opzeggen contractueel is toegestaan, geldt indicatief een wettelijke termijn van ${periodText} tegen het einde van de maand (einddatum bij opzegging op ${formattedNoticeDate}: ${formattedExpectedEnd}).`;
+      } else if (initiator === 'werknemer') {
+        resExplanationBox.textContent = `Je zegt als werknemer op met een vast contract. De wettelijke opzegtermijn is normaal gesproken 1 maand. Omdat je op ${formattedNoticeDate} opzegt, begint de opzegtermijn op ${formattedStartOfNotice} en eindigt het dienstverband normaal gesproken op ${formattedExpectedEnd}.`;
+      } else {
+        const serviceYearsStr = `${yearsOfService} jaar${monthsOfService > 0 ? ` en ${monthsOfService} maanden` : ''}`;
+        resExplanationBox.textContent = `De werkgever zegt op bij een vast contract. Op basis van een diensttijd van ${serviceYearsStr} geldt een wettelijke opzegtermijn van ${periodText}. Bij opzegging op ${formattedNoticeDate} vangt de opzegtermijn aan op ${formattedStartOfNotice} en eindigt het dienstverband normaal gesproken op ${formattedExpectedEnd}.`;
+      }
+    }
+
+    // Event listeners
+    initiatorRadios.forEach(r => r.addEventListener('change', calculate));
+    contractRadios.forEach(r => r.addEventListener('change', calculate));
+    inputNoticeDate.addEventListener('input', calculate);
+    inputNoticeDate.addEventListener('change', calculate);
+    inputStartDate.addEventListener('input', calculate);
+    inputStartDate.addEventListener('change', calculate);
+
+    btnReset.addEventListener('click', () => {
+      const empRadio = calc.querySelector('#initiator-employee') as HTMLInputElement;
+      if (empRadio) empRadio.checked = true;
+
+      const permRadio = calc.querySelector('#contract-permanent') as HTMLInputElement;
+      if (permRadio) permRadio.checked = true;
+
+      inputNoticeDate.value = toIsoDate(new Date());
+      inputStartDate.value = toIsoDate(defaultStart);
+
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    border-radius: 9999px;
+  }
+
+  .calc-formula-box {
+    overflow-x: auto;
+    word-break: normal;
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

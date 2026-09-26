@@ -23,7 +23,14 @@ import {
   calculateFteToHours,
   calculateWerkgeverslasten,
   calculateQuickEmployerCost,
-  calculateDertiendeMaand
+  calculateDertiendeMaand,
+  calculateOpzegtermijn,
+  calculateArbeidsverleden,
+  calculateWajong,
+  calculateNettoBesteedbaarInkomen,
+  calculateTransitievergoeding,
+  calculateNettoSalaris,
+  calculateJaarinkomen
 } from '../src/utils/calculations.ts';
 
 console.log('--- Testing WerkRekenen calculation engines ---');
@@ -862,7 +869,973 @@ console.log('--- Testing WerkRekenen calculation engines ---');
   console.log('✓ 13e Maand calculations passed');
 }
 
-console.log('All 19 calculation engines passed tests successfully!');
+// 20. Opzegtermijn Berekenen
+{
+  // Test 1: Werknemer + Vast contract (20 september 2026 -> 1 maand -> 31 oktober 2026)
+  const res1 = calculateOpzegtermijn({
+    initiator: 'werknemer',
+    contractType: 'vast',
+    noticeDate: '2026-09-20'
+  });
+  assert.strictEqual(res1.noticePeriodMonths, 1);
+  assert.strictEqual(res1.startOfNoticeDate, '2026-10-01');
+  assert.strictEqual(res1.expectedEndDate, '2026-10-31');
+  assert.strictEqual(res1.isTemporaryContract, false);
+
+  // Test 2: Werknemer op laatste dag van de maand (30 september 2026 -> 1 maand -> 31 oktober 2026)
+  const res2 = calculateOpzegtermijn({
+    initiator: 'werknemer',
+    contractType: 'vast',
+    noticeDate: '2026-09-30'
+  });
+  assert.strictEqual(res2.noticePeriodMonths, 1);
+  assert.strictEqual(res2.startOfNoticeDate, '2026-10-01');
+  assert.strictEqual(res2.expectedEndDate, '2026-10-31');
+
+  // Test 3: Werknemer op 1e dag van de maand (1 oktober 2026 -> 1 maand -> 30 november 2026)
+  const res3 = calculateOpzegtermijn({
+    initiator: 'werknemer',
+    contractType: 'vast',
+    noticeDate: '2026-10-01'
+  });
+  assert.strictEqual(res3.noticePeriodMonths, 1);
+  assert.strictEqual(res3.startOfNoticeDate, '2026-11-01');
+  assert.strictEqual(res3.expectedEndDate, '2026-11-30');
+
+  // Test 4: Werknemer in januari (niet-schrikkeljaar 2026: 15 januari -> eindigt 28 februari 2026)
+  const res4 = calculateOpzegtermijn({
+    initiator: 'werknemer',
+    contractType: 'vast',
+    noticeDate: '2026-01-15'
+  });
+  assert.strictEqual(res4.expectedEndDate, '2026-02-28');
+
+  // Test 5: Werknemer in januari schrikkeljaar (2028: 15 januari -> eindigt 29 februari 2028)
+  const res5 = calculateOpzegtermijn({
+    initiator: 'werknemer',
+    contractType: 'vast',
+    noticeDate: '2028-01-15'
+  });
+  assert.strictEqual(res5.expectedEndDate, '2028-02-29');
+
+  // Test 6: Werknemer in december (jaarwisseling: 15 december 2026 -> 31 januari 2027)
+  const res6 = calculateOpzegtermijn({
+    initiator: 'werknemer',
+    contractType: 'vast',
+    noticeDate: '2026-12-15'
+  });
+  assert.strictEqual(res6.startOfNoticeDate, '2027-01-01');
+  assert.strictEqual(res6.expectedEndDate, '2027-01-31');
+
+  // Test 7: Werkgever < 5 dienstjaren (3 jaar -> 1 maand)
+  const res7 = calculateOpzegtermijn({
+    initiator: 'werkgever',
+    contractType: 'vast',
+    noticeDate: '2026-09-20',
+    startDate: '2023-01-01'
+  });
+  assert.strictEqual(res7.yearsOfService, 3);
+  assert.strictEqual(res7.noticePeriodMonths, 1);
+  assert.strictEqual(res7.expectedEndDate, '2026-10-31');
+
+  // Test 8: Werkgever 5 tot < 10 dienstjaren (7 jaar -> 2 maanden -> 30 november 2026)
+  const res8 = calculateOpzegtermijn({
+    initiator: 'werkgever',
+    contractType: 'vast',
+    noticeDate: '2026-09-20',
+    startDate: '2019-01-01'
+  });
+  assert.strictEqual(res8.yearsOfService, 7);
+  assert.strictEqual(res8.noticePeriodMonths, 2);
+  assert.strictEqual(res8.startOfNoticeDate, '2026-10-01');
+  assert.strictEqual(res8.expectedEndDate, '2026-11-30');
+
+  // Test 9: Werkgever 10 tot < 15 dienstjaren (12 jaar -> 3 maanden -> 31 december 2026)
+  const res9 = calculateOpzegtermijn({
+    initiator: 'werkgever',
+    contractType: 'vast',
+    noticeDate: '2026-09-20',
+    startDate: '2014-01-01'
+  });
+  assert.strictEqual(res9.yearsOfService, 12);
+  assert.strictEqual(res9.noticePeriodMonths, 3);
+  assert.strictEqual(res9.expectedEndDate, '2026-12-31');
+
+  // Test 10: Werkgever >= 15 dienstjaren (18 jaar -> 4 maanden -> 31 januari 2027)
+  const res10 = calculateOpzegtermijn({
+    initiator: 'werkgever',
+    contractType: 'vast',
+    noticeDate: '2026-09-20',
+    startDate: '2008-01-01'
+  });
+  assert.strictEqual(res10.yearsOfService, 18);
+  assert.strictEqual(res10.noticePeriodMonths, 4);
+  assert.strictEqual(res10.expectedEndDate, '2027-01-31');
+
+  // Test 11: Tijdelijk contract
+  const res11 = calculateOpzegtermijn({
+    initiator: 'werknemer',
+    contractType: 'tijdelijk',
+    noticeDate: '2026-09-20'
+  });
+  assert.strictEqual(res11.isTemporaryContract, true);
+  assert(res11.explanation.includes('tussentijds opzegbeding'));
+
+  console.log('✓ Opzegtermijn calculations passed');
+}
+
+// 21. Arbeidsverleden Berekenen
+{
+  // Test 1: Identical start and end dates
+  const res1 = calculateArbeidsverleden({
+    startDate: '2024-01-01',
+    endDate: '2024-01-01'
+  });
+  assert.strictEqual(res1.isValid, true);
+  assert.strictEqual(res1.years, 0);
+  assert.strictEqual(res1.months, 0);
+  assert.strictEqual(res1.days, 0);
+  assert.strictEqual(res1.totalDays, 0);
+  assert.strictEqual(res1.humanReadableDuration, '0 dagen');
+
+  // Test 2: 1-day period
+  const res2 = calculateArbeidsverleden({
+    startDate: '2024-01-01',
+    endDate: '2024-01-02'
+  });
+  assert.strictEqual(res2.days, 1);
+  assert.strictEqual(res2.totalDays, 1);
+  assert.strictEqual(res2.humanReadableDuration, '1 dag');
+
+  // Test 3: 1-month period
+  const res3 = calculateArbeidsverleden({
+    startDate: '2024-01-01',
+    endDate: '2024-02-01'
+  });
+  assert.strictEqual(res3.months, 1);
+  assert.strictEqual(res3.days, 0);
+  assert.strictEqual(res3.totalDays, 31);
+  assert.strictEqual(res3.humanReadableDuration, '1 maand');
+
+  // Test 4: 1-year period
+  const res4 = calculateArbeidsverleden({
+    startDate: '2023-01-01',
+    endDate: '2024-01-01'
+  });
+  assert.strictEqual(res4.years, 1);
+  assert.strictEqual(res4.months, 0);
+  assert.strictEqual(res4.days, 0);
+  assert.strictEqual(res4.totalDays, 365);
+  assert.strictEqual(res4.humanReadableDuration, '1 jaar');
+
+  // Test 5: Voorbeeld 1 (5 jaar exact: 1 januari 2020 -> 1 januari 2025)
+  const res5 = calculateArbeidsverleden({
+    startDate: '2020-01-01',
+    endDate: '2025-01-01'
+  });
+  assert.strictEqual(res5.years, 5);
+  assert.strictEqual(res5.months, 0);
+  assert.strictEqual(res5.days, 0);
+  // 2020 en 2024 zijn schrikkeljaren: 366 + 365 + 365 + 365 + 366 = 1827 dagen
+  assert.strictEqual(res5.totalDays, 1827);
+  assert.strictEqual(res5.humanReadableDuration, '5 jaar');
+
+  // Test 6: Voorbeeld 2 (1 januari 2022 -> 15 maart 2026: 4 jaar, 2 maanden en 14 dagen)
+  const res6 = calculateArbeidsverleden({
+    startDate: '2022-01-01',
+    endDate: '2026-03-15'
+  });
+  assert.strictEqual(res6.years, 4);
+  assert.strictEqual(res6.months, 2);
+  assert.strictEqual(res6.days, 14);
+  assert.strictEqual(res6.totalDays, 1534);
+  assert.strictEqual(res6.humanReadableDuration, '4 jaar, 2 maanden en 14 dagen');
+
+  // Test 7: Voorbeeld 3 (Leap year: 29 februari 2020 -> 28 februari 2024)
+  const res7 = calculateArbeidsverleden({
+    startDate: '2020-02-29',
+    endDate: '2024-02-28'
+  });
+  assert.strictEqual(res7.years, 3);
+  assert.strictEqual(res7.months, 11);
+  assert.strictEqual(res7.days, 30);
+  assert.strictEqual(res7.humanReadableDuration, '3 jaar, 11 maanden en 30 dagen');
+
+  // Test 8: Leap year exact 4 years (29 februari 2020 -> 29 februari 2024)
+  const res8 = calculateArbeidsverleden({
+    startDate: '2020-02-29',
+    endDate: '2024-02-29'
+  });
+  assert.strictEqual(res8.years, 4);
+  assert.strictEqual(res8.months, 0);
+  assert.strictEqual(res8.days, 0);
+  assert.strictEqual(res8.totalDays, 1461);
+  assert.strictEqual(res8.humanReadableDuration, '4 jaar');
+
+  // Test 9: End date before start date
+  const res9 = calculateArbeidsverleden({
+    startDate: '2025-01-01',
+    endDate: '2020-01-01'
+  });
+  assert.strictEqual(res9.isValid, false);
+  assert.strictEqual(res9.errorMessage, 'De einddatum kan niet vóór de startdatum liggen.');
+
+  // Test 10: Year change (15 november 2025 -> 15 januari 2026 = 2 maanden)
+  const res10 = calculateArbeidsverleden({
+    startDate: '2025-11-15',
+    endDate: '2026-01-15'
+  });
+  assert.strictEqual(res10.years, 0);
+  assert.strictEqual(res10.months, 2);
+  assert.strictEqual(res10.days, 0);
+  assert.strictEqual(res10.humanReadableDuration, '2 maanden');
+
+  console.log('✓ Arbeidsverleden calculations passed');
+}
+
+// 22. Wajong Uitkering Berekenen
+{
+  // Test 1: Age 21+, duurzaam geen arbeidsvermogen, geen werk (Juli 2026: € 2.337 * 75% = € 1.752,75)
+  const res1 = calculateWajong({
+    age: 21,
+    arbeidsvermogen: 'geen',
+    hasWorkIncome: false
+  });
+  assert.strictEqual(res1.isValid, true);
+  assert.strictEqual(res1.wajongPercentage, 75);
+  assert.strictEqual(res1.applicableMinimumWage, 2337.00);
+  assert.strictEqual(res1.maxWajongMonthly, 1752.75);
+  assert.strictEqual(res1.estimatedWajongMonthly, 1752.75);
+  assert.strictEqual(res1.finalWajongMonthly, 1752.75);
+  assert.strictEqual(res1.totalGrossMonthlyIncome, 1752.75);
+  assert.strictEqual(res1.vacationAllowanceMonthlyEstimate, 140.22);
+
+  // Test 2: Age 21+, wel arbeidsvermogen, geen werk (Juli 2026: € 2.337 * 70% = € 1.635,90)
+  const res2 = calculateWajong({
+    age: 25,
+    arbeidsvermogen: 'wel',
+    hasWorkIncome: false
+  });
+  assert.strictEqual(res2.isValid, true);
+  assert.strictEqual(res2.wajongPercentage, 70);
+  assert.strictEqual(res2.maxWajongMonthly, 1635.90);
+  assert.strictEqual(res2.finalWajongMonthly, 1635.90);
+
+  // Test 3: Age 21+, wel arbeidsvermogen, inkomen uit werk € 500
+  // Inhouding: 70% van € 500 = € 350. Wajong = 1635.90 - 350 = € 1285.90. Totaal = € 1785.90
+  const res3 = calculateWajong({
+    age: 30,
+    arbeidsvermogen: 'wel',
+    hasWorkIncome: true,
+    workIncomeMonthly: 500
+  });
+  assert.strictEqual(res3.incomeDeduction, 350.00);
+  assert.strictEqual(res3.estimatedWajongMonthly, 1285.90);
+  assert.strictEqual(res3.finalWajongMonthly, 1285.90);
+  assert.strictEqual(res3.totalGrossMonthlyIncome, 1785.90);
+  assert.strictEqual(res3.retentionBenefit, 150.00); // houdt € 150 extra over t.o.v. niet werken
+
+  // Test 4: Age 19 (minimumjeugdloon 60% = € 1.402,20), wel arbeidsvermogen (70% = € 981,54)
+  const res4 = calculateWajong({
+    age: 19,
+    arbeidsvermogen: 'wel',
+    hasWorkIncome: false
+  });
+  assert.strictEqual(res4.youthPercentage, 60);
+  assert.strictEqual(res4.applicableMinimumWage, 1402.20);
+  assert.strictEqual(res4.maxWajongMonthly, 981.54);
+
+  // Test 5: Age 18 (minimumjeugdloon 50% = € 1.168,50), duurzaam geen arbeidsvermogen (75% = € 876,38)
+  const res5 = calculateWajong({
+    age: 18,
+    arbeidsvermogen: 'geen',
+    hasWorkIncome: false
+  });
+  assert.strictEqual(res5.youthPercentage, 50);
+  assert.strictEqual(res5.applicableMinimumWage, 1168.50);
+  assert.strictEqual(res5.maxWajongMonthly, 876.38);
+
+  // Test 6: Age 20 (minimumjeugdloon 80% = € 1.869,60), duurzaam geen arbeidsvermogen (75% = € 1.402,20)
+  const res6 = calculateWajong({
+    age: 20,
+    arbeidsvermogen: 'geen',
+    hasWorkIncome: false
+  });
+  assert.strictEqual(res6.youthPercentage, 80);
+  assert.strictEqual(res6.applicableMinimumWage, 1869.60);
+  assert.strictEqual(res6.maxWajongMonthly, 1402.20);
+
+  // Test 7: Hoog inkomen uit werk (bijv. € 2.500) waarbij Wajong tot € 0 daalt
+  const res7 = calculateWajong({
+    age: 21,
+    arbeidsvermogen: 'wel',
+    hasWorkIncome: true,
+    workIncomeMonthly: 2500
+  });
+  assert.strictEqual(res7.estimatedWajongMonthly, 0);
+  assert.strictEqual(res7.finalWajongMonthly, 0);
+  assert.strictEqual(res7.totalGrossMonthlyIncome, 2500);
+
+  // Test 8: Garantiebedrag hoger dan berekende Wajong
+  const res8 = calculateWajong({
+    age: 21,
+    arbeidsvermogen: 'wel',
+    hasWorkIncome: true,
+    workIncomeMonthly: 500, // berekende Wajong is 1285.90
+    guaranteeAmount: 1450.00
+  });
+  assert.strictEqual(res8.isGuaranteeApplied, true);
+  assert.strictEqual(res8.finalWajongMonthly, 1450.00);
+  assert.strictEqual(res8.totalGrossMonthlyIncome, 1950.00);
+
+  // Test 9: Periode januari 2026 (€ 2.294,40)
+  const res9 = calculateWajong({
+    age: 21,
+    arbeidsvermogen: 'wel',
+    hasWorkIncome: false,
+    period: '2026-01'
+  });
+  assert.strictEqual(res9.referenceMonthlyWageAdult, 2294.40);
+  assert.strictEqual(res9.maxWajongMonthly, 1606.08); // 70% van 2294.40
+
+  // Test 10: Leeftijd jonger dan 18 jaar (ongeldig)
+  const res10 = calculateWajong({
+    age: 17,
+    arbeidsvermogen: 'geen',
+    hasWorkIncome: false
+  });
+  assert.strictEqual(res10.isValid, false);
+  assert.strictEqual(res10.errorMessage, 'Wajong kan worden aangevraagd vanaf 18 jaar. Voer een leeftijd van 18 jaar of ouder in.');
+
+  console.log('✓ Wajong calculations passed');
+}
+
+// 23. Netto Besteedbaar Inkomen Berekenen
+{
+  // Test 1: Standaard voorbeeld (Netto € 2.500, overig € 200, toeslag € 150 = € 2.850. Lasten = € 1.400 -> Besteedbaar = € 1.450)
+  const res1 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 2500,
+    otherIncome: 200,
+    allowances: 150,
+    housingCosts: 800,
+    energyWaterCosts: 200,
+    healthInsuranceCosts: 150,
+    transportCosts: 150,
+    otherFixedCosts: 100
+  });
+  assert.strictEqual(res1.isValid, true);
+  assert.strictEqual(res1.totalIncomeMonthly, 2850.00);
+  assert.strictEqual(res1.totalExpensesMonthly, 1400.00);
+  assert.strictEqual(res1.disposableIncomeMonthly, 1450.00);
+  assert.strictEqual(res1.disposableIncomeAnnual, 17400.00);
+  assert.strictEqual(res1.isPositive, true);
+  assert.strictEqual(res1.shortfallMonthly, 0);
+  assert.strictEqual(res1.disposableIncomeWeekly, 333.72);
+  assert.strictEqual(res1.disposableIncomeDaily, 47.67);
+
+  // Test 2: Huishouden met partnerinkomen (€ 2.800 + € 2.200 = € 5.000. Lasten = € 2.500 -> Besteedbaar = € 2.500)
+  const res2 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 2800,
+    partnerIncome: 2200,
+    isHousehold: true,
+    housingCosts: 1200,
+    energyWaterCosts: 250,
+    healthInsuranceCosts: 300,
+    transportCosts: 350,
+    otherFixedCosts: 400
+  });
+  assert.strictEqual(res2.totalIncomeMonthly, 5000.00);
+  assert.strictEqual(res2.totalExpensesMonthly, 2500.00);
+  assert.strictEqual(res2.disposableIncomeMonthly, 2500.00);
+  assert.strictEqual(res2.fixedCostsPercentage, 50.0);
+  assert.strictEqual(res2.disposablePercentage, 50.0);
+  assert.strictEqual(res2.housingPercentage, 24.0);
+
+  // Test 3: Negatief besteedbaar inkomen (tekort)
+  // Inkomsten € 1.800, vaste lasten € 2.100 -> Besteedbaar = -€ 300
+  const res3 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 1800,
+    housingCosts: 1100,
+    energyWaterCosts: 250,
+    healthInsuranceCosts: 160,
+    transportCosts: 200,
+    otherFixedCosts: 390
+  });
+  assert.strictEqual(res3.totalIncomeMonthly, 1800.00);
+  assert.strictEqual(res3.totalExpensesMonthly, 2100.00);
+  assert.strictEqual(res3.disposableIncomeMonthly, -300.00);
+  assert.strictEqual(res3.isPositive, false);
+  assert.strictEqual(res3.shortfallMonthly, 300.00);
+
+  // Test 4: Alleenstaand zonder partner (partnerinkomen moet genegeerd worden als isHousehold = false)
+  const res4 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 2000,
+    partnerIncome: 1500,
+    isHousehold: false,
+    housingCosts: 700,
+    energyWaterCosts: 150,
+    healthInsuranceCosts: 140,
+    transportCosts: 100,
+    otherFixedCosts: 110
+  });
+  assert.strictEqual(res4.totalIncomeMonthly, 2000.00);
+  assert.strictEqual(res4.partnerIncome, 0);
+  assert.strictEqual(res4.disposableIncomeMonthly, 800.00);
+
+  // Test 5: Decimale bedragen
+  const res5 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 2345.67,
+    housingCosts: 900.50,
+    energyWaterCosts: 150.25,
+    healthInsuranceCosts: 145.80,
+    transportCosts: 120.12,
+    otherFixedCosts: 88.00
+  });
+  assert.strictEqual(res5.totalIncomeMonthly, 2345.67);
+  assert.strictEqual(res5.totalExpensesMonthly, 1404.67);
+  assert.strictEqual(res5.disposableIncomeMonthly, 941.00);
+
+  // Test 6: Inkomsten 0, vaste lasten 500
+  const res6 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 0,
+    housingCosts: 500,
+    energyWaterCosts: 0,
+    healthInsuranceCosts: 0,
+    transportCosts: 0,
+    otherFixedCosts: 0
+  });
+  assert.strictEqual(res6.disposableIncomeMonthly, -500.00);
+  assert.strictEqual(res6.isPositive, false);
+  assert.strictEqual(res6.shortfallMonthly, 500.00);
+
+  // Test 7: Vaste lasten 0
+  const res7 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 2000,
+    housingCosts: 0,
+    energyWaterCosts: 0,
+    healthInsuranceCosts: 0,
+    transportCosts: 0,
+    otherFixedCosts: 0
+  });
+  assert.strictEqual(res7.disposableIncomeMonthly, 2000.00);
+  assert.strictEqual(res7.fixedCostsPercentage, 0);
+  assert.strictEqual(res7.disposablePercentage, 100.0);
+
+  // Test 8: Negatieve invoer (ongeldig)
+  const res8 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: -1000,
+    housingCosts: 500,
+    energyWaterCosts: 100,
+    healthInsuranceCosts: 100,
+    transportCosts: 50,
+    otherFixedCosts: 50
+  });
+  assert.strictEqual(res8.isValid, false);
+  assert.strictEqual(res8.errorMessage, 'Bedragen kunnen niet negatief zijn. Vul een positief getal of 0 in.');
+
+  // Test 9: Toeslagen en overige inkomsten meegerekend
+  const res9 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 1900,
+    otherIncome: 100,
+    allowances: 350,
+    housingCosts: 750,
+    energyWaterCosts: 150,
+    healthInsuranceCosts: 140,
+    transportCosts: 80,
+    otherFixedCosts: 180
+  });
+  assert.strictEqual(res9.totalIncomeMonthly, 2350.00);
+  assert.strictEqual(res9.totalExpensesMonthly, 1300.00);
+  assert.strictEqual(res9.disposableIncomeMonthly, 1050.00);
+
+  // Test 10: Reset / lege waarden defaults
+  const res10 = calculateNettoBesteedbaarInkomen({
+    nettoIncome: 2200,
+    housingCosts: 800,
+    energyWaterCosts: 150,
+    healthInsuranceCosts: 150,
+    transportCosts: 100,
+    otherFixedCosts: 100
+  });
+  assert.strictEqual(res10.partnerIncome, 0);
+  assert.strictEqual(res10.otherIncome, 0);
+  assert.strictEqual(res10.allowances, 0);
+  assert.strictEqual(res10.totalExpensesMonthly, 1300.00);
+  assert.strictEqual(res10.disposableIncomeMonthly, 900.00);
+
+  console.log('✓ Netto Besteedbaar Inkomen calculations passed');
+}
+
+// 24. Transitievergoeding Berekenen (art. 7:673 BW, 2026 cap € 102.000)
+{
+  // Test 1: Exact 3 full years at € 3.000 base + 8% vakantiegeld (= € 3.240 monthly base)
+  // Severance: 3 * (3240 / 3) = 3240.00
+  const res1 = calculateTransitievergoeding({
+    startDate: '2020-01-01',
+    endDate: '2022-12-31',
+    baseMonthlySalary: 3000,
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res1.isValid, true);
+  assert.strictEqual(res1.yearsOfService, 3);
+  assert.strictEqual(res1.monthsOfService, 0);
+  assert.strictEqual(res1.daysOfService, 0);
+  assert.strictEqual(res1.baseSalaryMonthly, 3000);
+  assert.strictEqual(res1.holidayAllowanceMonthly, 240);
+  assert.strictEqual(res1.totalMonthlySalary, 3240);
+  assert.strictEqual(res1.severanceFullYears, 3240);
+  assert.strictEqual(res1.finalTransitievergoeding, 3240);
+  assert.strictEqual(res1.isCapped, false);
+  assert.strictEqual(res1.isEligible, true);
+
+  // Test 2: 5 years and 4 months at € 3.500 base + 8% vakantiegeld (= € 3.780)
+  // Full years: 5 * (3780 / 3) = 6300.00
+  // Months: (4 / 12) * (3780 / 3) = 420.00
+  // Total: 6720.00
+  const res2 = calculateTransitievergoeding({
+    startDate: '2020-01-01',
+    endDate: '2025-04-30',
+    baseMonthlySalary: 3500,
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res2.yearsOfService, 5);
+  assert.strictEqual(res2.monthsOfService, 4);
+  assert.strictEqual(res2.daysOfService, 0);
+  assert.strictEqual(res2.totalMonthlySalary, 3780);
+  assert.strictEqual(res2.severanceFullYears, 6300);
+  assert.strictEqual(res2.severanceRemainingMonths, 420);
+  assert.strictEqual(res2.finalTransitievergoeding, 6720);
+
+  // Test 3: Short duration under 1 year (6 months)
+  // (6 / 12) * (3240 / 3) = 540.00
+  const res3 = calculateTransitievergoeding({
+    startDate: '2024-01-01',
+    endDate: '2024-06-30',
+    baseMonthlySalary: 3000,
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res3.yearsOfService, 0);
+  assert.strictEqual(res3.monthsOfService, 6);
+  assert.strictEqual(res3.daysOfService, 0);
+  assert.strictEqual(res3.finalTransitievergoeding, 540);
+
+  // Test 4: Accrual by days (10 days worked) at € 3.650 without vacation pay
+  // (10 / 365) * (3650 / 3) = 33.33
+  const res4 = calculateTransitievergoeding({
+    startDate: '2024-03-01',
+    endDate: '2024-03-10',
+    baseMonthlySalary: 3650,
+    includeHolidayAllowance: false
+  });
+  assert.strictEqual(res4.yearsOfService, 0);
+  assert.strictEqual(res4.monthsOfService, 0);
+  assert.strictEqual(res4.daysOfService, 10);
+  assert.strictEqual(res4.finalTransitievergoeding, 33.33);
+
+  // Test 5: Oproepcontract: € 15/hr * 100 hrs/month = € 1.500 base + 8% = € 1.620 monthly base
+  // 2 full years -> 2 * (1620 / 3) = 1080.00
+  const res5 = calculateTransitievergoeding({
+    startDate: '2022-01-01',
+    endDate: '2023-12-31',
+    contractType: 'oproep',
+    hourlyWage: 15,
+    averageHoursPerMonth: 100,
+    includeHolidayAllowance: true
+  });
+  assert.strictEqual(res5.baseSalaryMonthly, 1500);
+  assert.strictEqual(res5.holidayAllowanceMonthly, 120);
+  assert.strictEqual(res5.totalMonthlySalary, 1620);
+  assert.strictEqual(res5.finalTransitievergoeding, 1080);
+  assert.strictEqual(res5.contractTypeLabel, 'Oproep- / min-maxcontract');
+
+  // Test 6: Extra components (13th month, structural allowance, variable bonus)
+  // Base € 3.000 + 8% vakantiegeld (€ 240) + 13e maand € 3.000/12 (€ 250) + vaste ploegentoeslag € 200 + bonus € 150 = € 3.840
+  // 3 years -> 3 * (3840 / 3) = 3840.00
+  const res6 = calculateTransitievergoeding({
+    startDate: '2021-01-01',
+    endDate: '2023-12-31',
+    baseMonthlySalary: 3000,
+    includeHolidayAllowance: true,
+    annualBonusOr13thMonth: 3000,
+    structuralAllowancesMonthly: 200,
+    variableBonusAverageMonthly: 150
+  });
+  assert.strictEqual(res6.totalMonthlySalary, 3840);
+  assert.strictEqual(res6.finalTransitievergoeding, 3840);
+
+  // Test 7: Statutory cap 2026 reached (€ 102.000)
+  // 40 years at € 8.000/month (annual salary = € 96.000 < € 102.000). Raw = 40 * (8000 / 3) = 106.666,67
+  // Cap is € 102.000.
+  const res7 = calculateTransitievergoeding({
+    startDate: '1984-01-01',
+    endDate: '2023-12-31',
+    baseMonthlySalary: 8000,
+    includeHolidayAllowance: false
+  });
+  assert.strictEqual(res7.yearsOfService, 40);
+  assert.strictEqual(res7.rawTransitievergoeding, 106666.67);
+  assert.strictEqual(res7.isCapped, true);
+  assert.strictEqual(res7.statutoryCap2026, 102000);
+  assert.strictEqual(res7.effectiveCap, 102000);
+  assert.strictEqual(res7.finalTransitievergoeding, 102000);
+
+  // Test 8: High earner where annual salary > € 102.000 sets higher cap
+  // € 15.000/month -> Annual salary = € 180.000. Effective cap = € 180.000.
+  // 20 years -> Raw severance = 20 * (15000 / 3) = 100.000. Not capped!
+  const res8 = calculateTransitievergoeding({
+    startDate: '2004-01-01',
+    endDate: '2023-12-31',
+    baseMonthlySalary: 15000,
+    includeHolidayAllowance: false
+  });
+  assert.strictEqual(res8.effectiveCap, 180000);
+  assert.strictEqual(res8.isCapped, false);
+  assert.strictEqual(res8.finalTransitievergoeding, 100000);
+
+  // Test 9: Invalid date order (endDate before startDate)
+  const res9 = calculateTransitievergoeding({
+    startDate: '2025-01-01',
+    endDate: '2020-01-01',
+    baseMonthlySalary: 3000
+  });
+  assert.strictEqual(res9.isValid, false);
+  assert.strictEqual(res9.errorMessage, 'De einddatum kan niet vóór de startdatum liggen.');
+
+  // Test 10: Termination reasons eligibility
+  const resEligible = calculateTransitievergoeding({
+    startDate: '2022-01-01',
+    endDate: '2023-12-31',
+    baseMonthlySalary: 3000,
+    terminationReason: 'tijdelijk_niet_verlengd'
+  });
+  assert.strictEqual(resEligible.isEligible, true);
+
+  const resIneligible = calculateTransitievergoeding({
+    startDate: '2022-01-01',
+    endDate: '2023-12-31',
+    baseMonthlySalary: 3000,
+    terminationReason: 'zelf_ontslag'
+  });
+  assert.strictEqual(resIneligible.isEligible, false);
+
+  const resFault = calculateTransitievergoeding({
+    startDate: '2022-01-01',
+    endDate: '2023-12-31',
+    baseMonthlySalary: 3000,
+    terminationReason: 'ernstig_verwijtbaar_werknemer'
+  });
+  assert.strictEqual(resFault.isEligible, false);
+
+  const resVso = calculateTransitievergoeding({
+    startDate: '2022-01-01',
+    endDate: '2023-12-31',
+    baseMonthlySalary: 3000,
+    terminationReason: 'wederzijds_goedvinden'
+  });
+  assert.strictEqual(resVso.isEligible, true);
+
+  console.log('✓ Transitievergoeding calculations passed');
+}
+
+// 25. Netto Salaris Berekenen (Witte Tabel 2026)
+{
+  // Test 1: € 3.000 bruto per maand, LHK AAN, onder AOW
+  const res1 = calculateNettoSalaris({
+    grossSalary: 3000,
+    salaryPeriod: 'month',
+    applyLoonheffingskorting: true,
+    age: 30
+  });
+  assert.strictEqual(res1.isValid, true);
+  assert.strictEqual(res1.grossMonthlySalary, 3000);
+  assert.strictEqual(res1.grossAnnualSalary, 36000);
+  assert.strictEqual(res1.taxableMonthlyWage, 3000);
+  // Belasting vóór heffingskorting: 35,82% van 36.000 = 12.895,20 / 12 = 1.074,60
+  assert.strictEqual(res1.grossTaxMonthly, 1074.60);
+  assert.strictEqual(res1.generalTaxCreditMonthly, 218.86);
+  assert.strictEqual(res1.labourTaxCreditMonthly, 448.17);
+  assert.strictEqual(res1.appliedTaxCreditMonthly, 667.03);
+  assert.strictEqual(res1.payrollTaxMonthly, 407.57);
+  assert.strictEqual(res1.netMonthlySalary, 2592.43);
+  assert.strictEqual(res1.netAnnualSalary, 31109.16);
+
+  // Test 2: € 4.000 bruto per maand (jaar € 48.000), LHK AAN
+  const res2 = calculateNettoSalaris({
+    grossSalary: 4000,
+    salaryPeriod: 'month',
+    applyLoonheffingskorting: true,
+    age: 35
+  });
+  assert.strictEqual(res2.grossMonthlySalary, 4000);
+  assert.strictEqual(res2.grossAnnualSalary, 48000);
+  assert.strictEqual(res2.grossTaxMonthly, 1446.02);
+  assert.strictEqual(res2.generalTaxCreditMonthly, 154.52);
+  assert.strictEqual(res2.labourTaxCreditMonthly, 452.58);
+  assert.strictEqual(res2.appliedTaxCreditMonthly, 607.10);
+  assert.strictEqual(res2.payrollTaxMonthly, 838.92);
+  assert.strictEqual(res2.netMonthlySalary, 3161.08);
+
+  // Test 3: € 3.000 bruto per maand, LHK UIT
+  const res3 = calculateNettoSalaris({
+    grossSalary: 3000,
+    salaryPeriod: 'month',
+    applyLoonheffingskorting: false
+  });
+  assert.strictEqual(res3.appliedTaxCreditMonthly, 0);
+  assert.strictEqual(res3.payrollTaxMonthly, 1074.60);
+  assert.strictEqual(res3.netMonthlySalary, 1925.40);
+
+  // Test 4: € 3.000 bruto per maand met werknemerspensioenpremie € 150/mnd
+  const res4 = calculateNettoSalaris({
+    grossSalary: 3000,
+    salaryPeriod: 'month',
+    applyLoonheffingskorting: true,
+    employeePensionMonthly: 150
+  });
+  assert.strictEqual(res4.taxableMonthlyWage, 2850);
+  assert.strictEqual(res4.taxableAnnualWage, 34200);
+  // Belasting over 34.200: 35,82% = 12.250,44 / 12 = 1.020,87
+  assert.strictEqual(res4.grossTaxMonthly, 1020.87);
+  // Loonheffing daalt door pensioenpremie, netto salaris = 3000 - pensioen - loonheffing
+  assert(res4.payrollTaxMonthly < res1.payrollTaxMonthly);
+  assert.strictEqual(res4.netMonthlySalary, 2500.57);
+
+  // Test 5: Salarisperiode per 4 weken (€ 2.400 / 4 weken -> 13 perioden = € 31.200 jaarsalaris)
+  const res5 = calculateNettoSalaris({
+    grossSalary: 2400,
+    salaryPeriod: '4week',
+    applyLoonheffingskorting: true
+  });
+  assert.strictEqual(res5.grossFourWeeklySalary, 2400);
+  assert.strictEqual(res5.grossAnnualSalary, 31200);
+  assert.strictEqual(res5.grossMonthlySalary, 2600);
+  assert(res5.netFourWeeklySalary > 0);
+  assert.strictEqual(res5.salaryPeriodLabel, 'Per 4 weken (13x per jaar)');
+
+  // Test 6: Uurloon (€ 20/uur bij 40 uur/week)
+  const res6 = calculateNettoSalaris({
+    grossSalary: 20,
+    salaryPeriod: 'hour',
+    weeklyHours: 40,
+    applyLoonheffingskorting: true
+  });
+  assert.strictEqual(res6.grossHourlyWage, 20);
+  assert.strictEqual(res6.grossWeeklySalary, 800);
+  assert.strictEqual(res6.grossAnnualSalary, 41600);
+  assert.strictEqual(res6.grossMonthlySalary, 3466.67);
+  assert(res6.netHourlyWage !== undefined && res6.netHourlyWage > 0);
+
+  // Test 7: AOW-gerechtigde werknemer (leeftijd 68 -> lager tarief 1e schijf 17,92%)
+  const res7 = calculateNettoSalaris({
+    grossSalary: 3000,
+    salaryPeriod: 'month',
+    age: 68,
+    applyLoonheffingskorting: true
+  });
+  assert.strictEqual(res7.isAowEligible, true);
+  // Bruto belasting schijf 1 voor AOW: 17,92% van 36.000 = 6.451,20 / 12 = 537,60
+  assert.strictEqual(res7.grossTaxMonthly, 537.60);
+  assert(res7.netMonthlySalary > 0);
+
+  // Test 8: Vakantiegeld optie
+  const res8 = calculateNettoSalaris({
+    grossSalary: 3000,
+    salaryPeriod: 'month',
+    includeHolidayAllowance: true
+  });
+  assert.strictEqual(res8.includeHolidayAllowance, true);
+  // Vakantiegeld 8% over 36.000 = 2.880
+  assert.strictEqual(res8.grossHolidayAllowanceAnnual, 2880);
+  assert(res8.marginalTaxRateHolidayPercentage > 0);
+  assert(res8.netHolidayAllowanceAnnual > 0);
+  assert.strictEqual(res8.netAnnualSalaryWithHoliday, res8.netAnnualSalary + res8.netHolidayAllowanceAnnual);
+
+  // Test 9: 13e maand / bonus optie (€ 3.000 bonus)
+  const res9 = calculateNettoSalaris({
+    grossSalary: 3000,
+    salaryPeriod: 'month',
+    hasBonusOr13thMonth: true,
+    grossBonusOr13thMonth: 3000
+  });
+  assert.strictEqual(res9.hasBonusOr13thMonth, true);
+  assert.strictEqual(res9.grossBonusOr13thMonth, 3000);
+  // Bij € 36.000 jaarloon is het bijzonder tarief 38,75%
+  assert.strictEqual(res9.marginalTaxRateBonusPercentage, 38.75);
+  assert.strictEqual(res9.taxBonusOr13thMonth, 1162.50);
+  assert.strictEqual(res9.netBonusOr13thMonth, 1837.50);
+
+  // Test 10: Validatiefout bij ongeldige / negatieve invoer
+  const res10 = calculateNettoSalaris({
+    grossSalary: -500
+  });
+  assert.strictEqual(res10.isValid, false);
+  assert.strictEqual(res10.errorMessage, 'Voer een geldig, positief bruto salarisbedrag in.');
+
+  console.log('✓ Netto Salaris calculations passed');
+}
+
+// 26. Jaarinkomen
+{
+  // Test 1: Standaard maandsalaris (€ 3.500/mnd, 8% vakantiegeld)
+  const res1 = calculateJaarinkomen({
+    grossSalary: 3500,
+    salaryPeriod: 'maand',
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res1.grossInput, 3500);
+  assert.strictEqual(res1.baseAnnualSalary, 42000);
+  assert.strictEqual(res1.holidayAllowanceAmount, 3360);
+  assert.strictEqual(res1.totalGrossAnnualIncome, 45360);
+  assert.strictEqual(res1.averageGrossMonthly, 3780);
+  assert.strictEqual(res1.averageGrossFourWeekly, 3489.23);
+  assert.strictEqual(res1.averageGrossWeekly, 872.31);
+
+  // Test 2: 4-weken verloning (€ 2.500 / 4 weken -> 13 periodes)
+  const res2 = calculateJaarinkomen({
+    grossSalary: 2500,
+    salaryPeriod: 'vierwekelijks',
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res2.baseAnnualSalary, 32500);
+  assert.strictEqual(res2.holidayAllowanceAmount, 2600);
+  assert.strictEqual(res2.totalGrossAnnualIncome, 35100);
+
+  // Test 3: Weekloon (€ 800 / week -> 52 weken)
+  const res3 = calculateJaarinkomen({
+    grossSalary: 800,
+    salaryPeriod: 'week',
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res3.baseAnnualSalary, 41600);
+  assert.strictEqual(res3.holidayAllowanceAmount, 3328);
+  assert.strictEqual(res3.totalGrossAnnualIncome, 44928);
+
+  // Test 4: Uurloon (€ 20,00 / uur bij 36 uur/week)
+  const res4 = calculateJaarinkomen({
+    grossSalary: 20,
+    salaryPeriod: 'uur',
+    weeklyHours: 36,
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res4.baseAnnualSalary, 37440);
+  assert.strictEqual(res4.holidayAllowanceAmount, 2995.20);
+  assert.strictEqual(res4.totalGrossAnnualIncome, 40435.20);
+  assert.strictEqual(res4.averageGrossHourly, 21.60);
+
+  // Test 5: Dagloon (€ 160 / dag bij 5 dagen/week)
+  const res5 = calculateJaarinkomen({
+    grossSalary: 160,
+    salaryPeriod: 'dag',
+    daysPerWeek: 5,
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res5.baseAnnualSalary, 41600);
+  assert.strictEqual(res5.holidayAllowanceAmount, 3328);
+  assert.strictEqual(res5.totalGrossAnnualIncome, 44928);
+
+  // Test 6: Zonder vakantiegeld
+  const res6 = calculateJaarinkomen({
+    grossSalary: 40000 / 12,
+    salaryPeriod: 'maand',
+    includeHolidayAllowance: false
+  });
+  assert.strictEqual(res6.baseAnnualSalary, 40000);
+  assert.strictEqual(res6.holidayAllowanceAmount, 0);
+  assert.strictEqual(res6.totalGrossAnnualIncome, 40000);
+
+  // Test 7: Met vaste 13e maand en bonus
+  const res7 = calculateJaarinkomen({
+    grossSalary: 40000 / 12,
+    salaryPeriod: 'maand',
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8,
+    thirteenthMonthType: 'fixed',
+    thirteenthMonthValue: 3000,
+    annualBonus: 2000
+  });
+  assert.strictEqual(res7.baseAnnualSalary, 40000);
+  assert.strictEqual(res7.holidayAllowanceAmount, 3200);
+  assert.strictEqual(res7.thirteenthMonthAmount, 3000);
+  assert.strictEqual(res7.annualBonus, 2000);
+  assert.strictEqual(res7.totalGrossAnnualIncome, 48200);
+
+  // Test 8: Met 13e maand percentage (8.33%)
+  const res8 = calculateJaarinkomen({
+    grossSalary: 40000 / 12,
+    salaryPeriod: 'maand',
+    includeHolidayAllowance: false,
+    thirteenthMonthType: 'percentage',
+    thirteenthMonthValue: 8.33
+  });
+  assert.strictEqual(res8.thirteenthMonthAmount, 3332);
+  assert.strictEqual(res8.totalGrossAnnualIncome, 43332);
+
+  // Test 9: Gebroken werkjaar (7 maanden gewerkt)
+  const res9 = calculateJaarinkomen({
+    grossSalary: 3000,
+    salaryPeriod: 'maand',
+    workedFullYear: false,
+    monthsWorked: 7,
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8
+  });
+  assert.strictEqual(res9.fullYearEquivalentSalary, 36000);
+  assert.strictEqual(res9.baseAnnualSalary, 21000);
+  assert.strictEqual(res9.holidayAllowanceAmount, 1680);
+  assert.strictEqual(res9.totalGrossAnnualIncome, 22680);
+
+  // Test 10: Optionele netto schatting (modaal inkomen)
+  const res10 = calculateJaarinkomen({
+    grossSalary: 40000 / 12,
+    salaryPeriod: 'maand',
+    includeHolidayAllowance: true,
+    holidayAllowancePercentage: 8,
+    estimateNet: true,
+    applyLoonheffingskorting: true
+  });
+  assert.strictEqual(res10.totalGrossAnnualIncome, 43200);
+  assert.strictEqual(res10.estimateNet, true);
+  assert(res10.estimatedGrossTaxAnnual > 0);
+  assert(res10.estimatedPayrollTaxAnnual > 0);
+  assert(res10.estimatedNetAnnualIncome > 0);
+  assert(res10.estimatedNetMonthlyIncome > 0);
+
+  // Test 11: Optionele netto schatting met pensioenpremie en LHK uitgeschakeld
+  const res11 = calculateJaarinkomen({
+    grossSalary: 40000 / 12,
+    salaryPeriod: 'maand',
+    includeHolidayAllowance: true,
+    estimateNet: true,
+    applyLoonheffingskorting: false,
+    employeePensionMonthly: 200
+  });
+  assert.strictEqual(res11.employeePensionAnnual, 2400);
+  assert.strictEqual(res11.taxableAnnualIncome, 43200 - 2400);
+  assert.strictEqual(res11.estimatedTaxCreditsAnnual, 0); // LHK = false
+
+  // Test 12: Validatiefout bij negatief salaris
+  const res12 = calculateJaarinkomen({
+    grossSalary: -100,
+    salaryPeriod: 'maand'
+  });
+  assert.strictEqual(res12.isValid, false);
+  assert.strictEqual(res12.errorMessage, 'Voer een geldig, positief bruto salarisbedrag in.');
+
+  console.log('✓ Jaarinkomen calculations passed');
+}
+
+console.log('All 26 calculation engines passed tests successfully!');
+
+
+
 
 
 

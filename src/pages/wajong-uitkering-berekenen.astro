@@ -1,0 +1,160 @@
+---
+// src/pages/wajong-uitkering-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import WajongCalculator from '../components/calculators/WajongCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('wajong-uitkering-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken ik mijn Wajong-uitkering?',
+    answer: 'Je berekent je Wajong-uitkering door uit te gaan van het wettelijk referentiemaandloon dat past bij jouw leeftijd. Afhankelijk van de vaststelling door het UWV bedraagt de basisuitkering 75% (bij duurzaam geen arbeidsvermogen) of 70% (bij wel arbeidsvermogen). Heb je inkomsten uit werk, dan verrekent het UWV 70% van je brutoloon met de uitkering.'
+  },
+  {
+    question: 'Hoeveel Wajong krijg ik in 2026?',
+    answer: 'Vanaf 1 juli 2026 bedraagt het volwassen referentiemaandloon € 2.337,00 per maand. Een Wajonger van 21 jaar of ouder zonder arbeidsvermogen ontvangt maximaal 75% hiervan, oftewel € 1.752,75 bruto per maand. Met arbeidsvermogen (70%) is dit maximaal € 1.635,90 bruto per maand (exclusief 8% vakantiegeld).'
+  },
+  {
+    question: 'Hoe hoog is een Wajong-uitkering per maand?',
+    answer: 'De exacte hoogte hangt af van je leeftijd, je arbeidsvermogen en eventuele inkomsten uit werk. Voor jongeren van 18 t/m 20 jaar gelden staffels op basis van het minimumjeugdloon (50%, 60% of 80%). Vanaf 21 jaar geldt 100% van de grondslag. Zie de tabel op deze pagina voor alle actuele maandbedragen.'
+  },
+  {
+    question: 'Is Wajong 70% of 75% van het minimumloon?',
+    answer: 'Beide percentages komen voor. Heb je duurzaam geen arbeidsvermogen (zoals bij de Wajong 2015), dan is het percentage 75%. Val je onder de oude Wajong of Wajong 2010 en beschik je over arbeidsvermogen, dan is het wettelijke percentage 70% van het minimum(jeugd)loon.'
+  },
+  {
+    question: 'Wat is het verschil tussen 70% en 75% Wajong?',
+    answer: 'Het verschil zit in het wel of niet bezitten van arbeidsvermogen volgens de officiële beoordeling van het UWV. Wie volgens keuringsartsen en arbeidsdeskundigen nooit meer mogelijkheden heeft om te werken krijgt 75%. Wie wel benutbare arbeidsmogelijkheden heeft of onder een oudere regeling valt, ontvangt de 70%-norm.'
+  },
+  {
+    question: 'Heeft inkomen uit werk invloed op mijn Wajong?',
+    answer: 'Ja, als je werkt naast je Wajong wordt een deel van je inkomen verrekend. Sinds de harmonisatie van de Wajong-regels verrekent UWV 70% van je bruto inkomsten met de uitkering. Hierdoor houd je van iedere bruto verdiende euro 30 cent extra over bovenop je totale inkomen.'
+  },
+  {
+    question: 'Kan ik werken naast mijn Wajong-uitkering?',
+    answer: 'Ja, werken naast de Wajong is toegestaan en wordt door de overheid gestimuleerd. Omdat slechts 70% van je verdiensten wordt gekort op de uitkering, ga je er financieel altijd op vooruit wanneer je gaat werken. Heb je officieel \'duurzaam geen arbeidsvermogen\', dan kan structureel werk wel aanleiding zijn voor een herbeoordeling.'
+  },
+  {
+    question: 'Wat is een garantiebedrag bij Wajong?',
+    answer: 'Een garantiebedrag is een individueel vastgesteld bedrag van het UWV voor mensen die al vóór 2021 Wajong ontvingen. Toen de rekenregels werden geharmoniseerd, werd afgesproken dat niemand er direct op achteruit mocht gaan. Is de reguliere berekening lager dan je garantiebedrag, dan keert UWV het hogere garantiebedrag uit.'
+  },
+  {
+    question: 'Waarom kan mijn Wajong-uitkering veranderen?',
+    answer: 'Je Wajong verandert wanneer het wettelijk minimumloon wordt geïndexeerd (halfjaarlijks op 1 januari en 1 juli), wanneer je 19, 20 of 21 jaar wordt, wanneer je inkomsten uit werk stijgen of dalen, of wanneer het UWV na een herkeuring je arbeidsvermogen anders classificeert.'
+  },
+  {
+    question: 'Is de berekening van deze Wajong-calculator hetzelfde als de berekening van UWV?',
+    answer: 'Deze rekentool hanteert exact de officiële rekenregels en referentiebedragen van het UWV en de Rijksoverheid voor 2026. Toch blijft de uitkomst een indicatieve schatting. Het UWV heeft inzage in je volledige polisadministratie, exacte heffingskortingen, pensioenpremies en mogelijke aanvullingen via de Toeslagenwet.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="UWV & Rijksoverheid"
+>
+  <WajongCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is een Wajong-uitkering en voor wie is deze bedoeld?</h2>
+    <p>
+      De <strong>Wajong</strong> (voluit: <em>Wet werk en arbeidsondersteuning jonggehandicapten</em>) is een sociale uitkering voor jongeren en jongvolwassenen die op jonge leeftijd een langdurige ziekte, aandoening of handicap hebben opgelopen. De regeling biedt een financieel basisinkomen wanneer iemand daardoor niet of slechts gedeeltelijk zelfstandig in zijn levensonderhoud kan voorzien.
+    </p>
+    <p>
+      Om in aanmerking te komen voor Wajong gelden wettelijke criteria: je had op je 18e verjaardag al een aandoening of handicap, of liep deze op tijdens je studie vóór je 30e verjaardag. Sinds de invoering van Wajong 2015 kunnen nieuwe aanvragers alleen instromen als zij <strong>duurzaam geen arbeidsvermogen</strong> hebben. Bestaande Wajongers vallen veelal onder de regelingen van vóór 2010 of Wajong 2010, waarin ook mensen mét arbeidsvermogen zijn opgenomen.
+    </p>
+
+    <h2>Hoe wordt de hoogte van de Wajong berekend in 2026?</h2>
+    <p>
+      De hoogte van een Wajong-uitkering is gekoppeld aan het <strong>referentiemaandloon</strong>. Sinds de invoering van het wettelijk minimumuurloon kent Nederland geen vast minimummaandloon meer voor werknemers, maar stelt de overheid per 1 januari en 1 juli een referentiemaandloon vast voor uitkeringen in de sociale zekerheid.
+    </p>
+    <p>
+      Vanaf 1 juli 2026 bedraagt dit referentiemaandloon voor volwassenen (21 jaar en ouder) <strong>€ 2.337,00 bruto per maand</strong>. Voor jongeren tussen 18 en 20 jaar geldt het minimumjeugdloon:
+    </p>
+    <ul>
+      <li><strong>18 jaar:</strong> 50% van het volwassen referentiemaandloon (€ 1.168,50 bruto)</li>
+      <li><strong>19 jaar:</strong> 60% van het volwassen referentiemaandloon (€ 1.402,20 bruto)</li>
+      <li><strong>20 jaar:</strong> 80% van het volwassen referentiemaandloon (€ 1.869,60 bruto)</li>
+      <li><strong>21 jaar en ouder:</strong> 100% van het wettelijk referentiemaandloon (€ 2.337,00 bruto)</li>
+    </ul>
+
+    <h2>Het verschil tussen 70% en 75%: Wat betekent arbeidsvermogen?</h2>
+    <p>
+      De wet maakt een strikt onderscheid tussen twee groepen:
+    </p>
+    <ul>
+      <li>
+        <strong>Duurzaam geen arbeidsvermogen (75%):</strong> Heeft het UWV vastgesteld dat je nu en in de toekomst niet kunt werken? Dan bedraagt de Wajong maximaal <strong>75%</strong> van het referentiemaandloon. Voor volwassenen is dit vanaf 1 juli 2026 maximaal <strong>€ 1.752,75 bruto per maand</strong>.
+      </li>
+      <li>
+        <strong>Wel arbeidsvermogen (70%):</strong> Heb je mogelijkheden om te werken (bijvoorbeeld beschut werk of met begeleiding), of val je onder Wajong 2010 of oude Wajong? Dan bedraagt de uitkering maximaal <strong>70%</strong> van de grondslag: maximaal <strong>€ 1.635,90 bruto per maand</strong> voor volwassenen.
+      </li>
+    </ul>
+
+    <h2>Werken naast de Wajong: Hoe beïnvloedt loon je uitkering?</h2>
+    <p>
+      Onder de <em>Wet vereenvoudiging Wajong</em> geldt het principe dat <strong>werken altijd moet lonen</strong>. Het UWV verrekent <strong>70% van je bruto inkomsten uit werk</strong> met je Wajong-uitkering. De formule luidt:
+    </p>
+    <p>
+      <em>Nieuwe Wajong = Maximale Wajong - (0,70 × Bruto loon uit werk)</em>
+    </p>
+    <p>
+      Doordat er 70 cent wordt gekort voor iedere euro loon, houd je bruto <strong>30 cent extra over</strong> per verdiende euro. Je totale bruto inkomen (Wajong plus salaris) is daardoor altijd hoger dan zonder werk. Pas wanneer 70% van je loon gelijk is aan of hoger is dan je maximale Wajong, daalt de uitkering naar nul en ontvang je enkel je salaris. Werk je parttime of tegen een flexibel uurtarief? Bereken dan vooraf eenvoudig je bruto maandsalaris met onze calculators voor <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a> of <a href="/uurloon-berekenen/">uurloon naar maandloon</a>.
+    </p>
+
+    <h2>Wat is het Wajong-garantiebedrag?</h2>
+    <p>
+      Bij de harmonisatie van de regels in 2021 zijn <strong>garantiebedragen</strong> vastgesteld voor Wajongers die vóór 2021 al een uitkering ontvingen. Dit overgangsrecht voorkomt dat iemand door nieuwe rekenregels in inkomen achteruitgaat.
+    </p>
+    <p>
+      Heeft het UWV een garantiebedrag voor jou vastgesteld? Dan vergelijkt het UWV maandelijks de uitkomst van de berekening met jouw persoonlijke garantiebedrag. Is het garantiebedrag hoger, dan keert UWV ten minste dat bedrag uit.
+    </p>
+
+    <h2>Vakantiegeld en jaarlijkse tegemoetkoming</h2>
+    <p>
+      Iedere Wajonger bouwt wettelijk <strong>8% vakantiebijslag</strong> op. Het UWV reserveert dit bedrag maandelijks en keert het in mei uit. Daarnaast ontvangen Wajongers met minstens 35% arbeidsongeschiktheid jaarlijks in september een vaste onbelaste <strong>tegemoetkoming voor arbeidsongeschikten</strong> (in 2026 ca. € 286).
+    </p>
+
+    <h2>Praktijkvoorbeelden Wajong 2026</h2>
+    <p>
+      Vier praktijksituaties laten zien hoe de Wajong-regels uitwerken:
+    </p>
+    <ul>
+      <li>
+        <strong>Voorbeeld 1: Volwassene (21+) duurzaam geen arbeidsvermogen:</strong><br />
+        Grondslag € 2.337,00. Uitkering is 75% hiervan = <strong>€ 1.752,75 bruto per maand</strong> (plus ca. € 140,22 vakantiegeldopbouw).
+      </li>
+      <li>
+        <strong>Voorbeeld 2: Volwassene (21+) wel arbeidsvermogen, zonder werk:</strong><br />
+        Grondslag € 2.337,00. Uitkering is 70% hiervan = <strong>€ 1.635,90 bruto per maand</strong>.
+      </li>
+      <li>
+        <strong>Voorbeeld 3: Wajonger met loon uit deeltijdwerk (€ 500 p/m):</strong><br />
+        Verdien je € 500 loon, dan verrekent UWV 70% (€ 350). Wajong wordt € 1.635,90 - € 350 = <strong>€ 1.285,90</strong>. Totaal inkomen wordt € 1.285,90 + € 500 = <strong>€ 1.785,90 bruto</strong> (€ 150 extra voordeel).
+      </li>
+      <li>
+        <strong>Voorbeeld 4: 19-jarige met minimumjeugdloon:</strong><br />
+        Grondslag is 60% van € 2.337,00 = € 1.402,20. Basis-Wajong (70%) is <strong>€ 981,54 bruto per maand</strong>.
+      </li>
+    </ul>
+
+    <h2>Indexatie per 1 januari en 1 juli & overgang naar AOW</h2>
+    <p>
+      Omdat de Wajong-uitkering wettelijk verbonden is met het wettelijk minimumloon, wijzigen de normbedragen tweemaal per jaar: per 1 januari en per 1 juli. Stijgt het minimumloon door overheidsindexatie, dan stijgen ook het referentiemaandloon en de daarop gebaseerde Wajong-uitkeringen evenredig mee.
+    </p>
+    <p>
+      De Wajong-uitkering is een levensloopregeling voor de periode waarin iemand in de werkzame leeftijd verkeert. Zodra je de wettelijke AOW-gerechtigde leeftijd bereikt, stopt de Wajong-uitkering automatisch. Vanaf dat moment ga je over naar de <a href="/arbeidsverleden-berekenen/">AOW (Algemene Ouderdomswet)</a> en eventuele opgebouwde pensioenen via de Sociale Verzekeringsbank (SVB).
+    </p>
+
+    <h2>Belangrijk: Schatting versus officiële UWV-beschikking</h2>
+    <p>
+      Deze calculator geeft een indicatieve berekening en vervangt geen officiële beslissing van het UWV. Alleen het UWV stelt formeel vast of je recht hebt op Wajong, onder welk regime je valt en wat je arbeidsvermogen is.
+    </p>
+    <p>
+      Bovendien kunnen persoonlijke factoren zoals loonheffingskorting, pensioenpremies of een toeslag via de <em>Toeslagenwet</em> je netto inkomen beïnvloeden. Raadpleeg voor bindende informatie altijd Mijn UWV.
+    </p>
+  </div>
+</CalculatorLayout>

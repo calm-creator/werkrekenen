@@ -1,0 +1,352 @@
+---
+// src/components/calculators/ArbeidsverledenCalculator.astro
+---
+
+<div class="calc-grid" id="arbeidsverleden-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Datums invoeren</h2>
+      <span class="rate-year-tag">Diensttijd & duur</span>
+    </div>
+
+    <!-- Veld 1: Startdatum -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label for="input-start-date" class="form-label">Startdatum</label>
+      <input
+        type="date"
+        id="input-start-date"
+        class="form-input"
+        aria-describedby="hint-start-date"
+      />
+      <span class="form-hint" id="hint-start-date">
+        De datum waarop je dienstverband, contract of werkzame periode officieel is begonnen.
+      </span>
+    </div>
+
+    <!-- Veld 2: Einddatum -->
+    <div class="form-group">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.375rem;">
+        <label for="input-end-date" class="form-label" style="margin-bottom: 0;">Einddatum</label>
+        <button type="button" id="btn-today" class="btn btn-secondary btn-sm" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">
+          Tot vandaag
+        </button>
+      </div>
+      <input
+        type="date"
+        id="input-end-date"
+        class="form-input"
+        aria-describedby="hint-end-date"
+      />
+      <span class="form-hint" id="hint-end-date">
+        De datum tot wanneer je de arbeidsduur wilt berekenen (standaard ingesteld op vandaag).
+      </span>
+    </div>
+
+    <!-- Foutmelding bij ongeldige datumreeks -->
+    <div class="callout callout-warning" id="alert-date-error" style="display: none; margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Ongeldige periode:</strong> <span id="error-message-text">De einddatum kan niet vóór de startdatum liggen.</span>
+    </div>
+
+    <div class="form-actions" style="margin-top: 1.5rem;">
+      <button type="button" id="btn-reset-arbeidsverleden" class="btn btn-secondary btn-sm">
+        Herstellen naar standaard
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label">Totale duur arbeidsverleden</span>
+      <div class="result-hero-value" id="res-hero-duration">0 dagen</div>
+      <span class="result-hero-sub" id="res-hero-sub">Periode: laden...</span>
+    </div>
+
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Specificatie van de periode</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Startdatum</span>
+        <span class="result-row-value font-medium" id="res-start-text">-</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Einddatum</span>
+        <span class="result-row-value font-medium" id="res-end-text">-</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Aantal volle jaren</span>
+        <span class="result-row-value font-bold" id="res-years-text">0 jaar</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Aantal resterende maanden</span>
+        <span class="result-row-value font-medium" id="res-months-text">0 maanden</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Aantal resterende dagen</span>
+        <span class="result-row-value font-medium" id="res-days-text">0 dagen</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-row">
+        <span class="result-row-label">Totaal aantal kalenderdagen</span>
+        <span class="result-row-value font-bold text-primary" id="res-total-days">0 dagen</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Totale duur (afgerond in maanden)</span>
+        <span class="result-row-value text-muted" id="res-approx-months">0 maanden</span>
+      </div>
+    </div>
+
+    <!-- Juridische toelichting / Disclaimer -->
+    <div class="callout callout-info" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem; line-height: 1.5;">
+      <strong>Belangrijk onderscheid:</strong> Deze calculator berekent de exacte kalenderduur tussen de door jou ingevulde start- en einddatum. De officiële definitie van arbeidsverleden kan per wettelijke regeling (zoals de jareneis van het UWV voor de WW-uitkering of pensioenopbouw) verschillen. Controleer bij een specifieke uitkering of regeling welke voorwaarden gelden.
+    </div>
+  </div>
+</div>
+
+<!-- Praktische rekenvoorbeelden tabel -->
+<div class="table-container" style="margin-top: 2rem;">
+  <div class="table-title">Voorbeeldberekeningen arbeidsverleden & diensttijd</div>
+  <p class="table-subtitle" style="font-size: 0.875rem; color: var(--color-text-muted, #64748b); margin-bottom: 0.75rem;">
+    Overzicht van veelvoorkomende periodes en hoe kalenderjaren, maanden en schrikkeldagen worden verwerkt.
+  </p>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Startdatum</th>
+          <th>Einddatum</th>
+          <th>Arbeidsverleden (kalenderduur)</th>
+          <th>Totaal kalenderdagen</th>
+          <th>Bijzonderheid</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>1 januari 2020</td>
+          <td>1 januari 2025</td>
+          <td class="font-bold text-primary">5 jaar</td>
+          <td>1.827 dagen</td>
+          <td>Bevat 2 schrikkeljaren (2020 en 2024)</td>
+        </tr>
+        <tr>
+          <td>1 januari 2022</td>
+          <td>15 maart 2026</td>
+          <td class="font-bold text-primary">4 jaar, 2 mnd en 14 dgn</td>
+          <td>1.534 dagen</td>
+          <td>Exacte kalendermaanden en restdagen</td>
+        </tr>
+        <tr>
+          <td>29 februari 2020</td>
+          <td>28 februari 2024</td>
+          <td class="font-bold text-primary">3 jaar, 11 mnd en 30 dgn</td>
+          <td>1.460 dagen</td>
+          <td>Start op schrikkeldag</td>
+        </tr>
+        <tr>
+          <td>29 februari 2020</td>
+          <td>29 februari 2024</td>
+          <td class="font-bold text-primary">4 jaar</td>
+          <td>1.461 dagen</td>
+          <td>Precies 1 schrikkelcyclus (4 volle jaren)</td>
+        </tr>
+        <tr>
+          <td>1 mei 2025</td>
+          <td>1 november 2025</td>
+          <td class="font-bold text-primary">6 maanden</td>
+          <td>184 dagen</td>
+          <td>Exact 6 aaneengesloten kalendermaanden</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('arbeidsverleden-calc');
+    if (!calc) return;
+
+    // Elements
+    const inputStart = calc.querySelector('#input-start-date') as HTMLInputElement;
+    const inputEnd = calc.querySelector('#input-end-date') as HTMLInputElement;
+    const btnToday = calc.querySelector('#btn-today') as HTMLButtonElement;
+    const btnReset = calc.querySelector('#btn-reset-arbeidsverleden') as HTMLButtonElement;
+
+    // Output elements
+    const alertError = calc.querySelector('#alert-date-error') as HTMLElement;
+    const errorMessageText = calc.querySelector('#error-message-text') as HTMLElement;
+    const resultHeroBox = calc.querySelector('#result-hero-box') as HTMLElement;
+    const resultBreakdownBox = calc.querySelector('#result-breakdown-box') as HTMLElement;
+
+    const resHeroDuration = calc.querySelector('#res-hero-duration') as HTMLElement;
+    const resHeroSub = calc.querySelector('#res-hero-sub') as HTMLElement;
+    const resStartText = calc.querySelector('#res-start-text') as HTMLElement;
+    const resEndText = calc.querySelector('#res-end-text') as HTMLElement;
+    const resYearsText = calc.querySelector('#res-years-text') as HTMLElement;
+    const resMonthsText = calc.querySelector('#res-months-text') as HTMLElement;
+    const resDaysText = calc.querySelector('#res-days-text') as HTMLElement;
+    const resTotalDays = calc.querySelector('#res-total-days') as HTMLElement;
+    const resApproxMonths = calc.querySelector('#res-approx-months') as HTMLElement;
+
+    // Helpers
+    const toIsoDate = (d: Date): string => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const parseDateSafe = (dStr: string): Date => {
+      const parts = (dStr || '').split('-').map(Number);
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+      return new Date();
+    };
+
+    const formatDateDutch = (d: Date): string => {
+      return new Intl.DateTimeFormat('nl-NL', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(d);
+    };
+
+    const formatHumanReadable = (y: number, m: number, d: number): string => {
+      if (y === 0 && m === 0 && d === 0) {
+        return '0 dagen';
+      }
+      const parts: string[] = [];
+      if (y > 0) parts.push(`${y} ${y === 1 ? 'jaar' : 'jaar'}`);
+      if (m > 0) parts.push(`${m} ${m === 1 ? 'maand' : 'maanden'}`);
+      if (d > 0) parts.push(`${d} ${d === 1 ? 'dag' : 'dagen'}`);
+
+      if (parts.length === 1) return parts[0];
+      if (parts.length === 2) return `${parts[0]} en ${parts[1]}`;
+      return `${parts[0]}, ${parts[1]} en ${parts[2]}`;
+    };
+
+    // Standaardwaarden instellen: 5 jaar geleden tot vandaag
+    const now = new Date();
+    const defaultStart = new Date(now.getFullYear() - 5, now.getMonth(), now.getDate());
+
+    inputStart.value = toIsoDate(defaultStart);
+    inputEnd.value = toIsoDate(now);
+
+    function calculate() {
+      const startD = parseDateSafe(inputStart.value);
+      const endD = parseDateSafe(inputEnd.value);
+
+      const utc1 = Date.UTC(startD.getFullYear(), startD.getMonth(), startD.getDate());
+      const utc2 = Date.UTC(endD.getFullYear(), endD.getMonth(), endD.getDate());
+
+      if (utc2 < utc1) {
+        alertError.style.display = 'block';
+        errorMessageText.textContent = 'De einddatum kan niet vóór de startdatum liggen.';
+        resHeroDuration.textContent = 'Ongeldige periode';
+        resHeroSub.textContent = 'Kies een einddatum die op of na de startdatum ligt';
+        resYearsText.textContent = '-';
+        resMonthsText.textContent = '-';
+        resDaysText.textContent = '-';
+        resTotalDays.textContent = '-';
+        resApproxMonths.textContent = '-';
+        return;
+      }
+
+      alertError.style.display = 'none';
+
+      const totalDays = Math.round((utc2 - utc1) / 86400000);
+
+      let years = endD.getFullYear() - startD.getFullYear();
+      let months = endD.getMonth() - startD.getMonth();
+      let days = endD.getDate() - startD.getDate();
+
+      if (days < 0) {
+        months--;
+        const prevMonth = new Date(endD.getFullYear(), endD.getMonth(), 0);
+        days += prevMonth.getDate();
+      }
+
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      const formattedStartDate = formatDateDutch(startD);
+      const formattedEndDate = formatDateDutch(endD);
+      const humanReadable = formatHumanReadable(years, months, days);
+      const approxMonths = Math.round((years * 12 + months + days / 30.4375) * 10) / 10;
+
+      // Update UI
+      resHeroDuration.textContent = humanReadable;
+      resHeroSub.textContent = `Periode: ${formattedStartDate} t/m ${formattedEndDate}`;
+
+      resStartText.textContent = formattedStartDate;
+      resEndText.textContent = formattedEndDate;
+      resYearsText.textContent = `${years} ${years === 1 ? 'jaar' : 'jaar'}`;
+      resMonthsText.textContent = `${months} ${months === 1 ? 'maand' : 'maanden'}`;
+      resDaysText.textContent = `${days} ${days === 1 ? 'dag' : 'dagen'}`;
+
+      resTotalDays.textContent = new Intl.NumberFormat('nl-NL').format(totalDays) + ' dagen';
+      resApproxMonths.textContent = `circa ${new Intl.NumberFormat('nl-NL', { maximumFractionDigits: 1 }).format(approxMonths)} maanden`;
+    }
+
+    // Event listeners
+    inputStart.addEventListener('input', calculate);
+    inputStart.addEventListener('change', calculate);
+    inputEnd.addEventListener('input', calculate);
+    inputEnd.addEventListener('change', calculate);
+
+    btnToday.addEventListener('click', () => {
+      inputEnd.value = toIsoDate(new Date());
+      calculate();
+    });
+
+    btnReset.addEventListener('click', () => {
+      const todayDate = new Date();
+      const resetStart = new Date(todayDate.getFullYear() - 5, todayDate.getMonth(), todayDate.getDate());
+      inputStart.value = toIsoDate(resetStart);
+      inputEnd.value = toIsoDate(todayDate);
+      calculate();
+    });
+
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    border-radius: 9999px;
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

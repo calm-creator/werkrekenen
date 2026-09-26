@@ -1,0 +1,159 @@
+---
+// src/pages/netto-besteedbaar-inkomen-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import NettoBesteedbaarInkomenCalculator from '../components/calculators/NettoBesteedbaarInkomenCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('netto-besteedbaar-inkomen-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat is netto besteedbaar inkomen?',
+    answer: 'Het netto besteedbaar inkomen is het bedrag dat overblijft van al je binnenkomende netto inkomsten (salaris, toeslagen en eventuele uitkeringen) nadat alle verplichte maandelijkse vaste lasten (zoals huur of hypotheek, energie, water, zorgverzekering en vervoer) zijn betaald.'
+  },
+  {
+    question: 'Hoe bereken ik mijn netto besteedbaar inkomen?',
+    answer: 'Je telt eerst al je maandelijkse netto inkomsten bij elkaar op (jouw nettoloon, eventueel partnerinkomen, toeslagen en alimentatie). Vervolgens trek je daar al je noodzakelijke vaste lasten van af. De formule luidt: Netto besteedbaar inkomen = Totale netto inkomsten − Totale vaste lasten.'
+  },
+  {
+    question: 'Wat is het verschil tussen netto inkomen en netto besteedbaar inkomen?',
+    answer: 'Netto inkomen is het bedrag dat je werkgever of uitkeringsinstantie op je bankrekening stort nadat belastingen en premies zijn ingehouden. Netto besteedbaar inkomen is het geld dat overblijft náást je vaste woon- en leeflasten, waarmee je dagelijkse boodschappen betaalt en spaart.'
+  },
+  {
+    question: 'Welke inkomsten tellen mee bij mijn besteedbaar inkomen?',
+    answer: 'Alle structurele inkomsten die maandelijks op je rekening binnenkomen tellen mee: je netto basissalaris, het nettoloon van je partner (bij een gezamenlijk huishouden), ontvangen partneralimentatie, toeslagen van de Belastingdienst en eventuele vaste uitkeringen.'
+  },
+  {
+    question: 'Tellen toeslagen mee bij het netto besteedbaar inkomen?',
+    answer: 'Ja, toeslagen zoals zorgtoeslag, huurtoeslag en het kindgebonden budget verhogen direct je maandelijkse besteedbare ruimte. Omdat dit maandelijks gestorte bedragen zijn die bedoeld zijn om specifieke vaste lasten te compenseren, horen ze thuis bij de inkomstenkant.'
+  },
+  {
+    question: 'Welke vaste lasten moet ik aftrekken?',
+    answer: 'Trek alle terugkerende contractuele lasten af die je maandelijks móét betalen: huur of hypotheek, energiekosten, water, basis- en aanvullende zorgpremie, vervoerskosten (autoverzekering, wegenbelasting of OV-abonnement), internet, telefoon en gemeentelijke heffingen.'
+  },
+  {
+    question: 'Hoeveel geld houd ik per maand over?',
+    answer: 'Dat hangt af van je inkomensniveau en woonlasten. Volgens vuistregels zoals de 50/30/20-methode en Nibud-referenties zou je idealiter minimaal 20% van je netto inkomen over moeten houden om te reserveren en sparen, en 30% voor variabele huishoudelijke kosten (voeding, kleding).'
+  },
+  {
+    question: 'Hoe bereken ik mijn besteedbaar inkomen per jaar?',
+    answer: 'Vermenigvuldig je maandelijkse besteedbare bedrag met 12. Let op: ontvang je jaarlijks vakantiegeld (8%) of een 13e maand? Dan kun je deze extra bedragen apart als spaarbuffer of bestedingsruimte toevoegen aan je jaartotaal.'
+  },
+  {
+    question: 'Is mijn netto besteedbaar inkomen hetzelfde als mijn vrij besteedbare inkomen?',
+    answer: 'Niet helemaal. Netto besteedbaar inkomen is het bedrag na vaste lasten. Hier moeten de noodzakelijke variabele kosten (zoals eten, drinken, kleding en drogisterijartikelen) nog van betaald worden. Wat daarna écht overblijft voor luxe, vakanties en vrije tijd noemt men vrij besteedbaar inkomen.'
+  },
+  {
+    question: 'Waarom verschilt mijn besteedbaar inkomen van dat van iemand anders met hetzelfde salaris?',
+    answer: 'Omdat vaste lasten per persoon enorm verschillen. Iemand met een sociale huurwoning of lage hypotheek houdt van hetzelfde salaris honderden euro\'s per maand meer over dan iemand met een dure particuliere huurwoning, een leaseauto of hoge energielasten in een slecht geïsoleerd huis.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Nibud & Rijksoverheid"
+>
+  <NettoBesteedbaarInkomenCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is netto besteedbaar inkomen en waarom is het belangrijk?</h2>
+    <p>
+      Het <strong>netto besteedbaar inkomen</strong> is het geldbedrag dat je als individu of huishouden daadwerkelijk overhoudt nadat alle verplichte, terugkerende vaste lasten zijn betaald van je totale netto inkomsten. Waar veel mensen zich blindstaren op hun bruto maandsalaris, weerspiegelt je besteedbare inkomen je échte financiële speelruimte in het dagelijks leven.
+    </p>
+    <p>
+      Twee mensen met exact hetzelfde salaris van bijvoorbeeld € 2.800 netto per maand kunnen een totaal andere financiële realiteit ervaren. De een betaalt € 750 aan woonlasten en houdt maandelijks een riante buffer over, terwijl de ander in een particuliere huurwoning van € 1.500 woont en aan het einde van de maand moet beknibbelen op de boodschappen. Door je besteedbaar inkomen nauwkeurig in kaart te brengen, krijg je direct inzicht in je financiële gezondheid.
+    </p>
+
+    <h2>Het verschil tussen bruto, netto, besteedbaar en vrij besteedbaar</h2>
+    <p>
+      In Nederland worden verschillende inkomensbegrippen door elkaar gebruikt. Het is belangrijk om de definities goed uit elkaar te houden:
+    </p>
+    <ul>
+      <li>
+        <strong>Bruto salaris:</strong> Het totale loon dat je met je werkgever hebt afgesproken, vóór inhouding van loonbelasting, premies volksverzekeringen en pensioenafdrachten.
+      </li>
+      <li>
+        <strong>Netto salaris / Netto inkomen:</strong> Het bedrag dat daadwerkelijk op je bankrekening wordt bijgeschreven. Dit is je bruto salaris verminderd met alle wettelijke en collectieve inhoudingen, plus eventuele heffingskortingen. Bereken exact wat je overhoudt met <a href="/netto-salaris-berekenen/">netto salaris berekenen</a>, of bekijk onze calculators voor <a href="/uurloon-naar-maandloon-berekenen/">uurloon naar maandloon</a> en <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+      </li>
+      <li>
+        <strong>Netto besteedbaar inkomen:</strong> Je totale netto inkomsten (inclusief toeslagen en partnerbijdragen) minus je vaste lasten (wonen, energie, zorg, vervoer en contractuele abonnementen). Dit is het bedrag dat overblijft voor huishoudelijke uitgaven en sparen.
+      </li>
+      <li>
+        <strong>Vrij besteedbaar inkomen:</strong> Het geld dat overblijft nadat óók alle noodzakelijke variabele kosten voor levensonderhoud (boodschappen, kleding en persoonlijke verzorging) zijn voldaan. Dit is het zakgeld voor horeca, vakanties, hobby's en luxe.
+      </li>
+    </ul>
+
+    <h2>Welke inkomsten en vaste lasten tellen mee?</h2>
+    <p>
+      Om een realistische berekening te maken, verdeel je je financiële stroom in twee hoofdcategorieën:
+    </p>
+    <h3>1. Inkomstenposten</h3>
+    <p>
+      Tel alle structurele maandelijkse geldstromen mee die binnenkomen: je eigen nettoloon, het nettoloon van je partner (indien je een gezamenlijke huishoudpot voert), eventuele partneralimentatie, structurele neveninkomsten en toeslagen van de Dienst Toeslagen (zoals zorgtoeslag, huurtoeslag en kindgebonden budget).
+    </p>
+    <h3>2. Vaste lasten</h3>
+    <p>
+      Vaste lasten zijn uitgaven die iedere maand terugkeren en waaraan je contractueel gebonden bent:
+    </p>
+    <ul>
+      <li><strong>Woonlasten:</strong> Kale huur plus servicekosten, of hypotheekrente en aflossing minus hypotheekrenteaftrek.</li>
+      <li><strong>Energie en water:</strong> Maandelijkse termijnbedragen voor elektriciteit, gas of stadswarmte en drinkwater.</li>
+      <li><strong>Zorgverzekering:</strong> De maandelijkse nominale premie voor de basisverzekering en aanvullende modules.</li>
+      <li><strong>Vervoer:</strong> Vaste autokosten (wegenbelasting, verzekering en gemiddelde brandstof of afschrijving) of je vaste OV-trajectkaart. Bekijk ook <a href="/woon-werk-kosten-berekenen/">woon-werk kosten berekenen</a> voor inzicht in je reiskosten.</li>
+      <li><strong>Overige vaste lasten:</strong> Internet, televisie, mobiele abonnementen, schadeverzekeringen (inboedel, aansprakelijkheid) en gemeentelijke belastingen.</li>
+    </ul>
+
+    <h2>Wat is een gezonde budgetverdeling volgens het Nibud?</h2>
+    <p>
+      Het <strong>Nibud</strong> (Nationaal Instituut voor Budgetvoorlichting) onderzoekt jaarlijks de financiële huishouding van Nederlandse gezinnen en publiceert referentiebudgetten in het <em>Nibud Budgethandboek</em>. Een veelgebruikte en beproefde richtlijn om je besteedbaar inkomen te beoordelen is de <strong>50/30/20-vuistregel</strong>:
+    </p>
+    <ul>
+      <li>
+        <strong>Maximaal 50% naar vaste lasten:</strong> Je totale vaste lasten (wonen, energie, verzekeringen) zouden idealiter niet meer dan de helft van je netto inkomen in beslag moeten nemen. Voor woonlasten geldt een richtlijn van maximaal 33% tot 35%.
+      </li>
+      <li>
+        <strong>Circa 30% naar huishoudelijke en variabele kosten:</strong> Dit deel van je besteedbare inkomen gebruik je voor voeding, kleding, huishoudelijke artikelen, drogisterij, persoonlijke verzorging en ontspanning.
+      </li>
+      <li>
+        <strong>Minimaal 20% naar sparen en onvoorziene kosten:</strong> Om financiële schokken (zoals een kapotte wasmachine of auto-onderhoud) op te vangen en vermogen op te bouwen voor de toekomst.
+      </li>
+    </ul>
+
+    <h2>Vier praktijkvoorbeelden uitgewerkt</h2>
+    <p>
+      Onderstaande voorbeelden laten zien hoe de verhouding tussen inkomsten en vaste lasten uitpakt:
+    </p>
+    <ul>
+      <li>
+        <strong>Voorbeeld 1: Alleenstaande met sociale huurwoning:</strong><br />
+        Netto salaris € 2.400, zorgtoeslag € 120. Totale inkomsten: € 2.520. Vaste lasten: huur € 720, energie € 140, zorg € 150, vervoer € 120, overig € 110 (totaal € 1.240). Netto besteedbaar: <strong>€ 1.280 per maand</strong> (50,8% blijft over).
+      </li>
+      <li>
+        <strong>Voorbeeld 2: Samenwonend stel met twee inkomens:</strong><br />
+        Netto inkomens € 3.100 + € 2.400 = € 5.500. Vaste lasten: hypotheek € 1.450, energie € 220, zorgverzekeringen € 310, twee auto\'s € 450, overig € 270 (totaal € 2.700). Netto besteedbaar: <strong>€ 2.800 per maand</strong> (50,9% besteedbaar).
+      </li>
+      <li>
+        <strong>Voorbeeld 3: Jonge professional in de vrije huursector:</strong><br />
+        Netto salaris € 2.650. Door hoge huurprijzen in de Randstad bedraagt de huur € 1.350 (50,9% woonquote). Samen met overige lasten (€ 600) bedragen de vaste lasten € 1.950. Netto besteedbaar: slechts <strong>€ 700 per maand</strong>.
+      </li>
+      <li>
+        <strong>Voorbeeld 4: Tijdelijk maandelijks tekort:</strong><br />
+        Netto uitkering € 1.750, vaste lasten € 1.920. De calculator toont direct een tekort van <strong>€ 170 per maand</strong>. Dit maakt direct inzichtelijk dat abonnementen moeten worden opgezegd of toeslagen moeten worden aangevraagd.
+      </li>
+    </ul>
+
+    <h2>Tips om meer besteedbaar inkomen over te houden</h2>
+    <p>
+      Blijft er aan het einde van de maand te weinig over? Met gerichte stappen kun je je besteedbare ruimte structureel vergroten:
+    </p>
+    <ol>
+      <li><strong>Controleer je toeslagen:</strong> Veel mensen laten honderden euro's per jaar liggen aan zorgtoeslag of huurtoeslag omdat ze denken er geen recht op te hebben.</li>
+      <li><strong>Vergelijk energie en verzekeringen:</strong> Jaarlijks overstappen van energiecontract of autoverzekering levert gemiddeld € 200 tot € 500 per jaar op.</li>
+      <li><strong>Schoon abonnementen op:</strong> Zeg ongebruikte streamingdiensten, sportschoolabonnementen en dubbele verzekeringen direct op.</li>
+      <li><strong>Automatiseer je spaarbedrag:</strong> Maak direct na de salarisstorting je spaargeld over naar een aparte spaarrekening, zodat je niet per ongeluk leeft naar wat er op je betaalrekening staat.</li>
+    </ol>
+  </div>
+</CalculatorLayout>

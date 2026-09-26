@@ -1,0 +1,161 @@
+---
+// src/pages/opzegtermijn-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import OpzegtermijnCalculator from '../components/calculators/OpzegtermijnCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('opzegtermijn-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe lang is de wettelijke opzegtermijn voor een werknemer?',
+    answer: 'Voor een werknemer met een vast contract geldt volgens de wet (artikel 7:672 lid 4 Burgerlijk Wetboek) een standaard opzegtermijn van 1 maand, ongeacht het aantal gewerkte dienstjaren. In je arbeidsovereenkomst of CAO mag schriftelijk een langere termijn worden afgesproken (tot maximaal 6 maanden), mits de termijn voor de werkgever minimaal het dubbele bedraagt.'
+  },
+  {
+    question: 'Wanneer gaat de opzegtermijn precies in?',
+    answer: 'In Nederland geschiedt een opzegging wettelijk tegen het einde van de kalendermaand (artikel 7:672 lid 1 BW). Dit betekent dat de termijn pas aanvangt op de eerste dag van de volgende kalendermaand. Zeg je bijvoorbeeld op 20 september op, dan start de opzegtermijn van 1 maand op 1 oktober en eindigt je arbeidsovereenkomst op 31 oktober.'
+  },
+  {
+    question: 'Wat is de opzegtermijn voor een werkgever bij een vast contract?',
+    answer: 'De wettelijke opzegtermijn voor een werkgever is afhankelijk van de totale diensttijd van de werknemer: korter dan 5 jaar dienstverband is 1 maand; 5 tot 10 jaar is 2 maanden; 10 tot 15 jaar is 3 maanden; en bij 15 jaar of langer is de termijn 4 maanden. Bij ontslag via het UWV mag de proceduretijd meestal in mindering worden gebracht, mits er minimaal 1 maand resteert.'
+  },
+  {
+    question: 'Wat is het verschil tussen de datum van opzegging en de laatste werkdag?',
+    answer: 'De datum van opzegging is het moment waarop je werkgever de schriftelijke ontslagbrief feitelijk ontvangt. De laatste werkdag valt samen met de einddatum van het dienstverband (de laatste dag van de kalendermaand waarin de opzegtermijn afloopt), tenzij je in overleg met je werkgever resterende vakantiedagen opneemt of eerder wordt vrijgesteld van werkzaamheden.'
+  },
+  {
+    question: 'Kan ik tussentijds ontslag nemen bij een tijdelijk contract?',
+    answer: 'Bij een tijdelijk contract (bepaalde tijd) kan dat alleen als er in je arbeidsovereenkomst een schriftelijk \'tussentijds opzegbeding\' is opgenomen. Ontbreekt zo\'n beding, dan moeten beide partijen het contract in beginsel tot de overeengekomen einddatum uitzitten, tenzij er sprake is van ontslag met wederzijds goedvinden of ontslag op staande voet.'
+  },
+  {
+    question: 'Mag er in mijn contract een langere opzegtermijn staan dan 1 maand?',
+    answer: 'Ja, dat mag uitsluitend als dit schriftelijk in de arbeidsovereenkomst is overeengekomen. De wettelijke hoofdregel eist dan wel dat de opzegtermijn voor de werkgever ten minste het dubbele moet zijn van die van de werknemer (bijvoorbeeld 2 maanden voor jou en 4 maanden voor je werkgever). Een CAO kan van deze dubbele termijn voor de werkgever afwijken.'
+  },
+  {
+    question: 'Wat gebeurt er als ik de wettelijke opzegtermijn niet naleef?',
+    answer: 'Zeg je op tegen een eerdere datum dan wettelijk of contractueel is toegestaan zonder instemming van je werkgever? Dan ben je volgens artikel 7:677 lid 2 BW aan de werkgever een gefixeerde schadevergoeding verschuldigd. Deze vergoeding is gelijk aan het brutoloon over de periode dat de opzegtermijn normaal gesproken nog had moeten duren.'
+  },
+  {
+    question: 'Moet ik mijn ontslag schriftelijk indienen?',
+    answer: 'Ja, het is juridisch sterk aan te raden om je opzegging schriftelijk per aangetekende brief of per e-mail met ontvangstbevestiging in te dienen. De wet vereist dat een opzeggingsverklaring de wederpartij daadwerkelijk moet hebben bereikt vóór de eerste dag van de nieuwe maand om in die maand te kunnen starten.'
+  },
+  {
+    question: 'Wat gebeurt er met mijn resterende vakantiedagen tijdens de opzegtermijn?',
+    answer: 'Je kunt in overleg met je werkgever opgebouwde vakantie-uren opnemen tijdens je opzegtermijn. Stemt je werkgever wegens zwaarwegende bedrijfsbelangen niet in, of kies je er zelf voor om door te werken, dan moet de werkgever alle openstaande vakantiedagen en opgebouwd vakantiegeld netto uitbetalen bij de definitieve eindafrekening.'
+  },
+  {
+    question: 'Geldt er een opzegtermijn tijdens een geldige proeftijd?',
+    answer: 'Nee. Tijdens een rechtsgeldig overeengekomen proeftijd kunnen zowel de werknemer als de werkgever de arbeidsovereenkomst met onmiddellijke ingang opzeggen (artikel 7:676 BW). Er geldt dan geen opzegtermijn en het dienstverband eindigt direct op de dag van de aanzegging.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Burgerlijk Wetboek (Art. 7:672 BW) & Rijksoverheid"
+>
+  <OpzegtermijnCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is een opzegtermijn en hoe werkt dit in het arbeidsrecht?</h2>
+    <p>
+      De <strong>opzegtermijn</strong> is de wettelijke of contractuele tijdsperiode die moet verstrijken tussen het moment waarop een partij laat weten de arbeidsovereenkomst te beëindigen (de opzegging) en de daadwerkelijke einddatum van het dienstverband. In het Nederlandse arbeidsrecht is deze regeling primair vastgelegd in artikel 7:672 van het Burgerlijk Wetboek (BW).
+    </p>
+    <p>
+      Het doel van de opzegtermijn is tweeledig: het biedt een werknemer inkomenszekerheid en de tijd om nieuw werk te zoeken wanneer de werkgever het initiatief tot ontslag neemt, en het geeft de werkgever de gelegenheid om vervanging te werven of taken over te dragen wanneer een werknemer zelf besluit op te stappen.
+    </p>
+
+    <h2>Het kalendermaandprincipe: opzeggen tegen het einde van de maand</h2>
+    <p>
+      Een van de meest voorkomende misverstanden bij ontslag is de gedachte dat een opzegtermijn van 1 maand simpelweg betekent dat je 30 dagen bij de opzeggingsdatum optelt. Dat is juridisch onjuist. Volgens <strong>artikel 7:672 lid 1 BW</strong> geschiedt opzegging namelijk <em>tegen het einde van een kalendermaand</em>, tenzij schriftelijk of via een CAO uitdrukkelijk een andere dag is afgesproken.
+    </p>
+    <p>
+      Dit kalendermaandprincipe houdt in dat de opzegtermijn pas formeel aanvangt op de <strong>eerste dag van de eerstvolgende kalendermaand</strong>. De termijn loopt vervolgens over volledige kalendermaanden en eindigt altijd op de allerlaatste kalenderdag van de betreffende maand.
+    </p>
+
+    <div class="callout callout-info">
+      <strong>Praktijkvoorbeeld van het kalendermaandprincipe:</strong><br />
+      Je dient je schriftelijke ontslag in op <strong>20 september</strong>. De wettelijke opzegtermijn bedraagt 1 maand. De opzegtermijn gaat in op <strong>1 oktober</strong> en loopt over de gehele maand oktober. Je arbeidsovereenkomst eindigt formeel op <strong>31 oktober</strong> (tevens je laatste officiële werkdag).
+    </div>
+
+    <p>
+      Dien je je ontslagbrief in op 1 oktober? Dan ben je net te laat voor de maand oktober. De opzegtermijn start dan pas op 1 november en het contract eindigt op 30 november. De timing van je ontslagbrief is dus van groot financieel en praktisch belang.
+    </p>
+
+    <h2>Wettelijke opzegtermijn voor de werknemer</h2>
+    <p>
+      Wanneer jij als werknemer zelf besluit ontslag te nemen bij een vast contract (onbepaalde tijd), bedraagt de wettelijke opzegtermijn <strong>standaard 1 maand</strong>. Het maakt hierbij wettelijk niet uit of je 6 maanden, 5 jaar of 20 jaar bij de organisatie werkzaam bent geweest.
+    </p>
+    <p>
+      Mag een werkgever een langere opzegtermijn van jou eisen? Ja, maar uitsluitend onder twee strenge wettelijke voorwaarden (art. 7:672 lid 6 BW):
+    </p>
+    <ol>
+      <li>De langere termijn moet <strong>schriftelijk</strong> zijn overeengekomen in je arbeidsovereenkomst en mag maximaal 6 maanden bedragen.</li>
+      <li>De termijn die de werkgever bij ontslag in acht moet nemen, moet <strong>ten minste het dubbele</strong> zijn van de termijn van de werknemer (bijvoorbeeld 2 maanden voor jou betekent minimaal 4 maanden voor de werkgever).</li>
+    </ol>
+    <p>
+      <em>Uitzondering:</em> In een collectieve arbeidsovereenkomst (CAO) kan worden afgesproken dat de werkgeverstermijn niet het dubbele hoeft te zijn, mits de termijn voor de werknemer niet langer is dan die voor de werkgever. Controleer daarom altijd je CAO.
+    </p>
+
+    <h2>Wettelijke opzegtermijn voor de werkgever op basis van dienstjaren</h2>
+    <p>
+      Wanneer de werkgever het initiatief neemt om een arbeidsovereenkomst voor onbepaalde tijd op te zeggen (nadat hiervoor een ontslagvergunning van het UWV is verkregen), is de wettelijke opzegtermijn afhankelijk van het aantal <strong>dienstjaren</strong> op de dag van opzegging (bereken je exacte diensttijd via <a href="/arbeidsverleden-berekenen/">arbeidsverleden berekenen</a>, conform art. 7:672 lid 2 BW):
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Wettelijke opzegtermijn werkgever">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Totale diensttijd bij werkgever</th>
+            <th>Wettelijke opzegtermijn werkgever</th>
+            <th>Rekenvoorbeeld (opzegging 15 maart)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Korter dan 5 jaar</strong></td>
+            <td>1 maand</td>
+            <td>Einddatum: 30 april</td>
+          </tr>
+          <tr>
+            <td><strong>5 tot 10 jaar</strong></td>
+            <td>2 maanden</td>
+            <td>Einddatum: 31 mei</td>
+          </tr>
+          <tr>
+            <td><strong>10 tot 15 jaar</strong></td>
+            <td>3 maanden</td>
+            <td>Einddatum: 30 juni</td>
+          </tr>
+          <tr>
+            <td><strong>15 jaar of langer</strong></td>
+            <td>4 maanden</td>
+            <td>Einddatum: 31 juli</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p>
+      Heeft de werkgever toestemming gekregen van het UWV om op te zeggen? Dan mag de proceduretijd die de behandeling bij het UWV heeft gekost in mindering worden gebracht op de opzegtermijn, met dien verstande dat er altijd <strong>minimaal 1 maand</strong> opzegtermijn moet overblijven.
+    </p>
+
+    <h2>Opzegtermijn bij een tijdelijk contract (bepaalde tijd)</h2>
+    <p>
+      Een arbeidsovereenkomst voor bepaalde tijd – zoals een jaarcontract – heeft een vooraf vastgestelde einddatum. De hoofdregel van artikel 7:667 BW luidt dat een tijdelijk contract <strong>automatisch van rechtswege eindigt</strong> op die datum. Er is voor die afloop geen opzegging nodig (wel geldt voor de werkgever een aanzegtermijn van 1 maand).
+    </p>
+    <p>
+      Wil jij of je werkgever vóór die overeengekomen einddatum stoppen? Dan kan dat <strong>uitsluitend als er een schriftelijk tussentijds opzegbeding</strong> in de arbeidsovereenkomst is opgenomen. Staat zo'n clausule niet in het contract, dan kunnen noch jij noch je werkgever tussentijds eenzijdig opzeggen. Doe je dit toch, dan kan de tegenpartij een schadevergoeding vorderen die gelijkstaat aan het salaris tot de oorspronkelijke einddatum.
+    </p>
+
+    <h2>Wat gebeurt er als je de opzegtermijn niet naleeft?</h2>
+    <p>
+      Wanneer een werknemer plotseling vertrekt zonder de geldende opzegtermijn in acht te nemen, is er sprake van een <em>onregelmatige opzegging</em>. Op grond van artikel 7:677 lid 2 BW heeft de werkgever in dat geval recht op een <strong>gefixeerde schadevergoeding</strong>. Deze vergoeding is gelijk aan het bedrag van het loon dat de werkgever had moeten betalen over de termijn die bij een regelmatige opzegging had moeten gelden.
+    </p>
+    <p>
+      Wil je overstappen naar een nieuwe werkgever en wil je sneller beginnen dan je opzegtermijn toelaat? Ga dan altijd in overleg met je huidige werkgever over <strong>ontslag met wederzijds goedvinden</strong>. Werkgevers stemmen regelmatig in met een kortere termijn wanneer lopende projecten netjes zijn overgedragen of wanneer je openstaande vakantiedagen inzet. Bereken vooraf hoeveel vakantie-uren je nog hebt staan via onze tool voor <a href="/vakantiedagen-berekenen/">vakantiedagen berekenen</a>, bereken je eventuele ontslagvergoeding met <a href="/transitievergoeding-berekenen/">transitievergoeding berekenen</a> of bekijk de verhouding met je deeltijduren via <a href="/fte-berekenen/">FTE berekenen</a>.
+    </p>
+  </div>
+</CalculatorLayout>

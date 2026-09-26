@@ -1,0 +1,213 @@
+---
+// src/pages/transitievergoeding-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import TransitievergoedingCalculator from '../components/calculators/TransitievergoedingCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('transitievergoeding-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat is een transitievergoeding?',
+    answer: 'Een transitievergoeding is een wettelijk verplichte financiële ontslagvergoeding die een werkgever aan een werknemer moet betalen bij beëindiging of het niet-verlengen van de arbeidsovereenkomst op initiatief van de werkgever. De vergoeding is vastgelegd in artikel 7:673 van het Burgerlijk Wetboek (BW) en dient als compensatie voor het ontslag en ter ondersteuning bij de overstap naar ander werk of omscholing.'
+  },
+  {
+    question: 'Wanneer heb ik recht op een transitievergoeding?',
+    answer: 'Je hebt recht op een transitievergoeding wanneer je werkgever het initiatief neemt om de arbeidsovereenkomst te beëindigen (via het UWV of de kantonrechter) of wanneer een tijdelijk contract op initiatief van de werkgever niet wordt verlengd. Sinds de invoering van de Wet arbeidsmarkt in balans (WAB) in 2020 heb je direct vanaf je allereerste werkdag recht op deze vergoeding, ongeacht de duur van je dienstverband.'
+  },
+  {
+    question: 'Hoe bereken ik mijn transitievergoeding in 2026?',
+    answer: 'De wettelijke opbouw bedraagt één derde (1/3) van je bruto maandsalaris per volledig gewerkt dienstjaar. Voor resterende maanden en dagen wordt de vergoeding evenredig berekend volgens de formule: (resterende maanden / 12) × (1/3 maandsalaris) + (resterende dagen / 365) × (1/3 maandsalaris). Het maandsalaris is inclusief 8% vakantiegeld en vaste loonbestanddelen.'
+  },
+  {
+    question: 'Telt vakantiegeld en een 13e maand mee voor de transitievergoeding?',
+    answer: 'Ja. Volgens het Besluit loonbegrip vergoeding aanzegtermijn en transitievergoeding telt niet alleen je bruto basissalaris mee, maar ook de vaste vakantiebijslag (standaard 8%), een vaste 13e maand of eindejaarsuitkering (gedeeld door 12), structurele ploegentoeslagen en het gemiddelde van variabele beloningen (zoals bonussen en provisies over de afgelopen 36 maanden of overwerk over de laatste 12 maanden).'
+  },
+  {
+    question: 'Wat is het wettelijk maximum van de transitievergoeding in 2026?',
+    answer: 'In 2026 is de wettelijke transitievergoeding gemaximeerd op € 102.000 bruto. Indien het bruto jaarsalaris van de werknemer hoger is dan € 102.000 (inclusief vakantiegeld en vaste toeslagen), bedraagt het maximum maximaal één bruto jaarsalaris. Dit bedrag wordt jaarlijks door de overheid geïndexeerd.'
+  },
+  {
+    question: 'Heb ik recht op transitievergoeding als mijn tijdelijke contract niet wordt verlengd?',
+    answer: 'Ja, als je werkgever besluit om een tijdelijke arbeidsovereenkomst na afloop niet te verlengen, heb je volgens de wet recht op de volledige transitievergoeding vanaf de eerste dag van indiensttreding tot en met de laatste werkdag. Biedt de werkgever jou een gelijkwaardig nieuw contract aan en weiger je dat zelf, dan vervalt het recht in de regel.'
+  },
+  {
+    question: 'Heb ik recht op een transitievergoeding bij ontslag met wederzijds goedvinden (VSO)?',
+    answer: 'Bij een vaststellingsovereenkomst (VSO) geldt de wettelijke transitievergoeding juridisch niet als dwingend voorschrift, omdat partijen vrij zijn om onderling afspraken te maken. In de praktijk geldt de wettelijke transitievergoeding echter als het absolute minimale startpunt van de onderhandelingen over de ontslagvergoeding.'
+  },
+  {
+    question: 'Heb ik recht op transitievergoeding als ik zelf ontslag neem?',
+    answer: 'Nee, in principe niet. Wie vrijwillig zelf ontslag neemt, heeft wettelijk geen recht op een transitievergoeding. De enige uitzondering hierop is wanneer je zelf opzegt of ontbinding vraagt omdat de werkgever ernstig verwijtbaar heeft gehandeld of nagelaten (bijvoorbeeld bij ernstig wangedrag, intimidatie of structureel niet uitbetalen van loon).'
+  },
+  {
+    question: 'Hoe wordt de transitievergoeding berekend bij een oproepcontract of nulurencontract?',
+    answer: 'Bij een oproepcontract, min-maxcontract of variabele uren wordt het maandsalaris berekend aan de hand van het gemiddelde aantal gewerkte uren over de voorafgaande twaalf kalendermaanden vermenigvuldigd met het actuele bruto uurloon. Daarbovenop worden het vakantiegeld (8%) en eventuele toeslagen meegeteld.'
+  },
+  {
+    question: 'Moet ik belasting betalen over mijn transitievergoeding?',
+    answer: 'Ja, een transitievergoeding wordt door de Belastingdienst aangemerkt als \'loon uit vroegere dienstbetrekking\'. De werkgever houdt bij de uitbetaling direct loonheffing in volgens het bijzondere belastingtarief (tabel bijzondere beloningen). Je kunt belasting besparen door (een deel van) de bruto vergoeding rechtstreeks te laten aanwenden voor outplacement of een erkende beroepsopleiding.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Rijksoverheid & Burgerlijk Wetboek"
+>
+  <TransitievergoedingCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is een transitievergoeding en waarvoor dient deze?</h2>
+    <p>
+      De <strong>transitievergoeding</strong> is de wettelijke ontslagvergoeding waarop een werknemer in Nederland recht heeft wanneer het dienstverband op initiatief van de werkgever eindigt of niet wordt verlengd. Deze vergoeding is vastgelegd in artikel 7:673 van het Burgerlijk Wetboek (BW) en vormt een centrale pijler van het ontslagrecht.
+    </p>
+    <p>
+      Het doel van de transitievergoeding is tweeledig: financiële compensatie bieden voor het verlies van werk en inkomen, en de overstap naar een nieuwe werkkring vergemakkelijken door omscholing, opleiding of outplacementbegeleiding te bekostigen.
+    </p>
+    <p>
+      Sinds de invoering van de <strong>Wet arbeidsmarkt in balans (WAB)</strong> op 1 januari 2020 bouw je als werknemer direct vanaf je allereerste werkdag een evenredig recht op transitievergoeding op. De voormalige wachttijd van twee jaar is definitief afgeschaft, waardoor ook flexwerkers en tijdelijke krachten vanaf dag één beschermd zijn.
+    </p>
+
+    <h2>De wettelijke berekeningsformule onder de WAB</h2>
+    <p>
+      De berekening van de transitievergoeding volgt een vaste wettelijke maatstaf die gelijk is voor alle werknemers. De basisformule luidt:
+    </p>
+    <p style="text-align: center; font-weight: 600; padding: 0.75rem; background: var(--color-bg-subtle, #f8fafc); border-radius: 0.5rem; border: 1px solid var(--color-border, #e2e8f0);">
+      Transitievergoeding = (Dienstjaren) × (1/3 × Bruto maandsalaris)
+    </p>
+    <p>
+      Voor dienstverbanden die niet uit hele kalenderjaren bestaan, bepaalt artikel 7:673 lid 2 BW dat resterende maanden en dagen naar rato worden vergoed:
+    </p>
+    <ul>
+      <li>
+        <strong>Volle dienstjaren:</strong> Voor ieder volledig gewerkt dienstjaar ontvang je exact 1/3 van het bruto maandsalaris.
+      </li>
+      <li>
+        <strong>Resterende maanden:</strong> Voor iedere resterende kalendermaand: <code>(resterende maanden / 12) × (1/3 × maandsalaris)</code>.
+      </li>
+      <li>
+        <strong>Resterende dagen:</strong> Voor resterende dagen naar rato van een kalenderjaar: <code>(resterende dagen / 365) × (1/3 × maandsalaris)</code>.
+      </li>
+    </ul>
+    <p>
+      De som van deze delen vormt de bruto vergoeding. Gebruik onze calculator voor <a href="/arbeidsverleden-berekenen/">arbeidsverleden berekenen</a> om je exacte kalenderduur vast te stellen.
+    </p>
+
+    <h2>Welke looncomponenten tellen mee? (Besluit loonbegrip)</h2>
+    <p>
+      Kijk nooit uitsluitend naar het basissalaris. In het <em>Besluit loonbegrip vergoeding aanzegtermijn en transitievergoeding</em> is vastgelegd welke emolumenten wettelijk tot het maandloon behoren:
+    </p>
+    <ol>
+      <li>
+        <strong>Bruto basissalaris:</strong> Het afgesproken maandloon. Bij wisselende uren of een oproepcontract geldt het gemiddelde over de afgelopen twaalf maanden.
+      </li>
+      <li>
+        <strong>Vakantiegeld:</strong> De wettelijke vakantiebijslag (standaard 8%) telt verplicht mee en verhoogt de berekeningsgrondslag direct. Zie ook <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+      </li>
+      <li>
+        <strong>Vaste 13e maand of eindejaarsuitkering:</strong> Een contractuele vaste dertiende maand wordt door 12 gedeeld en bij het maandloon opgeteld. Zie onze tool voor <a href="/13e-maand-berekenen/">13e maand berekenen</a>.
+      </li>
+      <li>
+        <strong>Vaste toeslagen:</strong> Structurele maandelijkse toeslagen zoals ploegentoeslag of onregelmatigheidstoeslag tellen volledig mee.
+      </li>
+      <li>
+        <strong>Variabele beloningen en overwerk:</strong> Prestatiebonussen en provisies tellen mee als gemiddelde over de afgelopen 36 maanden. Structureel overwerk wordt meegenomen als gemiddelde over de laatste 12 kalendermaanden.
+      </li>
+    </ol>
+    <p>
+      Onbelaste kostenvergoedingen (zoals reiskosten of thuiswerkvergoeding), pensioenpremies van de werkgever en de fiscale bijtelling van een auto van de zaak tellen niet mee.
+    </p>
+
+    <h2>Wettelijk maximum en uitzonderingen in 2026</h2>
+    <p>
+      De wetgever hanteert een wettelijk maximum ter bescherming tegen onevenredig hoge ontslagkosten:
+    </p>
+    <ul>
+      <li>
+        <strong>Wettelijk maximum 2026:</strong> De maximale transitievergoeding bedraagt in 2026 <strong>€ 102.000 bruto</strong> (in 2025 was dit € 98.000).
+      </li>
+      <li>
+        <strong>Uitzondering bij hoog salaris:</strong> Verdient de werknemer meer dan € 102.000 bruto per jaar (inclusief vakantietoeslag)? Dan geldt als maximum ten hoogste één volledig bruto jaarsalaris.
+      </li>
+    </ul>
+    <p>
+      Komt de uitkomst van de berekening boven dit maximum uit, dan wordt het bedrag wettelijk afgetopt.
+    </p>
+
+    <h2>Wanneer heb je wel of géén recht op transitievergoeding?</h2>
+    <p>
+      Het wettelijke recht op een transitievergoeding is gekoppeld aan de wijze waarop het dienstverband wordt beëindigd:
+    </p>
+    <h3>Situaties mét recht op transitievergoeding:</h3>
+    <ul>
+      <li>Opzegging door de werkgever na verkregen ontslagvergunning van het UWV (bijvoorbeeld wegens bedrijfseconomische gronden of langdurige arbeidsongeschiktheid na 104 weken ziekte).</li>
+      <li>Ontbinding van de arbeidsovereenkomst door de kantonrechter op verzoek van de werkgever (bijvoorbeeld wegens disfunctioneren, verstoorde arbeidsverhouding of een cumulatie van omstandigheden).</li>
+      <li>Niet-verlenging van een tijdelijk contract op initiatief van de werkgever.</li>
+      <li>Beëindiging of opzegging op initiatief van de werknemer wegens ernstig verwijtbaar handelen of nalaten van de werkgever.</li>
+    </ul>
+
+    <h3>Situaties zónder recht op transitievergoeding:</h3>
+    <ul>
+      <li>Vrijwillig ontslag door de werknemer zelf, tenzij er sprake is van ernstig verwijtbaar handelen van de werkgever.</li>
+      <li>Ontslag wegens ernstig verwijtbaar handelen of nalaten van de werknemer (zoals diefstal, verduistering, fraude of een rechtsgeldig ontslag op staande voet).</li>
+      <li>Beëindiging van het contract wegens of na het bereiken van de wettelijke AOW-gerechtigde leeftijd of de overeengekomen pensioenleeftijd.</li>
+      <li>Faillissement, surseance van betaling of wettelijke schuldsanering (WSNP) van de werkgever.</li>
+      <li>Jongeren onder de 18 jaar die gemiddeld maximaal 12 uur per week werkten.</li>
+    </ul>
+
+    <h3>Bijzondere situatie: Vaststellingsovereenkomst (VSO)</h3>
+    <p>
+      Bij beëindiging met wederzijds goedvinden via een vaststellingsovereenkomst (VSO) is de wettelijke regeling formeel niet bindend, omdat werkgever en werknemer contractvrijheid hebben. In de onderhandelingspraktijk geldt de wettelijke transitievergoeding echter vrijwel altijd als het absolute minimale vertrekpunt voor de beëindigingsvergoeding. Werknemers bedingen via een VSO geregeld een hogere vergoeding ter compensatie van juridische kosten of een langere overbruggingsperiode. Raadpleeg ook onze pagina over <a href="/opzegtermijn-berekenen/">opzegtermijn berekenen</a>.
+    </p>
+
+    <h2>Compensatieregeling transitievergoeding voor werkgevers via UWV</h2>
+    <p>
+      In specifieke situaties voorziet de wet in een UWV-compensatieregeling om onevenredige loonkosten voor werkgevers te beperken:
+    </p>
+    <ul>
+      <li>
+        <strong>Langdurige ziekte (2 jaar):</strong> Werkgevers die na twee jaar loondoorbetaling een zieke werknemer ontslaan, kunnen de betaalde transitievergoeding volledig gecompenseerd krijgen door het UWV. Dit voorkomt ‘slapende dienstverbanden’.
+      </li>
+      <li>
+        <strong>Bedrijfsbeëindiging kleine werkgevers:</strong> Werkgevers met minder dan 25 werknemers die stoppen wegens pensionering of overlijden, kunnen compensatie aanvragen voor de transitievergoedingen.
+      </li>
+    </ul>
+
+    <h2>Aanvullende billijke vergoeding</h2>
+    <p>
+      Wanneer het ontslag te wijten is aan ernstig verwijtbaar handelen van de werkgever (zoals discriminatie of ernstig wangedrag), kan de kantonrechter naast de transitievergoeding een aanvullende <em>billijke vergoeding</em> toekennen. Deze vergoeding kent geen wettelijk maximum en wordt door de rechter naar billijkheid vastgesteld.
+    </p>
+
+    <h2>Drie praktische rekenvoorbeelden uitgewerkt</h2>
+    <p>
+      Onderstaande praktijkvoorbeelden verduidelijken hoe de opbouw verloopt:
+    </p>
+    <ul>
+      <li>
+        <strong>Voorbeeld 1: Vast contract van 3 jaar en 6 maanden:</strong><br />
+        Basissalaris € 3.000 bruto. Grondslag met 8% vakantiegeld is € 3.240. Opbouw per vol jaar: 1/3 van € 3.240 = € 1.080. Voor 3 volle jaren: 3 × € 1.080 = € 3.240. Voor de resterende 6 maanden: (6 / 12) × € 1.080 = € 540. Totaal bruto: <strong>€ 3.780,00</strong>.
+      </li>
+      <li>
+        <strong>Voorbeeld 2: Tijdelijk contract van 9 maanden:</strong><br />
+        Basissalaris € 2.500 bruto. Grondslag inclusief vakantiegeld bedraagt € 2.700. Het contract wordt na 9 maanden niet verlengd. Vergoeding: (9 / 12) × (1/3 × € 2.700) = <strong>€ 675,00 bruto</strong>.
+      </li>
+      <li>
+        <strong>Voorbeeld 3: Dienstverband van 12 jaar met 13e maand en toeslagen:</strong><br />
+        Basissalaris € 4.000, vakantiegeld € 320, vaste 13e maand € 333,33 en ploegentoeslag € 250. Maandgrondslag = € 4.903,33. Opbouw per jaar = € 1.634,44. Voor 12 dienstjaren: 12 × € 1.634,44 = <strong>€ 19.613,28 bruto</strong>.
+      </li>
+    </ul>
+
+    <h2>Belasting en netto uitbetaling van de transitievergoeding</h2>
+    <p>
+      De transitievergoeding is een bruto ontslagvergoeding die fiscaal geldt als ‘loon uit vroegere dienstbetrekking’. De werkgever houdt bij uitbetaling direct loonheffing in volgens het bijzonder tarief.
+    </p>
+    <p>
+      Omdat het bedrag bovenop je reguliere jaarinkomen komt, valt de vergoeding veelal deels in de hoogste belastingschijf (49,50% in 2026), waardoor je netto doorgaans 50% tot 63% overhoudt.
+    </p>
+    <p>
+      <strong>Belastingbesparende optie:</strong> Wordt (een deel van) de transitievergoeding rechtstreeks aangewend voor outplacement of een erkende beroepsopleiding? Dan kan dit bedrag onder voorwaarden belastingvrij door de werkgever worden vergoed.
+    </p>
+  </div>
+</CalculatorLayout>

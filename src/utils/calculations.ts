@@ -1,4 +1,4 @@
-import { DUTCH_RATES } from '../data/dutchRates.ts';
+import { DUTCH_RATES, PAYROLL_TAX_RATES_2026, type PayrollTaxRates } from '../data/dutchRates.ts';
 import { getDutchHolidays } from '../data/holidays.ts';
 
 /* =========================================================================
@@ -1353,3 +1353,1838 @@ export function calculateDertiendeMaand(options: DertiendeMaandOptions): Dertien
     isPartialYear
   };
 }
+
+/* =========================================================================
+   20. Opzegtermijn Berekenen
+   Wettelijke opzegtermijn conform art. 7:672 Burgerlijk Wetboek.
+   Opzegging geschiedt tegen het einde van de kalendermaand.
+   ========================================================================= */
+export interface OpzegtermijnOptions {
+  initiator: 'werknemer' | 'werkgever';
+  contractType: 'vast' | 'tijdelijk';
+  noticeDate: string; // YYYY-MM-DD
+  startDate?: string; // YYYY-MM-DD (indiensttreding, vereist voor werkgever)
+}
+
+export interface OpzegtermijnResult {
+  initiator: 'werknemer' | 'werkgever';
+  contractType: 'vast' | 'tijdelijk';
+  noticeDate: string; // YYYY-MM-DD
+  startDate?: string;
+  yearsOfService: number;
+  monthsOfService: number;
+  serviceBracketText: string;
+  noticePeriodMonths: number;
+  noticePeriodText: string;
+  startOfNoticeDate: string; // YYYY-MM-DD
+  expectedEndDate: string; // YYYY-MM-DD
+  formattedNoticeDate: string; // "20 september 2026"
+  formattedStartDate?: string;
+  formattedStartOfNoticeDate: string; // "1 oktober 2026"
+  formattedExpectedEndDate: string; // "31 oktober 2026"
+  isTemporaryContract: boolean;
+  explanation: string;
+}
+
+export function calculateOpzegtermijn(options: OpzegtermijnOptions): OpzegtermijnResult {
+  const { initiator, contractType, noticeDate, startDate } = options;
+
+  const parseDateSafe = (dStr: string): Date => {
+    const parts = dStr.split('-').map(Number);
+    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    return new Date();
+  };
+
+  const toIsoDate = (d: Date): string => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
+
+  const formatDateDutch = (d: Date): string => {
+    return new Intl.DateTimeFormat('nl-NL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(d);
+  };
+
+  const noticeD = parseDateSafe(noticeDate);
+  const formattedNoticeDate = formatDateDutch(noticeD);
+
+  let yearsOfService = 0;
+  let monthsOfService = 0;
+  let formattedStartDate = '';
+
+  if (startDate) {
+    const startD = parseDateSafe(startDate);
+    formattedStartDate = formatDateDutch(startD);
+
+    let y = noticeD.getFullYear() - startD.getFullYear();
+    let m = noticeD.getMonth() - startD.getMonth();
+    let dayDiff = noticeD.getDate() - startD.getDate();
+
+    if (dayDiff < 0) {
+      m--;
+    }
+    if (m < 0) {
+      y--;
+      m += 12;
+    }
+    yearsOfService = Math.max(0, y);
+    monthsOfService = Math.max(0, m);
+  }
+
+  // Bepaal wettelijke opzegtermijn in maanden
+  let noticePeriodMonths = 1;
+  let serviceBracketText = '';
+
+  if (initiator === 'werknemer') {
+    noticePeriodMonths = 1;
+    serviceBracketText = 'Standaard wettelijke termijn voor werknemer (1 maand)';
+  } else {
+    // Werkgever termijnen op basis van dienstjaren (art. 7:672 lid 2 BW)
+    if (yearsOfService < 5) {
+      noticePeriodMonths = 1;
+      serviceBracketText = 'Minder dan 5 jaar in dienst (1 maand)';
+    } else if (yearsOfService < 10) {
+      noticePeriodMonths = 2;
+      serviceBracketText = '5 tot 10 jaar in dienst (2 maanden)';
+    } else if (yearsOfService < 15) {
+      noticePeriodMonths = 3;
+      serviceBracketText = '10 tot 15 jaar in dienst (3 maanden)';
+    } else {
+      noticePeriodMonths = 4;
+      serviceBracketText = '15 jaar of langer in dienst (4 maanden)';
+    }
+  }
+
+  const noticePeriodText = noticePeriodMonths === 1 ? '1 maand' : `${noticePeriodMonths} maanden`;
+
+  // Start van de opzegtermijn: 1e dag van de volgende kalendermaand (art. 7:672 lid 1 BW)
+  const nYear = noticeD.getFullYear();
+  const nMonth = noticeD.getMonth(); // 0-indexed
+
+  const startOfNotice = new Date(nYear, nMonth + 1, 1);
+  const startOfNoticeDate = toIsoDate(startOfNotice);
+  const formattedStartOfNoticeDate = formatDateDutch(startOfNotice);
+
+  // Einddatum: laatste dag van de maand waarin de termijn afloopt
+  const expectedEndD = new Date(nYear, nMonth + noticePeriodMonths + 1, 0);
+  const expectedEndDate = toIsoDate(expectedEndD);
+  const formattedExpectedEndDate = formatDateDutch(expectedEndD);
+
+  const isTemporaryContract = contractType === 'tijdelijk';
+
+  // Toelichting opstellen
+  let explanation = '';
+  if (isTemporaryContract) {
+    explanation =
+      'Bij een tijdelijk contract eindigt de arbeidsovereenkomst meestal van rechtswege op de afgesproken einddatum. Tussentijds opzeggen kan alleen als dit volgens de arbeidsovereenkomst (schriftelijk tussentijds opzegbeding) en de wettelijke regels mogelijk is. Indien tussentijds opzeggen contractueel is toegestaan, geldt indicatief een wettelijke termijn van ' +
+      noticePeriodText +
+      ' tegen het einde van de maand (einddatum bij opzegging op ' +
+      formattedNoticeDate +
+      ': ' +
+      formattedExpectedEndDate +
+      ').';
+  } else if (initiator === 'werknemer') {
+    explanation =
+      'Je zegt als werknemer op met een vast contract. De wettelijke opzegtermijn is normaal gesproken 1 maand. Omdat je op ' +
+      formattedNoticeDate +
+      ' opzegt, begint de opzegtermijn op ' +
+      formattedStartOfNoticeDate +
+      ' en eindigt het dienstverband normaal gesproken op ' +
+      formattedExpectedEndDate +
+      '.';
+  } else {
+    const serviceYearsStr =
+      yearsOfService +
+      ' jaar' +
+      (monthsOfService > 0 ? ' en ' + monthsOfService + ' maanden' : '');
+    explanation =
+      'De werkgever zegt op bij een vast contract. Op basis van een diensttijd van ' +
+      serviceYearsStr +
+      ' (' +
+      serviceBracketText +
+      ') is de wettelijke opzegtermijn ' +
+      noticePeriodText +
+      '. Bij opzegging op ' +
+      formattedNoticeDate +
+      ' vangt de opzegtermijn aan op ' +
+      formattedStartOfNoticeDate +
+      ' en eindigt het dienstverband normaal gesproken op ' +
+      formattedExpectedEndDate +
+      '.';
+  }
+
+  return {
+    initiator,
+    contractType,
+    noticeDate,
+    startDate,
+    yearsOfService,
+    monthsOfService,
+    serviceBracketText,
+    noticePeriodMonths,
+    noticePeriodText,
+    startOfNoticeDate,
+    expectedEndDate,
+    formattedNoticeDate,
+    formattedStartDate: formattedStartDate || undefined,
+    formattedStartOfNoticeDate,
+    formattedExpectedEndDate,
+    isTemporaryContract,
+    explanation
+  };
+}
+
+/* =========================================================================
+   21. Arbeidsverleden Berekenen
+   Exacte kalenderberekening van gewerkte periode in jaren, maanden en dagen
+   ========================================================================= */
+export interface ArbeidsverledenOptions {
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+}
+
+export interface ArbeidsverledenResult {
+  startDate: string;
+  endDate: string;
+  formattedStartDate: string;
+  formattedEndDate: string;
+  years: number;
+  months: number;
+  days: number;
+  totalDays: number;
+  totalMonthsApprox: number;
+  humanReadableDuration: string;
+  periodText: string;
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export function calculateArbeidsverleden(options: ArbeidsverledenOptions): ArbeidsverledenResult {
+  const { startDate, endDate } = options;
+
+  const parseDateSafe = (dStr: string): Date => {
+    const parts = (dStr || '').split('-').map(Number);
+    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    return new Date();
+  };
+
+  const startD = parseDateSafe(startDate);
+  const endD = parseDateSafe(endDate);
+
+  const formatDateDutch = (d: Date): string => {
+    return new Intl.DateTimeFormat('nl-NL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(d);
+  };
+
+  const formattedStartDate = formatDateDutch(startD);
+  const formattedEndDate = formatDateDutch(endD);
+
+  const utc1 = Date.UTC(startD.getFullYear(), startD.getMonth(), startD.getDate());
+  const utc2 = Date.UTC(endD.getFullYear(), endD.getMonth(), endD.getDate());
+
+  if (utc2 < utc1) {
+    return {
+      startDate,
+      endDate,
+      formattedStartDate,
+      formattedEndDate,
+      years: 0,
+      months: 0,
+      days: 0,
+      totalDays: 0,
+      totalMonthsApprox: 0,
+      humanReadableDuration: 'Ongeldige periode',
+      periodText: `${formattedStartDate} t/m ${formattedEndDate}`,
+      isValid: false,
+      errorMessage: 'De einddatum kan niet vóór de startdatum liggen.'
+    };
+  }
+
+  const totalDays = Math.round((utc2 - utc1) / 86400000);
+
+  let years = endD.getFullYear() - startD.getFullYear();
+  let months = endD.getMonth() - startD.getMonth();
+  let days = endD.getDate() - startD.getDate();
+
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(endD.getFullYear(), endD.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  const formatHumanReadable = (y: number, m: number, d: number): string => {
+    if (y === 0 && m === 0 && d === 0) {
+      return '0 dagen';
+    }
+    const parts: string[] = [];
+    if (y > 0) parts.push(`${y} ${y === 1 ? 'jaar' : 'jaar'}`);
+    if (m > 0) parts.push(`${m} ${m === 1 ? 'maand' : 'maanden'}`);
+    if (d > 0) parts.push(`${d} ${d === 1 ? 'dag' : 'dagen'}`);
+
+    if (parts.length === 1) return parts[0];
+    if (parts.length === 2) return `${parts[0]} en ${parts[1]}`;
+    return `${parts[0]}, ${parts[1]} en ${parts[2]}`;
+  };
+
+  const humanReadableDuration = formatHumanReadable(years, months, days);
+  const totalMonthsApprox = Math.round((years * 12 + months + days / 30.4375) * 10) / 10;
+
+  return {
+    startDate,
+    endDate,
+    formattedStartDate,
+    formattedEndDate,
+    years,
+    months,
+    days,
+    totalDays,
+    totalMonthsApprox,
+    humanReadableDuration,
+    periodText: `${formattedStartDate} t/m ${formattedEndDate}`,
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   22. Wajong Uitkering Berekenen
+   Wajong (Wet werk en arbeidsondersteuning jonggehandicapten)
+   Referentiemaandloon 2026:
+   - Vanaf 1 juli 2026:
+     21 jaar en ouder (100%): € 2.337,00
+     20 jaar (80%): € 1.869,60
+     19 jaar (60%): € 1.402,20
+     18 jaar (50%): € 1.168,50
+   - Vanaf 1 januari 2026:
+     21 jaar en ouder (100%): € 2.294,40
+     20 jaar (80%): € 1.835,52
+     19 jaar (60%): € 1.376,64
+     18 jaar (50%): € 1.147,20
+
+   Percentages Wajong:
+   - Duurzaam geen arbeidsvermogen: 75% van het toepasselijke minimum(jeugd)loon
+   - Wel arbeidsvermogen: 70% van het toepasselijke minimum(jeugd)loon
+
+   Verrekening inkomen uit werk (Wet vereenvoudiging Wajong):
+   - 70% van de bruto inkomsten uit werk wordt verrekend met de Wajong-uitkering.
+   - De werknemer houdt bruto 30% van elke verdiende euro extra over (tot Wajong € 0 bereikt).
+   ========================================================================= */
+
+export type WajongArbeidsvermogen = 'wel' | 'geen';
+export type WajongPeriod = '2026-07' | '2026-01';
+
+export interface WajongOptions {
+  age: number;
+  arbeidsvermogen: WajongArbeidsvermogen;
+  hasWorkIncome: boolean;
+  workIncomeMonthly?: number;
+  period?: WajongPeriod;
+  guaranteeAmount?: number;
+}
+
+export interface WajongResult {
+  age: number;
+  ageGroupLabel: string;
+  arbeidsvermogen: WajongArbeidsvermogen;
+  arbeidsvermogenLabel: string;
+  wajongPercentage: number; // 70 of 75
+  referenceMonthlyWageAdult: number; // bijv. 2337.00
+  youthPercentage: number; // 50, 60, 80 of 100
+  applicableMinimumWage: number; // referentiemaandloon voor de leeftijd
+  maxWajongMonthly: number; // basis Wajong zonder inkomsten
+  hasWorkIncome: boolean;
+  workIncomeMonthly: number;
+  incomeDeduction: number; // 70% van inkomen uit werk (tot max basis)
+  retentionBenefit: number; // 30% extra overgehouden van werk
+  estimatedWajongMonthly: number; // na aftrek inkomsten
+  guaranteeAmount: number;
+  isGuaranteeApplied: boolean;
+  finalWajongMonthly: number; // inclusief eventueel garantiebedrag
+  totalGrossMonthlyIncome: number; // finalWajongMonthly + workIncomeMonthly
+  vacationAllowanceMonthlyEstimate: number; // 8% vakantiebijslag reservering UWV
+  period: WajongPeriod;
+  periodLabel: string;
+  isValid: boolean;
+  errorMessage?: string;
+  noticeMessage?: string;
+}
+
+export const WAJONG_RATES_2026 = {
+  '2026-07': {
+    label: 'Vanaf 1 juli 2026 (huidige norm)',
+    adultReferenceMonthlyWage: 2337.00
+  },
+  '2026-01': {
+    label: '1 januari t/m 30 juni 2026',
+    adultReferenceMonthlyWage: 2294.40
+  }
+};
+
+export const WAJONG_YOUTH_PERCENTAGES: Record<number, number> = {
+  18: 50,
+  19: 60,
+  20: 80
+};
+
+export function calculateWajong(options: WajongOptions): WajongResult {
+  const {
+    age,
+    arbeidsvermogen,
+    hasWorkIncome,
+    workIncomeMonthly = 0,
+    period = '2026-07',
+    guaranteeAmount = 0
+  } = options;
+
+  const periodData = WAJONG_RATES_2026[period] || WAJONG_RATES_2026['2026-07'];
+  const adultRefWage = periodData.adultReferenceMonthlyWage;
+
+  // Validation
+  if (isNaN(age) || age < 18) {
+    return {
+      age: isNaN(age) ? 0 : age,
+      ageGroupLabel: 'Jonger dan 18 jaar',
+      arbeidsvermogen,
+      arbeidsvermogenLabel: arbeidsvermogen === 'geen' ? 'Duurzaam geen arbeidsvermogen' : 'Wel arbeidsvermogen',
+      wajongPercentage: arbeidsvermogen === 'geen' ? 75 : 70,
+      referenceMonthlyWageAdult: adultRefWage,
+      youthPercentage: 0,
+      applicableMinimumWage: 0,
+      maxWajongMonthly: 0,
+      hasWorkIncome: false,
+      workIncomeMonthly: 0,
+      incomeDeduction: 0,
+      retentionBenefit: 0,
+      estimatedWajongMonthly: 0,
+      guaranteeAmount: 0,
+      isGuaranteeApplied: false,
+      finalWajongMonthly: 0,
+      totalGrossMonthlyIncome: 0,
+      vacationAllowanceMonthlyEstimate: 0,
+      period,
+      periodLabel: periodData.label,
+      isValid: false,
+      errorMessage: 'Wajong kan worden aangevraagd vanaf 18 jaar. Voer een leeftijd van 18 jaar of ouder in.'
+    };
+  }
+
+  const safeWorkIncome = hasWorkIncome ? Math.max(0, Number(workIncomeMonthly) || 0) : 0;
+  const safeGuarantee = Math.max(0, Number(guaranteeAmount) || 0);
+
+  // Age group & percentage of minimum wage
+  let youthPercentage = 100;
+  let ageGroupLabel = `${age} jaar (volwassen minimumloon)`;
+
+  if (age === 18) {
+    youthPercentage = WAJONG_YOUTH_PERCENTAGES[18];
+    ageGroupLabel = '18 jaar (50% minimumjeugdloon)';
+  } else if (age === 19) {
+    youthPercentage = WAJONG_YOUTH_PERCENTAGES[19];
+    ageGroupLabel = '19 jaar (60% minimumjeugdloon)';
+  } else if (age === 20) {
+    youthPercentage = WAJONG_YOUTH_PERCENTAGES[20];
+    ageGroupLabel = '20 jaar (80% minimumjeugdloon)';
+  } else if (age >= 21) {
+    youthPercentage = 100;
+    ageGroupLabel = age >= 67 ? `${age} jaar (AOW-leeftijd bereikt)` : `${age} jaar (100% wettelijk minimumloon)`;
+  }
+
+  let noticeMessage: string | undefined = undefined;
+  if (age >= 67) {
+    noticeMessage = 'Let op: Bij het bereiken van de AOW-gerechtigde leeftijd stopt de Wajong-uitkering en gaat u over naar de AOW.';
+  }
+
+  // Applicable reference minimum wage for this age
+  const applicableMinimumWage = Math.round(adultRefWage * (youthPercentage / 100) * 100) / 100;
+
+  // Wajong percentage: 75% for 'geen arbeidsvermogen', 70% for 'wel arbeidsvermogen'
+  const wajongPercentage = arbeidsvermogen === 'geen' ? 75 : 70;
+  const arbeidsvermogenLabel = arbeidsvermogen === 'geen'
+    ? 'Duurzaam geen arbeidsvermogen (75%)'
+    : 'Wel arbeidsvermogen (70%)';
+
+  // Base maximum Wajong without work income
+  const maxWajongMonthly = Math.round(applicableMinimumWage * (wajongPercentage / 100) * 100) / 100;
+
+  // Work income deduction: UWV harmonized rule offsets 70% of gross work income
+  let incomeDeduction = 0;
+  let retentionBenefit = 0;
+  let estimatedWajongMonthly = maxWajongMonthly;
+
+  if (safeWorkIncome > 0) {
+    const rawDeduction = 0.70 * safeWorkIncome;
+    incomeDeduction = Math.round(Math.min(maxWajongMonthly, rawDeduction) * 100) / 100;
+    estimatedWajongMonthly = Math.max(0, Math.round((maxWajongMonthly - incomeDeduction) * 100) / 100);
+    // Benefit retained: 30% of work income as long as Wajong is not zeroed out
+    retentionBenefit = Math.round(Math.min(safeWorkIncome * 0.30, (maxWajongMonthly / 0.70) * 0.30) * 100) / 100;
+  }
+
+  // Guarantee amount handling
+  let isGuaranteeApplied = false;
+  let finalWajongMonthly = estimatedWajongMonthly;
+
+  if (safeGuarantee > 0 && safeGuarantee > estimatedWajongMonthly) {
+    isGuaranteeApplied = true;
+    finalWajongMonthly = safeGuarantee;
+  }
+
+  // Total gross income = final Wajong + work income
+  const totalGrossMonthlyIncome = Math.round((finalWajongMonthly + safeWorkIncome) * 100) / 100;
+
+  // 8% holiday allowance estimate
+  const vacationAllowanceMonthlyEstimate = Math.round(finalWajongMonthly * 0.08 * 100) / 100;
+
+  return {
+    age,
+    ageGroupLabel,
+    arbeidsvermogen,
+    arbeidsvermogenLabel,
+    wajongPercentage,
+    referenceMonthlyWageAdult: adultRefWage,
+    youthPercentage,
+    applicableMinimumWage,
+    maxWajongMonthly,
+    hasWorkIncome: Boolean(hasWorkIncome && safeWorkIncome > 0),
+    workIncomeMonthly: safeWorkIncome,
+    incomeDeduction,
+    retentionBenefit,
+    estimatedWajongMonthly,
+    guaranteeAmount: safeGuarantee,
+    isGuaranteeApplied,
+    finalWajongMonthly,
+    totalGrossMonthlyIncome,
+    vacationAllowanceMonthlyEstimate,
+    period,
+    periodLabel: periodData.label,
+    isValid: true,
+    noticeMessage
+  };
+}
+
+/* =========================================================================
+   23. Netto Besteedbaar Inkomen Berekenen
+   Formule:
+   Totale inkomsten = netto inkomen (+ optioneel partner) + andere inkomsten + toeslagen
+   Totale vaste lasten = huur/hypotheek + energie/water + zorgverzekering + vervoer + overig
+   Netto besteedbaar inkomen = Totale inkomsten - Totale vaste lasten
+   ========================================================================= */
+
+export interface NettoBesteedbaarInkomenOptions {
+  nettoIncome: number;
+  partnerIncome?: number;
+  otherIncome?: number;
+  allowances?: number;
+  isHousehold?: boolean;
+
+  housingCosts: number;
+  energyWaterCosts: number;
+  healthInsuranceCosts: number;
+  transportCosts: number;
+  otherFixedCosts: number;
+}
+
+export interface NettoBesteedbaarInkomenResult {
+  nettoIncome: number;
+  partnerIncome: number;
+  otherIncome: number;
+  allowances: number;
+  isHousehold: boolean;
+  totalIncomeMonthly: number;
+  totalIncomeAnnual: number;
+
+  housingCosts: number;
+  energyWaterCosts: number;
+  healthInsuranceCosts: number;
+  transportCosts: number;
+  otherFixedCosts: number;
+  totalExpensesMonthly: number;
+  totalExpensesAnnual: number;
+
+  disposableIncomeMonthly: number;
+  disposableIncomeAnnual: number;
+  disposableIncomeWeekly: number;
+  disposableIncomeDaily: number;
+
+  fixedCostsPercentage: number;
+  disposablePercentage: number;
+  housingPercentage: number;
+
+  isPositive: boolean;
+  shortfallMonthly: number;
+
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export function calculateNettoBesteedbaarInkomen(
+  options: NettoBesteedbaarInkomenOptions
+): NettoBesteedbaarInkomenResult {
+  const {
+    nettoIncome,
+    partnerIncome = 0,
+    otherIncome = 0,
+    allowances = 0,
+    isHousehold = false,
+    housingCosts,
+    energyWaterCosts,
+    healthInsuranceCosts,
+    transportCosts,
+    otherFixedCosts
+  } = options;
+
+  const rawInputs = [
+    nettoIncome,
+    partnerIncome,
+    otherIncome,
+    allowances,
+    housingCosts,
+    energyWaterCosts,
+    healthInsuranceCosts,
+    transportCosts,
+    otherFixedCosts
+  ];
+
+  if (rawInputs.some(val => typeof val === 'number' && val < 0)) {
+    return {
+      nettoIncome: 0,
+      partnerIncome: 0,
+      otherIncome: 0,
+      allowances: 0,
+      isHousehold: false,
+      totalIncomeMonthly: 0,
+      totalIncomeAnnual: 0,
+      housingCosts: 0,
+      energyWaterCosts: 0,
+      healthInsuranceCosts: 0,
+      transportCosts: 0,
+      otherFixedCosts: 0,
+      totalExpensesMonthly: 0,
+      totalExpensesAnnual: 0,
+      disposableIncomeMonthly: 0,
+      disposableIncomeAnnual: 0,
+      disposableIncomeWeekly: 0,
+      disposableIncomeDaily: 0,
+      fixedCostsPercentage: 0,
+      disposablePercentage: 0,
+      housingPercentage: 0,
+      isPositive: true,
+      shortfallMonthly: 0,
+      isValid: false,
+      errorMessage: 'Bedragen kunnen niet negatief zijn. Vul een positief getal of 0 in.'
+    };
+  }
+
+  const safeNetto = Math.max(0, Number(nettoIncome) || 0);
+  const safePartner = isHousehold ? Math.max(0, Number(partnerIncome) || 0) : 0;
+  const safeOther = Math.max(0, Number(otherIncome) || 0);
+  const safeAllowances = Math.max(0, Number(allowances) || 0);
+
+  const safeHousing = Math.max(0, Number(housingCosts) || 0);
+  const safeEnergy = Math.max(0, Number(energyWaterCosts) || 0);
+  const safeHealth = Math.max(0, Number(healthInsuranceCosts) || 0);
+  const safeTransport = Math.max(0, Number(transportCosts) || 0);
+  const safeOtherCosts = Math.max(0, Number(otherFixedCosts) || 0);
+
+  const totalIncomeMonthly = Math.round((safeNetto + safePartner + safeOther + safeAllowances) * 100) / 100;
+  const totalIncomeAnnual = Math.round((totalIncomeMonthly * 12) * 100) / 100;
+
+  const totalExpensesMonthly = Math.round((safeHousing + safeEnergy + safeHealth + safeTransport + safeOtherCosts) * 100) / 100;
+  const totalExpensesAnnual = Math.round((totalExpensesMonthly * 12) * 100) / 100;
+
+  const disposableIncomeMonthly = Math.round((totalIncomeMonthly - totalExpensesMonthly) * 100) / 100;
+  const disposableIncomeAnnual = Math.round((disposableIncomeMonthly * 12) * 100) / 100;
+  const disposableIncomeWeekly = Math.round((disposableIncomeAnnual / 52.14) * 100) / 100;
+  const disposableIncomeDaily = Math.round((disposableIncomeAnnual / 365) * 100) / 100;
+
+  const fixedCostsPercentage = totalIncomeMonthly > 0
+    ? Math.round((totalExpensesMonthly / totalIncomeMonthly) * 1000) / 10
+    : 0;
+  const disposablePercentage = totalIncomeMonthly > 0
+    ? Math.round((disposableIncomeMonthly / totalIncomeMonthly) * 1000) / 10
+    : 0;
+  const housingPercentage = totalIncomeMonthly > 0
+    ? Math.round((safeHousing / totalIncomeMonthly) * 1000) / 10
+    : 0;
+
+  const isPositive = disposableIncomeMonthly >= 0;
+  const shortfallMonthly = isPositive ? 0 : Math.round(Math.abs(disposableIncomeMonthly) * 100) / 100;
+
+  return {
+    nettoIncome: safeNetto,
+    partnerIncome: safePartner,
+    otherIncome: safeOther,
+    allowances: safeAllowances,
+    isHousehold,
+    totalIncomeMonthly,
+    totalIncomeAnnual,
+    housingCosts: safeHousing,
+    energyWaterCosts: safeEnergy,
+    healthInsuranceCosts: safeHealth,
+    transportCosts: safeTransport,
+    otherFixedCosts: safeOtherCosts,
+    totalExpensesMonthly,
+    totalExpensesAnnual,
+    disposableIncomeMonthly,
+    disposableIncomeAnnual,
+    disposableIncomeWeekly,
+    disposableIncomeDaily,
+    fixedCostsPercentage,
+    disposablePercentage,
+    housingPercentage,
+    isPositive,
+    shortfallMonthly,
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   24. Transitievergoeding Berekenen
+   Wettelijke transitievergoeding conform art. 7:673 Burgerlijk Wetboek (BW),
+   WAB-regels (vanaf dag 1) en wettelijk maximum 2026 (€ 102.000 of jaarsalaris).
+   Opbouw: 1/3 maandsalaris per vol dienstjaar, naar rato per maand en dag.
+   ========================================================================= */
+
+export type ContractTypeTransitievergoeding = 'vast' | 'tijdelijk' | 'oproep';
+
+export type TerminationReasonTransitievergoeding =
+  | 'ontslag_werkgever'
+  | 'tijdelijk_niet_verlengd'
+  | 'wederzijds_goedvinden'
+  | 'zelf_ontslag'
+  | 'ernstig_verwijtbaar_werkgever'
+  | 'ernstig_verwijtbaar_werknemer'
+  | 'pensioen'
+  | 'anders';
+
+export interface TransitievergoedingOptions {
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  contractType?: ContractTypeTransitievergoeding;
+  baseMonthlySalary?: number;
+  hourlyWage?: number;
+  averageHoursPerMonth?: number;
+  includeHolidayAllowance?: boolean;
+  holidayAllowancePercentage?: number;
+  annualBonusOr13thMonth?: number;
+  structuralAllowancesMonthly?: number;
+  variableBonusAverageMonthly?: number;
+  terminationReason?: TerminationReasonTransitievergoeding;
+  endDateInclusive?: boolean;
+}
+
+export interface TransitievergoedingResult {
+  startDate: string;
+  endDate: string;
+  formattedStartDate: string;
+  formattedEndDate: string;
+  yearsOfService: number;
+  monthsOfService: number;
+  daysOfService: number;
+  totalDays: number;
+  serviceDurationText: string;
+
+  contractType: ContractTypeTransitievergoeding;
+  contractTypeLabel: string;
+
+  baseSalaryMonthly: number;
+  holidayAllowanceMonthly: number;
+  thirteenthMonthMonthly: number;
+  structuralAllowancesMonthly: number;
+  variableBonusMonthly: number;
+  totalMonthlySalary: number;
+  totalAnnualSalary: number;
+
+  severanceFullYears: number;
+  severanceRemainingMonths: number;
+  severanceRemainingDays: number;
+  rawTransitievergoeding: number;
+
+  statutoryCap2026: number;
+  effectiveCap: number;
+  isCapped: boolean;
+  finalTransitievergoeding: number;
+
+  terminationReason: TerminationReasonTransitievergoeding;
+  terminationReasonLabel: string;
+  isEligible: boolean;
+  eligibilityStatusLabel: string;
+  eligibilityExplanation: string;
+
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export const STATUTORY_TRANSITIEVERGOEDING_MAX_2026 = 102000;
+
+export function calculateTransitievergoeding(
+  options: TransitievergoedingOptions
+): TransitievergoedingResult {
+  const {
+    startDate,
+    endDate,
+    contractType = 'vast',
+    baseMonthlySalary = 0,
+    hourlyWage = 0,
+    averageHoursPerMonth = 0,
+    includeHolidayAllowance = true,
+    holidayAllowancePercentage = 8,
+    annualBonusOr13thMonth = 0,
+    structuralAllowancesMonthly = 0,
+    variableBonusAverageMonthly = 0,
+    terminationReason = 'ontslag_werkgever',
+    endDateInclusive = true
+  } = options;
+
+  const parseDateSafe = (dStr: string): Date => {
+    const parts = (dStr || '').split('-').map(Number);
+    if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+    return new Date();
+  };
+
+  const startD = parseDateSafe(startDate);
+  const endD = parseDateSafe(endDate);
+
+  const formatDateDutch = (d: Date): string => {
+    return new Intl.DateTimeFormat('nl-NL', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    }).format(d);
+  };
+
+  const formattedStartDate = formatDateDutch(startD);
+  const formattedEndDate = formatDateDutch(endD);
+
+  const utc1 = Date.UTC(startD.getFullYear(), startD.getMonth(), startD.getDate());
+  const utc2 = Date.UTC(endD.getFullYear(), endD.getMonth(), endD.getDate());
+
+  if (utc2 < utc1) {
+    return {
+      startDate,
+      endDate,
+      formattedStartDate,
+      formattedEndDate,
+      yearsOfService: 0,
+      monthsOfService: 0,
+      daysOfService: 0,
+      totalDays: 0,
+      serviceDurationText: 'Ongeldige periode',
+      contractType,
+      contractTypeLabel: 'Onbekend',
+      baseSalaryMonthly: 0,
+      holidayAllowanceMonthly: 0,
+      thirteenthMonthMonthly: 0,
+      structuralAllowancesMonthly: 0,
+      variableBonusMonthly: 0,
+      totalMonthlySalary: 0,
+      totalAnnualSalary: 0,
+      severanceFullYears: 0,
+      severanceRemainingMonths: 0,
+      severanceRemainingDays: 0,
+      rawTransitievergoeding: 0,
+      statutoryCap2026: STATUTORY_TRANSITIEVERGOEDING_MAX_2026,
+      effectiveCap: STATUTORY_TRANSITIEVERGOEDING_MAX_2026,
+      isCapped: false,
+      finalTransitievergoeding: 0,
+      terminationReason,
+      terminationReasonLabel: 'Onbekend',
+      isEligible: false,
+      eligibilityStatusLabel: 'Ongeldig',
+      eligibilityExplanation: 'De einddatum kan niet vóór de startdatum liggen.',
+      isValid: false,
+      errorMessage: 'De einddatum kan niet vóór de startdatum liggen.'
+    };
+  }
+
+  // Calculate calendar duration (inclusive of end date per Dutch labor law practice: "tot en met de laatste werkdag")
+  const calcEndD = endDateInclusive
+    ? new Date(endD.getFullYear(), endD.getMonth(), endD.getDate() + 1)
+    : endD;
+
+  let years = calcEndD.getFullYear() - startD.getFullYear();
+  let months = calcEndD.getMonth() - startD.getMonth();
+  let days = calcEndD.getDate() - startD.getDate();
+
+  if (days < 0) {
+    months--;
+    const prevMonth = new Date(calcEndD.getFullYear(), calcEndD.getMonth(), 0);
+    days += prevMonth.getDate();
+  }
+
+  if (months < 0) {
+    years--;
+    months += 12;
+  }
+
+  const rawTotalDays = Math.round((utc2 - utc1) / 86400000) + (endDateInclusive ? 1 : 0);
+  const totalDays = Math.max(0, rawTotalDays);
+
+  const formatServiceDuration = (y: number, m: number, d: number): string => {
+    if (y === 0 && m === 0 && d === 0) return '0 dagen';
+    const parts: string[] = [];
+    if (y > 0) parts.push(`${y} ${y === 1 ? 'jaar' : 'jaar'}`);
+    if (m > 0) parts.push(`${m} ${m === 1 ? 'maand' : 'maanden'}`);
+    if (d > 0) parts.push(`${d} ${d === 1 ? 'dag' : 'dagen'}`);
+
+    if (parts.length === 1) return parts[0];
+    if (parts.length === 2) return `${parts[0]} en ${parts[1]}`;
+    return `${parts[0]}, ${parts[1]} en ${parts[2]}`;
+  };
+
+  const serviceDurationText = formatServiceDuration(years, months, days);
+
+  // Contract type label
+  let contractTypeLabel = 'Vast contract';
+  if (contractType === 'tijdelijk') contractTypeLabel = 'Tijdelijk contract';
+  if (contractType === 'oproep') contractTypeLabel = 'Oproep- / min-maxcontract';
+
+  // Base monthly salary calculation
+  let baseSalary = 0;
+  if (contractType === 'oproep') {
+    const sHourly = Math.max(0, Number(hourlyWage) || 0);
+    const sHours = Math.max(0, Number(averageHoursPerMonth) || 0);
+    baseSalary = Math.round(sHourly * sHours * 100) / 100;
+  } else {
+    baseSalary = Math.max(0, Number(baseMonthlySalary) || 0);
+  }
+
+  // Allowances calculation under Besluit loonbegrip
+  const holidayAllowanceRate = includeHolidayAllowance
+    ? Math.max(0, Number(holidayAllowancePercentage) || 0) / 100
+    : 0;
+  const holidayAllowanceMonthly = Math.round(baseSalary * holidayAllowanceRate * 100) / 100;
+
+  const raw13th = Math.max(0, Number(annualBonusOr13thMonth) || 0);
+  const thirteenthMonthMonthly = Math.round((raw13th / 12) * 100) / 100;
+
+  const structuralAllowances = Math.max(0, Number(structuralAllowancesMonthly) || 0);
+  const variableBonus = Math.max(0, Number(variableBonusAverageMonthly) || 0);
+
+  const totalMonthlySalary = Math.round(
+    (baseSalary + holidayAllowanceMonthly + thirteenthMonthMonthly + structuralAllowances + variableBonus) * 100
+  ) / 100;
+  const totalAnnualSalary = Math.round(totalMonthlySalary * 12 * 100) / 100;
+
+  // Accrual formula: 1/3 per full year + proportional for remaining months and days
+  // a = years * (1/3 * totalMonthlySalary)
+  // b = (months / 12) * (1/3 * totalMonthlySalary)
+  // c = (days / 365) * (1/3 * totalMonthlySalary)
+  const monthlyAccrualRate = totalMonthlySalary / 3;
+
+  const severanceFullYears = Math.round(years * monthlyAccrualRate * 100) / 100;
+  const severanceRemainingMonths = Math.round((months / 12) * monthlyAccrualRate * 100) / 100;
+  const severanceRemainingDays = Math.round((days / 365) * monthlyAccrualRate * 100) / 100;
+
+  const rawTransitievergoeding = Math.round(
+    (years + months / 12 + days / 365) * monthlyAccrualRate * 100
+  ) / 100;
+
+  // Statutory cap 2026: € 102.000 of 1 bruto jaarsalaris indien dat hoger is
+  const statutoryCap2026 = STATUTORY_TRANSITIEVERGOEDING_MAX_2026;
+  const effectiveCap = Math.max(statutoryCap2026, totalAnnualSalary);
+  const isCapped = rawTransitievergoeding > effectiveCap;
+  const finalTransitievergoeding = isCapped ? effectiveCap : rawTransitievergoeding;
+
+  // Termination reason interpretation
+  let terminationReasonLabel = 'Ontslag door werkgever';
+  let isEligible = true;
+  let eligibilityStatusLabel = 'Wettelijk recht op transitievergoeding';
+  let eligibilityExplanation =
+    'Bij ontslag op initiatief van de werkgever (via UWV of de kantonrechter) heb je volgens art. 7:673 BW wettelijk recht op de volledige transitievergoeding.';
+
+  switch (terminationReason) {
+    case 'tijdelijk_niet_verlengd':
+      terminationReasonLabel = 'Tijdelijk contract niet verlengd door werkgever';
+      isEligible = true;
+      eligibilityStatusLabel = 'Wettelijk recht op transitievergoeding';
+      eligibilityExplanation =
+        'Wanneer een tijdelijk contract op initiatief van de werkgever van rechtswege afloopt en niet wordt verlengd, heb je vanaf dag 1 recht op de transitievergoeding.';
+      break;
+    case 'wederzijds_goedvinden':
+      terminationReasonLabel = 'Wederzijds goedvinden (Vaststellingsovereenkomst / VSO)';
+      isEligible = true;
+      eligibilityStatusLabel = 'Onderhandelbaar (wettelijke richtlijn)';
+      eligibilityExplanation =
+        'Bij een vaststellingsovereenkomst (VSO) geldt de transitievergoeding niet dwingend, maar fungeert deze in de onderhandelingen vrijwel altijd als het absolute minimale startpunt.';
+      break;
+    case 'zelf_ontslag':
+      terminationReasonLabel = 'Zelf ontslag genomen';
+      isEligible = false;
+      eligibilityStatusLabel = 'In de regel geen recht op transitievergoeding';
+      eligibilityExplanation =
+        'Als je zelf het initiatief neemt om ontslag te nemen, vervalt in de regel het recht op een transitievergoeding, tenzij er sprake is van ernstig verwijtbaar handelen van de werkgever.';
+      break;
+    case 'ernstig_verwijtbaar_werkgever':
+      terminationReasonLabel = 'Ontslag wegens ernstig verwijtbaar handelen werkgever';
+      isEligible = true;
+      eligibilityStatusLabel = 'Recht op transitievergoeding (+ evt. billijke vergoeding)';
+      eligibilityExplanation =
+        'Wanneer het ontslag te wijten is aan ernstig verwijtbaar handelen of nalaten van de werkgever, behoud je het recht op de transitievergoeding en kan de kantonrechter een aanvullende billijke vergoeding toekennen.';
+      break;
+    case 'ernstig_verwijtbaar_werknemer':
+      terminationReasonLabel = 'Ontslag wegens ernstig verwijtbaar handelen werknemer';
+      isEligible = false;
+      eligibilityStatusLabel = 'Geen recht op transitievergoeding';
+      eligibilityExplanation =
+        'Bij ontslag wegens ernstig verwijtbaar handelen of nalaten van de werknemer (zoals diefstal, fraude of werkweigering) vervalt volgens de wet het recht op een transitievergoeding.';
+      break;
+    case 'pensioen':
+      terminationReasonLabel = 'Beëindiging wegens bereiken AOW- of pensioenleeftijd';
+      isEligible = false;
+      eligibilityStatusLabel = 'Geen wettelijk recht bij AOW/pensioen';
+      eligibilityExplanation =
+        'Bij beëindiging van het dienstverband wegens het bereiken van de AOW-gerechtigde leeftijd of een overeengekomen pensioenleeftijd bestaat wettelijk geen recht op een transitievergoeding.';
+      break;
+    case 'anders':
+      terminationReasonLabel = 'Andere beëindigingssituatie';
+      isEligible = true;
+      eligibilityStatusLabel = 'Afhankelijk van omstandigheden';
+      eligibilityExplanation =
+        'Of je recht hebt op een transitievergoeding hangt af van wie het initiatief nam en of er sprake is van ernstige verwijtbaarheid.';
+      break;
+    default:
+      break;
+  }
+
+  return {
+    startDate,
+    endDate,
+    formattedStartDate,
+    formattedEndDate,
+    yearsOfService: years,
+    monthsOfService: months,
+    daysOfService: days,
+    totalDays,
+    serviceDurationText,
+    contractType,
+    contractTypeLabel,
+    baseSalaryMonthly: baseSalary,
+    holidayAllowanceMonthly,
+    thirteenthMonthMonthly,
+    structuralAllowancesMonthly: structuralAllowances,
+    variableBonusMonthly: variableBonus,
+    totalMonthlySalary,
+    totalAnnualSalary,
+    severanceFullYears,
+    severanceRemainingMonths,
+    severanceRemainingDays,
+    rawTransitievergoeding,
+    statutoryCap2026,
+    effectiveCap,
+    isCapped,
+    finalTransitievergoeding,
+    terminationReason,
+    terminationReasonLabel,
+    isEligible,
+    eligibilityStatusLabel,
+    eligibilityExplanation,
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   25. Netto Salaris Berekenen
+   Witte maandtabel & jaarregeling conform Belastingdienst 2026.
+   Inclusief schijventarief, algemene heffingskorting, arbeidskorting,
+   loonheffingskorting, AOW-differentiatie, pensioenpremie (pre-tax),
+   en tabel bijzondere beloningen voor vakantiegeld en 13e maand / bonus.
+   ========================================================================= */
+
+export type SalaryPeriod = 'month' | '4week' | 'week' | 'hour' | 'year';
+
+export interface NettoSalarisOptions {
+  grossSalary: number;
+  salaryPeriod?: SalaryPeriod;
+  weeklyHours?: number;
+  age?: number;
+  birthDate?: string; // YYYY-MM-DD
+  isAowEligible?: boolean;
+  applyLoonheffingskorting?: boolean;
+  employeePensionMonthly?: number;
+  otherDeductionsMonthly?: number;
+  includeHolidayAllowance?: boolean;
+  hasBonusOr13thMonth?: boolean;
+  grossBonusOr13thMonth?: number;
+  taxYear?: number;
+}
+
+export interface NettoSalarisResult {
+  grossInput: number;
+  salaryPeriod: SalaryPeriod;
+  salaryPeriodLabel: string;
+  weeklyHours?: number;
+
+  grossMonthlySalary: number;
+  grossAnnualSalary: number;
+  grossFourWeeklySalary: number;
+  grossWeeklySalary: number;
+  grossHourlyWage?: number;
+
+  isAowEligible: boolean;
+  age: number;
+  applyLoonheffingskorting: boolean;
+
+  employeePensionMonthly: number;
+  taxableMonthlyWage: number;
+  taxableAnnualWage: number;
+
+  grossTaxMonthly: number;
+  generalTaxCreditMonthly: number;
+  labourTaxCreditMonthly: number;
+  totalTaxCreditsMonthly: number;
+  appliedTaxCreditMonthly: number;
+  payrollTaxMonthly: number;
+  payrollTaxAnnual: number;
+
+  effectiveTaxRatePercentage: number;
+
+  otherDeductionsMonthly: number;
+
+  netMonthlySalary: number;
+  netAnnualSalary: number;
+  netFourWeeklySalary: number;
+  netWeeklySalary: number;
+  netHourlyWage?: number;
+
+  includeHolidayAllowance: boolean;
+  grossHolidayAllowanceAnnual: number;
+  marginalTaxRateHolidayPercentage: number;
+  taxHolidayAllowanceAnnual: number;
+  netHolidayAllowanceAnnual: number;
+  netAnnualSalaryWithHoliday: number;
+
+  hasBonusOr13thMonth: boolean;
+  grossBonusOr13thMonth: number;
+  marginalTaxRateBonusPercentage: number;
+  taxBonusOr13thMonth: number;
+  netBonusOr13thMonth: number;
+
+  isBelowMinimumWage?: boolean;
+  minimumWageNotice?: string;
+
+  taxYear: number;
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+/**
+ * Berekent het marginale belastingtarief volgens de Tabel Bijzondere Beloningen 2026.
+ * Houdt rekening met het schijventarief én de marginale afbouw/opbouw van AHK en arbeidskorting.
+ */
+export function calculateMarginalTaxRate2026(
+  taxableAnnualWage: number,
+  isAow: boolean = false
+): number {
+  const Y = Math.max(0, taxableAnnualWage);
+
+  // 1. Basis schijventarief
+  let bracketRate = 35.82;
+  if (isAow) {
+    bracketRate = Y <= 38441 ? 17.92 : Y <= 76817 ? 37.48 : 49.50;
+  } else {
+    bracketRate = Y <= 38441 ? 35.82 : Y <= 76817 ? 37.48 : 49.50;
+  }
+
+  // 2. Afbouw algemene heffingskorting (+6,43% tussen € 28.406 en € 76.817)
+  let ahkEffect = 0;
+  if (Y > 28406 && Y <= 76817) {
+    ahkEffect = isAow ? 0.064344 * 0.5003 * 100 : 6.4344;
+  }
+
+  // 3. Opbouw / afbouw arbeidskorting
+  let akEffect = 0;
+  if (Y <= 11965) {
+    akEffect = isAow ? -8.328 * 0.5003 : -8.328;
+  } else if (Y > 11965 && Y <= 24811) {
+    akEffect = isAow ? -31.107 * 0.5003 : -31.107;
+  } else if (Y > 24811 && Y <= 44097) {
+    akEffect = isAow ? -3.50 * 0.5003 : -3.50;
+  } else if (Y > 44097 && Y <= 131425) {
+    akEffect = isAow ? 6.510 * 0.5003 : 6.510;
+  }
+
+  const rawRate = bracketRate + ahkEffect + akEffect;
+  return Math.round(Math.max(0, Math.min(60, rawRate)) * 100) / 100;
+}
+
+/**
+ * Berekent de jaarlijkse bruto belasting vóór heffingskortingen
+ */
+function computeAnnualGrossTax(taxableAnnual: number, isAow: boolean): number {
+  const brackets = PAYROLL_TAX_RATES_2026.brackets;
+  let remaining = Math.max(0, taxableAnnual);
+  let tax = 0;
+  let prevLimit = 0;
+
+  for (const b of brackets) {
+    if (remaining <= 0) break;
+    const bandWidth = b.limit - prevLimit;
+    const taxableInBand = Math.min(remaining, bandWidth);
+    const rate = (isAow ? b.rateAow : b.rateStandard) / 100;
+    tax += taxableInBand * rate;
+    remaining -= taxableInBand;
+    prevLimit = b.limit;
+  }
+  return tax;
+}
+
+/**
+ * Berekent de Algemene Heffingskorting (AHK) per jaar
+ */
+function computeAnnualGeneralTaxCredit(taxableAnnual: number, isAow: boolean): number {
+  const cfg = PAYROLL_TAX_RATES_2026.generalTaxCredit;
+  const Y = Math.max(0, taxableAnnual);
+
+  let credit = 0;
+  if (Y <= cfg.phaseOutStart) {
+    credit = cfg.maxAmountStandard;
+  } else if (Y <= cfg.phaseOutEnd) {
+    credit = Math.max(0, cfg.maxAmountStandard - cfg.phaseOutRate * (Y - cfg.phaseOutStart));
+  } else {
+    credit = 0;
+  }
+
+  if (isAow) {
+    credit *= cfg.aowRatio;
+  }
+  return Math.round(credit * 100) / 100;
+}
+
+/**
+ * Berekent de Arbeidskorting (AK) per jaar
+ */
+function computeAnnualLabourTaxCredit(taxableAnnual: number, isAow: boolean): number {
+  const cfg = PAYROLL_TAX_RATES_2026.labourTaxCredit;
+  const Y = Math.max(0, taxableAnnual);
+
+  let credit = 0;
+  if (Y <= 11965) {
+    credit = Y * 0.08328;
+  } else if (Y <= 24811) {
+    credit = 996.44 + (Y - 11965) * 0.31107;
+  } else if (Y <= 44097) {
+    credit = 4986.37 + (Y - 24811) * 0.03500;
+  } else if (Y <= 131425) {
+    credit = Math.max(0, 5685 - (Y - 44097) * 0.06510);
+  } else {
+    credit = 0;
+  }
+
+  if (isAow) {
+    credit *= cfg.aowRatio;
+  }
+  return Math.round(credit * 100) / 100;
+}
+
+export function calculateNettoSalaris(options: NettoSalarisOptions): NettoSalarisResult {
+  const {
+    grossSalary,
+    salaryPeriod = 'month',
+    weeklyHours,
+    age = 30,
+    birthDate,
+    isAowEligible,
+    applyLoonheffingskorting = true,
+    employeePensionMonthly = 0,
+    otherDeductionsMonthly = 0,
+    includeHolidayAllowance = false,
+    hasBonusOr13thMonth = false,
+    grossBonusOr13thMonth = 0,
+    taxYear = 2026
+  } = options;
+
+  if (isNaN(grossSalary) || grossSalary < 0) {
+    return {
+      grossInput: 0,
+      salaryPeriod,
+      salaryPeriodLabel: 'Per maand',
+      grossMonthlySalary: 0,
+      grossAnnualSalary: 0,
+      grossFourWeeklySalary: 0,
+      grossWeeklySalary: 0,
+      isAowEligible: false,
+      age,
+      applyLoonheffingskorting,
+      employeePensionMonthly: 0,
+      taxableMonthlyWage: 0,
+      taxableAnnualWage: 0,
+      grossTaxMonthly: 0,
+      generalTaxCreditMonthly: 0,
+      labourTaxCreditMonthly: 0,
+      totalTaxCreditsMonthly: 0,
+      appliedTaxCreditMonthly: 0,
+      payrollTaxMonthly: 0,
+      payrollTaxAnnual: 0,
+      effectiveTaxRatePercentage: 0,
+      otherDeductionsMonthly: 0,
+      netMonthlySalary: 0,
+      netAnnualSalary: 0,
+      netFourWeeklySalary: 0,
+      netWeeklySalary: 0,
+      includeHolidayAllowance: false,
+      grossHolidayAllowanceAnnual: 0,
+      marginalTaxRateHolidayPercentage: 0,
+      taxHolidayAllowanceAnnual: 0,
+      netHolidayAllowanceAnnual: 0,
+      netAnnualSalaryWithHoliday: 0,
+      hasBonusOr13thMonth: false,
+      grossBonusOr13thMonth: 0,
+      marginalTaxRateBonusPercentage: 0,
+      taxBonusOr13thMonth: 0,
+      netBonusOr13thMonth: 0,
+      taxYear,
+      isValid: false,
+      errorMessage: 'Voer een geldig, positief bruto salarisbedrag in.'
+    };
+  }
+
+  // 1. Leeftijd & AOW bepalen
+  let effectiveAge = Math.max(15, Math.min(100, Number(age) || 30));
+  if (birthDate) {
+    const parts = birthDate.split('-').map(Number);
+    if (parts.length === 3 && !isNaN(parts[0])) {
+      const bYear = parts[0];
+      effectiveAge = Math.max(15, 2026 - bYear);
+    }
+  }
+
+  const aowAge = PAYROLL_TAX_RATES_2026.aowAge; // 67
+  const isAow = typeof isAowEligible === 'boolean' ? isAowEligible : effectiveAge >= aowAge;
+
+  // 2. Salarisperiode conversie naar standaard maand-, jaar-, week- en 4-wekensalaris
+  const safeGross = Math.max(0, Number(grossSalary) || 0);
+  let safeWeeklyHours = weeklyHours !== undefined ? Math.max(1, Math.min(80, Number(weeklyHours) || 36)) : undefined;
+
+  let grossMonthlySalary = 0;
+  let grossAnnualSalary = 0;
+  let grossFourWeeklySalary = 0;
+  let grossWeeklySalary = 0;
+  let grossHourlyWage: number | undefined = undefined;
+
+  let salaryPeriodLabel = 'Per maand';
+
+  switch (salaryPeriod) {
+    case 'month':
+      salaryPeriodLabel = 'Per maand';
+      grossMonthlySalary = safeGross;
+      grossAnnualSalary = grossMonthlySalary * 12;
+      grossFourWeeklySalary = grossAnnualSalary / 13;
+      grossWeeklySalary = grossAnnualSalary / 52;
+      if (safeWeeklyHours) {
+        grossHourlyWage = grossWeeklySalary / safeWeeklyHours;
+      }
+      break;
+    case '4week':
+      salaryPeriodLabel = 'Per 4 weken (13x per jaar)';
+      grossFourWeeklySalary = safeGross;
+      grossAnnualSalary = grossFourWeeklySalary * 13;
+      grossMonthlySalary = grossAnnualSalary / 12;
+      grossWeeklySalary = grossAnnualSalary / 52;
+      if (safeWeeklyHours) {
+        grossHourlyWage = grossWeeklySalary / safeWeeklyHours;
+      }
+      break;
+    case 'week':
+      salaryPeriodLabel = 'Per week';
+      grossWeeklySalary = safeGross;
+      grossAnnualSalary = grossWeeklySalary * 52;
+      grossMonthlySalary = grossAnnualSalary / 12;
+      grossFourWeeklySalary = grossAnnualSalary / 13;
+      if (safeWeeklyHours) {
+        grossHourlyWage = grossWeeklySalary / safeWeeklyHours;
+      }
+      break;
+    case 'hour':
+      salaryPeriodLabel = 'Per uur';
+      safeWeeklyHours = safeWeeklyHours || 36;
+      grossHourlyWage = safeGross;
+      grossWeeklySalary = grossHourlyWage * safeWeeklyHours;
+      grossAnnualSalary = grossWeeklySalary * 52;
+      grossMonthlySalary = grossAnnualSalary / 12;
+      grossFourWeeklySalary = grossAnnualSalary / 13;
+      break;
+    case 'year':
+      salaryPeriodLabel = 'Per jaar';
+      grossAnnualSalary = safeGross;
+      grossMonthlySalary = grossAnnualSalary / 12;
+      grossFourWeeklySalary = grossAnnualSalary / 13;
+      grossWeeklySalary = grossAnnualSalary / 52;
+      if (safeWeeklyHours) {
+        grossHourlyWage = grossWeeklySalary / safeWeeklyHours;
+      }
+      break;
+    default:
+      grossMonthlySalary = safeGross;
+      grossAnnualSalary = grossMonthlySalary * 12;
+      grossFourWeeklySalary = grossAnnualSalary / 13;
+      grossWeeklySalary = grossAnnualSalary / 52;
+      break;
+  }
+
+  // 3. Pensioenpremie en fiscaal belastbaar loon
+  const safePension = Math.max(0, Number(employeePensionMonthly) || 0);
+  const taxableMonthlyWage = Math.max(0, grossMonthlySalary - safePension);
+  const taxableAnnualWage = taxableMonthlyWage * 12;
+
+  // 4. Bruto belasting berekenen
+  const annualGrossTax = computeAnnualGrossTax(taxableAnnualWage, isAow);
+  const monthlyGrossTax = annualGrossTax / 12;
+
+  // 5. Heffingskortingen berekenen
+  const annualAHK = computeAnnualGeneralTaxCredit(taxableAnnualWage, isAow);
+  const annualAK = computeAnnualLabourTaxCredit(taxableAnnualWage, isAow);
+
+  const generalTaxCreditMonthly = Math.round((annualAHK / 12) * 100) / 100;
+  const labourTaxCreditMonthly = Math.round((annualAK / 12) * 100) / 100;
+  const totalTaxCreditsMonthly = Math.round((generalTaxCreditMonthly + labourTaxCreditMonthly) * 100) / 100;
+
+  let appliedTaxCreditMonthly = 0;
+  if (applyLoonheffingskorting) {
+    appliedTaxCreditMonthly = Math.min(monthlyGrossTax, totalTaxCreditsMonthly);
+  }
+
+  // 6. Loonheffing per maand
+  const payrollTaxMonthly = Math.max(0, Math.round((monthlyGrossTax - appliedTaxCreditMonthly) * 100) / 100);
+  const payrollTaxAnnual = Math.round(payrollTaxMonthly * 12 * 100) / 100;
+
+  const effectiveTaxRatePercentage = grossMonthlySalary > 0
+    ? Math.round((payrollTaxMonthly / grossMonthlySalary) * 1000) / 10
+    : 0;
+
+  // 7. Andere netto inhoudingen
+  const safeOtherDeductions = Math.max(0, Number(otherDeductionsMonthly) || 0);
+
+  // 8. Netto salaris
+  const netMonthlySalary = Math.max(
+    0,
+    Math.round((grossMonthlySalary - payrollTaxMonthly - safePension - safeOtherDeductions) * 100) / 100
+  );
+  const netAnnualSalary = Math.round(netMonthlySalary * 12 * 100) / 100;
+  const netFourWeeklySalary = Math.round(((netMonthlySalary * 12) / 13) * 100) / 100;
+  const netWeeklySalary = Math.round(((netMonthlySalary * 12) / 52) * 100) / 100;
+  const netHourlyWage = safeWeeklyHours && safeWeeklyHours > 0
+    ? Math.round((netWeeklySalary / safeWeeklyHours) * 100) / 100
+    : undefined;
+
+  // 9. Vakantiegeld (8% over regulier jaarsalaris)
+  const grossHolidayAllowanceAnnual = Math.round(grossAnnualSalary * 0.08 * 100) / 100;
+  const marginalTaxRateHolidayPercentage = calculateMarginalTaxRate2026(taxableAnnualWage, isAow);
+  const taxHolidayAllowanceAnnual = Math.round(
+    grossHolidayAllowanceAnnual * (marginalTaxRateHolidayPercentage / 100) * 100
+  ) / 100;
+  const netHolidayAllowanceAnnual = Math.max(
+    0,
+    Math.round((grossHolidayAllowanceAnnual - taxHolidayAllowanceAnnual) * 100) / 100
+  );
+  const netAnnualSalaryWithHoliday = Math.round((netAnnualSalary + netHolidayAllowanceAnnual) * 100) / 100;
+
+  // 10. 13e maand / bonus (tabel bijzondere beloningen)
+  const safeBonus = hasBonusOr13thMonth ? Math.max(0, Number(grossBonusOr13thMonth) || 0) : 0;
+  const marginalTaxRateBonusPercentage = calculateMarginalTaxRate2026(taxableAnnualWage, isAow);
+  const taxBonusOr13thMonth = Math.round(
+    safeBonus * (marginalTaxRateBonusPercentage / 100) * 100
+  ) / 100;
+  const netBonusOr13thMonth = Math.max(
+    0,
+    Math.round((safeBonus - taxBonusOr13thMonth) * 100) / 100
+  );
+
+  // 11. Minimumloon controle
+  let isBelowMinimumWage: boolean | undefined = undefined;
+  let minimumWageNotice: string | undefined = undefined;
+
+  if (grossHourlyWage !== undefined) {
+    const minWageAdultJan2026 = PAYROLL_TAX_RATES_2026.minimumWageHourly.asOfJan; // 14.71
+    const minWageAdultJul2026 = PAYROLL_TAX_RATES_2026.minimumWageHourly.asOfJul; // 14.99
+
+    if (effectiveAge >= 21) {
+      if (grossHourlyWage < minWageAdultJan2026) {
+        isBelowMinimumWage = true;
+        minimumWageNotice = `Let op: Je berekende bruto uurloon van € ${grossHourlyWage.toFixed(2)} ligt onder het wettelijk minimumuurloon van € ${minWageAdultJan2026.toFixed(2)} (vanaf 1 juli 2026: € ${minWageAdultJul2026.toFixed(2)}) voor 21 jaar en ouder.`;
+      }
+    }
+  }
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    grossInput: safeGross,
+    salaryPeriod,
+    salaryPeriodLabel,
+    weeklyHours: safeWeeklyHours,
+
+    grossMonthlySalary: round2(grossMonthlySalary),
+    grossAnnualSalary: round2(grossAnnualSalary),
+    grossFourWeeklySalary: round2(grossFourWeeklySalary),
+    grossWeeklySalary: round2(grossWeeklySalary),
+    grossHourlyWage: grossHourlyWage !== undefined ? round2(grossHourlyWage) : undefined,
+
+    isAowEligible: isAow,
+    age: effectiveAge,
+    applyLoonheffingskorting,
+
+    employeePensionMonthly: round2(safePension),
+    taxableMonthlyWage: round2(taxableMonthlyWage),
+    taxableAnnualWage: round2(taxableAnnualWage),
+
+    grossTaxMonthly: round2(monthlyGrossTax),
+    generalTaxCreditMonthly,
+    labourTaxCreditMonthly,
+    totalTaxCreditsMonthly,
+    appliedTaxCreditMonthly: round2(appliedTaxCreditMonthly),
+    payrollTaxMonthly,
+    payrollTaxAnnual,
+
+    effectiveTaxRatePercentage,
+
+    otherDeductionsMonthly: round2(safeOtherDeductions),
+
+    netMonthlySalary,
+    netAnnualSalary,
+    netFourWeeklySalary,
+    netWeeklySalary,
+    netHourlyWage,
+
+    includeHolidayAllowance,
+    grossHolidayAllowanceAnnual,
+    marginalTaxRateHolidayPercentage,
+    taxHolidayAllowanceAnnual,
+    netHolidayAllowanceAnnual,
+    netAnnualSalaryWithHoliday,
+
+    hasBonusOr13thMonth,
+    grossBonusOr13thMonth: safeBonus,
+    marginalTaxRateBonusPercentage,
+    taxBonusOr13thMonth,
+    netBonusOr13thMonth,
+
+    isBelowMinimumWage,
+    minimumWageNotice,
+
+    taxYear,
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   26. Jaarinkomen berekenen
+   Formules:
+   - Maandsalaris: maandloon * 12 (of pro rata gewerkte maanden)
+   - 4-wekenloon: 4-wekenloon * 13 (of pro rata gewerkte maanden)
+   - Weekloon: weekloon * 52 (of pro rata gewerkte maanden)
+   - Uurloon: uurloon * wekelijkse uren * 52 (of pro rata)
+   - Dagloon: dagloon * werkdagen per week * 52 (of pro rata)
+   - Vakantiegeld: basis jaarsalaris * (vakantiegeld% / 100)
+   - 13e maand: vast bedrag of percentage over jaarsalaris
+   - Bonus / extra inkomsten: vast jaarbedrag
+   - Totaal bruto jaarinkomen: basis + vakantiegeld + 13e maand + bonus
+   - Optionele netto schatting conform witte maandtabel 2026
+   ========================================================================= */
+
+export type SalaryPeriodYearly = 'maand' | 'vierwekelijks' | 'week' | 'dag' | 'uur';
+
+export interface JaarinkomenOptions {
+  grossSalary: number;
+  salaryPeriod: SalaryPeriodYearly;
+  weeklyHours?: number; // voor 'uur'
+  daysPerWeek?: number; // voor 'dag'
+
+  // Vakantiegeld
+  includeHolidayAllowance?: boolean; // default true
+  holidayAllowancePercentage?: number; // default 8
+
+  // 13e maand
+  thirteenthMonthType?: 'none' | 'fixed' | 'percentage'; // default 'none'
+  thirteenthMonthValue?: number; // bedrag in € of percentage
+
+  // Bonus of andere jaarlijkse inkomsten
+  annualBonus?: number; // bruto jaarbedrag
+
+  // Aantal gewerkte maanden in het jaar
+  workedFullYear?: boolean; // default true
+  monthsWorked?: number; // 1 tot 12
+
+  // Optionele netto schatting
+  estimateNet?: boolean;
+  age?: number;
+  isAowEligible?: boolean;
+  applyLoonheffingskorting?: boolean;
+  employeePensionMonthly?: number;
+  taxYear?: number;
+}
+
+export interface JaarinkomenResult {
+  grossInput: number;
+  salaryPeriod: SalaryPeriodYearly;
+  salaryPeriodLabel: string;
+  weeklyHours?: number;
+  daysPerWeek?: number;
+
+  // Basis salaris
+  baseAnnualSalary: number; // Excl. vakantiegeld, pro rata indien gebroken jaar
+  fullYearEquivalentSalary: number; // Volledige jaarnorm (12 maanden)
+  workedFullYear: boolean;
+  monthsWorked: number;
+
+  // Onderdelen
+  includeHolidayAllowance: boolean;
+  holidayAllowancePercentage: number;
+  holidayAllowanceAmount: number;
+
+  thirteenthMonthType: 'none' | 'fixed' | 'percentage';
+  thirteenthMonthAmount: number;
+
+  annualBonus: number;
+
+  // Totaal bruto jaarinkomen
+  totalGrossAnnualIncome: number;
+  grossAnnualIncomeExclHoliday: number;
+
+  // Gemiddelde omrekeningen
+  averageGrossMonthly: number;
+  averageGrossFourWeekly: number;
+  averageGrossWeekly: number;
+  averageGrossHourly?: number;
+
+  // Optionele netto schatting
+  estimateNet: boolean;
+  isAowEligible?: boolean;
+  applyLoonheffingskorting?: boolean;
+  employeePensionAnnual?: number;
+  taxableAnnualIncome?: number;
+  estimatedGrossTaxAnnual?: number;
+  estimatedTaxCreditsAnnual?: number;
+  estimatedPayrollTaxAnnual?: number;
+  estimatedNetAnnualIncome?: number;
+  estimatedNetMonthlyIncome?: number;
+
+  taxYear: number;
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export function calculateJaarinkomen(options: JaarinkomenOptions): JaarinkomenResult {
+  const {
+    grossSalary,
+    salaryPeriod = 'maand',
+    weeklyHours = 36,
+    daysPerWeek = 5,
+    includeHolidayAllowance = true,
+    holidayAllowancePercentage = 8,
+    thirteenthMonthType = 'none',
+    thirteenthMonthValue = 0,
+    annualBonus = 0,
+    workedFullYear = true,
+    monthsWorked = 12,
+    estimateNet = false,
+    age = 30,
+    isAowEligible,
+    applyLoonheffingskorting = true,
+    employeePensionMonthly = 0,
+    taxYear = 2026
+  } = options;
+
+  if (isNaN(grossSalary) || grossSalary < 0) {
+    return {
+      grossInput: 0,
+      salaryPeriod,
+      salaryPeriodLabel: 'Per maand',
+      baseAnnualSalary: 0,
+      fullYearEquivalentSalary: 0,
+      workedFullYear: true,
+      monthsWorked: 12,
+      includeHolidayAllowance,
+      holidayAllowancePercentage: 8,
+      holidayAllowanceAmount: 0,
+      thirteenthMonthType: 'none',
+      thirteenthMonthAmount: 0,
+      annualBonus: 0,
+      totalGrossAnnualIncome: 0,
+      grossAnnualIncomeExclHoliday: 0,
+      averageGrossMonthly: 0,
+      averageGrossFourWeekly: 0,
+      averageGrossWeekly: 0,
+      estimateNet: false,
+      taxYear,
+      isValid: false,
+      errorMessage: 'Voer een geldig, positief bruto salarisbedrag in.'
+    };
+  }
+
+  const safeGross = Math.max(0, Number(grossSalary) || 0);
+  let safeWeeklyHours = weeklyHours !== undefined ? Math.max(1, Math.min(80, Number(weeklyHours) || 36)) : 36;
+  let safeDaysPerWeek = daysPerWeek !== undefined ? Math.max(1, Math.min(7, Number(daysPerWeek) || 5)) : 5;
+
+  let fullYearEquivalentSalary = 0;
+  let salaryPeriodLabel = 'Per maand';
+
+  switch (salaryPeriod) {
+    case 'maand':
+      salaryPeriodLabel = 'Per maand';
+      fullYearEquivalentSalary = safeGross * 12;
+      break;
+    case 'vierwekelijks':
+      salaryPeriodLabel = 'Per 4 weken (13x per jaar)';
+      fullYearEquivalentSalary = safeGross * 13;
+      break;
+    case 'week':
+      salaryPeriodLabel = 'Per week';
+      fullYearEquivalentSalary = safeGross * 52;
+      break;
+    case 'dag':
+      salaryPeriodLabel = `Per dag (${safeDaysPerWeek} dagen/week)`;
+      fullYearEquivalentSalary = safeGross * safeDaysPerWeek * 52;
+      break;
+    case 'uur':
+      salaryPeriodLabel = `Per uur (${safeWeeklyHours} uur/week)`;
+      fullYearEquivalentSalary = safeGross * safeWeeklyHours * 52;
+      break;
+    default:
+      fullYearEquivalentSalary = safeGross * 12;
+      break;
+  }
+
+  // Aantal gewerkte maanden verwerken
+  const safeMonths = workedFullYear ? 12 : Math.max(1, Math.min(12, Number(monthsWorked) || 12));
+  const baseAnnualSalary = workedFullYear
+    ? fullYearEquivalentSalary
+    : (fullYearEquivalentSalary / 12) * safeMonths;
+
+  // Vakantiegeld berekenen
+  const safeHolidayPct = Math.max(0, Math.min(100, Number(holidayAllowancePercentage) || 0));
+  const holidayAllowanceAmount = includeHolidayAllowance
+    ? baseAnnualSalary * (safeHolidayPct / 100)
+    : 0;
+
+  // 13e maand berekenen
+  let thirteenthMonthAmount = 0;
+  const safe13thVal = Math.max(0, Number(thirteenthMonthValue) || 0);
+  if (thirteenthMonthType === 'fixed') {
+    thirteenthMonthAmount = safe13thVal;
+  } else if (thirteenthMonthType === 'percentage') {
+    const safe13thPct = Math.min(100, safe13thVal);
+    thirteenthMonthAmount = baseAnnualSalary * (safe13thPct / 100);
+  }
+
+  // Bonus / extra inkomsten
+  const safeBonus = Math.max(0, Number(annualBonus) || 0);
+
+  // Totale bruto jaarinkomen
+  const totalGrossAnnualIncome = baseAnnualSalary + holidayAllowanceAmount + thirteenthMonthAmount + safeBonus;
+  const grossAnnualIncomeExclHoliday = baseAnnualSalary + thirteenthMonthAmount + safeBonus;
+
+  // Gemiddelde omrekeningen
+  const averageGrossMonthly = totalGrossAnnualIncome / 12;
+  const averageGrossFourWeekly = totalGrossAnnualIncome / 13;
+  const averageGrossWeekly = totalGrossAnnualIncome / 52;
+  let averageGrossHourly: number | undefined = undefined;
+
+  if (salaryPeriod === 'uur') {
+    averageGrossHourly = safeWeeklyHours > 0 ? totalGrossAnnualIncome / (safeWeeklyHours * 52) : undefined;
+  } else if (weeklyHours !== undefined && weeklyHours > 0) {
+    averageGrossHourly = totalGrossAnnualIncome / (safeWeeklyHours * 52);
+  }
+
+  // Optionele netto schatting
+  let isAow = false;
+  let employeePensionAnnual = 0;
+  let taxableAnnualIncome = 0;
+  let estimatedGrossTaxAnnual = 0;
+  let estimatedTaxCreditsAnnual = 0;
+  let estimatedPayrollTaxAnnual = 0;
+  let estimatedNetAnnualIncome = 0;
+  let estimatedNetMonthlyIncome = 0;
+
+  if (estimateNet) {
+    const effectiveAge = Math.max(15, Math.min(100, Number(age) || 30));
+    const aowAge = PAYROLL_TAX_RATES_2026.aowAge; // 67
+    isAow = typeof isAowEligible === 'boolean' ? isAowEligible : effectiveAge >= aowAge;
+
+    const safePensionMonthly = Math.max(0, Number(employeePensionMonthly) || 0);
+    employeePensionAnnual = safePensionMonthly * 12;
+    taxableAnnualIncome = Math.max(0, totalGrossAnnualIncome - employeePensionAnnual);
+
+    // Bruto belasting volgens box 1 schijven
+    estimatedGrossTaxAnnual = computeAnnualGrossTax(taxableAnnualIncome, isAow);
+
+    // Heffingskortingen
+    if (applyLoonheffingskorting) {
+      const ahk = computeAnnualGeneralTaxCredit(taxableAnnualIncome, isAow);
+      const ak = computeAnnualLabourTaxCredit(taxableAnnualIncome, isAow);
+      estimatedTaxCreditsAnnual = Math.min(estimatedGrossTaxAnnual, ahk + ak);
+    } else {
+      estimatedTaxCreditsAnnual = 0;
+    }
+
+    estimatedPayrollTaxAnnual = Math.max(0, estimatedGrossTaxAnnual - estimatedTaxCreditsAnnual);
+    estimatedNetAnnualIncome = Math.max(0, taxableAnnualIncome - estimatedPayrollTaxAnnual);
+    estimatedNetMonthlyIncome = estimatedNetAnnualIncome / 12;
+  }
+
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+
+  return {
+    grossInput: safeGross,
+    salaryPeriod,
+    salaryPeriodLabel,
+    weeklyHours: salaryPeriod === 'uur' ? safeWeeklyHours : (weeklyHours || undefined),
+    daysPerWeek: salaryPeriod === 'dag' ? safeDaysPerWeek : undefined,
+
+    baseAnnualSalary: round2(baseAnnualSalary),
+    fullYearEquivalentSalary: round2(fullYearEquivalentSalary),
+    workedFullYear,
+    monthsWorked: safeMonths,
+
+    includeHolidayAllowance,
+    holidayAllowancePercentage: safeHolidayPct,
+    holidayAllowanceAmount: round2(holidayAllowanceAmount),
+
+    thirteenthMonthType,
+    thirteenthMonthAmount: round2(thirteenthMonthAmount),
+
+    annualBonus: round2(safeBonus),
+
+    totalGrossAnnualIncome: round2(totalGrossAnnualIncome),
+    grossAnnualIncomeExclHoliday: round2(grossAnnualIncomeExclHoliday),
+
+    averageGrossMonthly: round2(averageGrossMonthly),
+    averageGrossFourWeekly: round2(averageGrossFourWeekly),
+    averageGrossWeekly: round2(averageGrossWeekly),
+    averageGrossHourly: averageGrossHourly !== undefined ? round2(averageGrossHourly) : undefined,
+
+    estimateNet,
+    isAowEligible: estimateNet ? isAow : undefined,
+    applyLoonheffingskorting: estimateNet ? applyLoonheffingskorting : undefined,
+    employeePensionAnnual: estimateNet ? round2(employeePensionAnnual) : undefined,
+    taxableAnnualIncome: estimateNet ? round2(taxableAnnualIncome) : undefined,
+    estimatedGrossTaxAnnual: estimateNet ? round2(estimatedGrossTaxAnnual) : undefined,
+    estimatedTaxCreditsAnnual: estimateNet ? round2(estimatedTaxCreditsAnnual) : undefined,
+    estimatedPayrollTaxAnnual: estimateNet ? round2(estimatedPayrollTaxAnnual) : undefined,
+    estimatedNetAnnualIncome: estimateNet ? round2(estimatedNetAnnualIncome) : undefined,
+    estimatedNetMonthlyIncome: estimateNet ? round2(estimatedNetMonthlyIncome) : undefined,
+
+    taxYear,
+    isValid: true
+  };
+}
+
+
+

@@ -1,0 +1,669 @@
+---
+// src/components/calculators/NettoBesteedbaarInkomenCalculator.astro
+---
+
+<div class="calc-grid" id="besteedbaar-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Inkomsten & Vaste Lasten</h2>
+      <span class="rate-year-tag">Maandoverzicht 2026</span>
+    </div>
+
+    <!-- Huishoudensituatie -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label class="form-label">Voor wie wil je het berekenen?</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="sit-single" name="situation" value="single" checked />
+          <label for="sit-single">
+            <strong>Alleen voor mij</strong>
+            <small>Eén netto inkomen</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="sit-household" name="situation" value="household" />
+          <label for="sit-household">
+            <strong>Voor mijn huishouden</strong>
+            <small>Samen met partner</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- INKOMSTEN SECTIE -->
+    <div style="margin-top: 1.25rem; margin-bottom: 0.5rem;">
+      <h3 style="font-size: 0.9375rem; font-weight: 700; color: var(--color-primary, #1e40af); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color, #e2e8f0); padding-bottom: 0.35rem;">
+        1. Maandelijkse inkomsten
+      </h3>
+
+      <!-- Veld 1: Netto inkomen -->
+      <div class="form-group">
+        <label for="input-netto-income" class="form-label">Netto inkomen per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-netto-income"
+            class="form-input input-has-prefix"
+            value="2500"
+            min="0"
+            step="50"
+            aria-describedby="hint-netto"
+          />
+        </div>
+        <div class="quick-pills" id="netto-pills" style="margin-top: 0.5rem;">
+          <button type="button" class="quick-pill salary-pill" data-val="1800">€ 1.800</button>
+          <button type="button" class="quick-pill salary-pill" data-val="2200">€ 2.200</button>
+          <button type="button" class="quick-pill salary-pill is-active" data-val="2500">€ 2.500</button>
+          <button type="button" class="quick-pill salary-pill" data-val="3000">€ 3.000</button>
+          <button type="button" class="quick-pill salary-pill" data-val="3500">€ 3.500</button>
+        </div>
+        <span class="form-hint" id="hint-netto">
+          Het nettobedrag aan salaris of uitkering dat maandelijks op je bankrekening wordt gestort.
+        </span>
+      </div>
+
+      <!-- Veld 1b: Partnerinkomen (voorwaardelijk) -->
+      <div class="form-group" id="group-partner-income" style="display: none;">
+        <label for="input-partner-income" class="form-label">Netto inkomen partner per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-partner-income"
+            class="form-input input-has-prefix"
+            value="2000"
+            min="0"
+            step="50"
+            aria-describedby="hint-partner"
+          />
+        </div>
+        <span class="form-hint" id="hint-partner">
+          Het netto maandsalaris of de uitkering van je partner.
+        </span>
+      </div>
+
+      <!-- Veld 2: Andere inkomsten -->
+      <div class="form-group">
+        <label for="input-other-income" class="form-label">Andere inkomsten per maand (optioneel)</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-other-income"
+            class="form-input input-has-prefix"
+            placeholder="0"
+            min="0"
+            step="25"
+            aria-describedby="hint-other"
+          />
+        </div>
+        <span class="form-hint" id="hint-other">
+          Bijvoorbeeld partneralimentatie, structurele bijverdiensten of een structurele gift.
+        </span>
+      </div>
+
+      <!-- Veld 3: Toeslagen en tegemoetkomingen -->
+      <div class="form-group">
+        <label for="input-allowances" class="form-label">Toeslagen en tegemoetkomingen (optioneel)</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-allowances"
+            class="form-input input-has-prefix"
+            placeholder="0"
+            min="0"
+            step="25"
+            aria-describedby="hint-allowances"
+          />
+        </div>
+        <span class="form-hint" id="hint-allowances">
+          Zorgtoeslag, huurtoeslag, kindgebonden budget of kinderopvangtoeslag van de Belastingdienst.
+        </span>
+      </div>
+    </div>
+
+    <!-- VASTE LASTEN SECTIE -->
+    <div style="margin-top: 1.5rem; margin-bottom: 0.5rem;">
+      <h3 style="font-size: 0.9375rem; font-weight: 700; color: #b91c1c; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem; border-bottom: 1px solid var(--border-color, #e2e8f0); padding-bottom: 0.35rem;">
+        2. Maandelijkse vaste lasten
+      </h3>
+
+      <!-- Vaste last 1: Woonlasten -->
+      <div class="form-group">
+        <label for="input-housing" class="form-label">Huur of hypotheek per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-housing"
+            class="form-input input-has-prefix"
+            value="850"
+            min="0"
+            step="25"
+            aria-describedby="hint-housing"
+          />
+        </div>
+        <span class="form-hint" id="hint-housing">Netto hypotheeklasten of kale huur plus servicekosten.</span>
+      </div>
+
+      <!-- Vaste last 2: Energie en water -->
+      <div class="form-group">
+        <label for="input-energy" class="form-label">Energie en water per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-energy"
+            class="form-input input-has-prefix"
+            value="180"
+            min="0"
+            step="10"
+            aria-describedby="hint-energy"
+          />
+        </div>
+        <span class="form-hint" id="hint-energy">Voorschotnota voor gas, elektriciteit, stadsverwarming en waterbedrijf.</span>
+      </div>
+
+      <!-- Vaste last 3: Zorgverzekering -->
+      <div class="form-group">
+        <label for="input-health" class="form-label">Zorgverzekering per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-health"
+            class="form-input input-has-prefix"
+            value="150"
+            min="0"
+            step="5"
+            aria-describedby="hint-health"
+          />
+        </div>
+        <span class="form-hint" id="hint-health">Maandelijkse premie basis- en aanvullende zorgverzekering (totaal huishouden).</span>
+      </div>
+
+      <!-- Vaste last 4: Vervoer -->
+      <div class="form-group">
+        <label for="input-transport" class="form-label">Vervoerskosten per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-transport"
+            class="form-input input-has-prefix"
+            value="150"
+            min="0"
+            step="10"
+            aria-describedby="hint-transport"
+          />
+        </div>
+        <span class="form-hint" id="hint-transport">Wegenbelasting, autoverzekering, brandstof, onderhoud of OV-abonnement.</span>
+      </div>
+
+      <!-- Vaste last 5: Overige vaste lasten -->
+      <div class="form-group">
+        <label for="input-other-costs" class="form-label">Overige vaste lasten per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-other-costs"
+            class="form-input input-has-prefix"
+            value="120"
+            min="0"
+            step="10"
+            aria-describedby="hint-other-costs"
+          />
+        </div>
+        <span class="form-hint" id="hint-other-costs">Internet, tv, mobiel, inboedelverzekering, streamingdiensten en gemeentelijke heffingen.</span>
+      </div>
+    </div>
+
+    <!-- Foutmelding -->
+    <div class="callout callout-warning" id="alert-error" style="display: none; margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Let op:</strong> <span id="error-text">Ongeldige invoer</span>
+    </div>
+
+    <!-- Actieknoppen -->
+    <div class="form-actions" style="margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <button type="button" id="btn-calc-besteedbaar" class="btn btn-primary" style="flex: 1; min-width: 140px;">
+        Berekenen
+      </button>
+      <button type="button" id="btn-reset-besteedbaar" class="btn btn-secondary" style="min-width: 100px;">
+        Wissen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <!-- Hero resultaat -->
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label" id="res-hero-label">Netto besteedbaar inkomen per maand</span>
+      <div class="result-hero-value" id="res-hero-value">€ 1.050,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">Over na vaste lasten voor levensonderhoud & sparen</span>
+    </div>
+
+    <!-- Waarschuwing bij tekort -->
+    <div class="callout callout-warning" id="box-shortfall-alert" style="display: none; margin-top: 1rem; font-size: 0.875rem; padding: 0.875rem; border-left: 4px solid #ef4444; background: #fef2f2;">
+      <strong style="color: #b91c1c;">Let op: Maandelijks tekort!</strong>
+      <p style="margin: 0.25rem 0 0 0; color: #991b1b;" id="text-shortfall">
+        Je vaste lasten zijn hoger dan je inkomsten. Je komt maandelijks geld tekort.
+      </p>
+    </div>
+
+    <!-- Specificatie van de berekening -->
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Specificatie inkomsten en uitgaven</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Totale maandelijkse inkomsten</span>
+        <span class="result-row-value font-bold" style="color: #16a34a;" id="res-spec-total-income">+ € 2.500,00</span>
+      </div>
+
+      <div class="result-row" id="row-spec-partner" style="display: none;">
+        <span class="result-row-label">Waarvan partnerinkomen</span>
+        <span class="result-row-value text-muted" id="res-spec-partner">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-spec-allowances" style="display: none;">
+        <span class="result-row-label">Waarvan toeslagen & extra</span>
+        <span class="result-row-value text-muted" id="res-spec-allowances">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Totale maandelijkse vaste lasten</span>
+        <span class="result-row-value font-bold" style="color: #dc2626;" id="res-spec-total-expenses">- € 1.450,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-row">
+        <span class="result-row-label font-bold">Netto besteedbaar per maand</span>
+        <span class="result-row-value font-bold text-primary" style="font-size: 1.125rem;" id="res-spec-netto-disp">€ 1.050,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Netto besteedbaar per jaar</span>
+        <span class="result-row-value font-medium" id="res-spec-year-disp">€ 12.600,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Indicatief per week (÷ 52,14)</span>
+        <span class="result-row-value text-muted" id="res-spec-week-disp">€ 241,66</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Indicatief per dag (÷ 365)</span>
+        <span class="result-row-value text-muted" id="res-spec-day-disp">€ 34,52</span>
+      </div>
+    </div>
+
+    <!-- Verhoudingen & Nibud-indicatoren -->
+    <div style="margin-top: 1.25rem; padding: 1rem; background: var(--bg-subtle, #f8fafc); border: 1px solid var(--border-color, #e2e8f0); border-radius: var(--radius-md, 0.5rem);">
+      <div style="font-size: 0.8125rem; font-weight: 700; color: var(--color-text, #1e293b); margin-bottom: 0.5rem;">
+        Budgetverdeling van je inkomsten:
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 0.25rem;">
+        <span>Vaste lasten quote:</span>
+        <strong id="res-stat-fixed-pct">58,0%</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.8125rem; margin-bottom: 0.25rem;">
+        <span>Besteedbaar over:</span>
+        <strong id="res-stat-disp-pct">42,0%</strong>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 0.8125rem;">
+        <span>Woonlasten quote (huur/hypotheek):</span>
+        <strong id="res-stat-housing-pct">34,0%</strong>
+      </div>
+    </div>
+
+    <!-- Korte toelichting conform richtlijn -->
+    <div class="callout callout-info" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem; line-height: 1.5;">
+      <strong>Wat betekent deze uitkomst?</strong> Je netto besteedbare inkomen is het bedrag dat volgens de door jou ingevulde inkomsten en vaste lasten per maand overblijft. Dit bedrag is beschikbaar voor variabele uitgaven (zoals boodschappen, kleding, persoonlijke verzorging en vrije tijd) en om te sparen voor onvoorziene kosten.
+    </div>
+
+    <div class="callout callout-warning" style="margin-top: 0.75rem; font-size: 0.75rem; padding: 0.65rem; line-height: 1.4; color: var(--color-text-muted, #64748b);">
+      * Deze calculator geeft een indicatie van je netto besteedbare inkomen op basis van de inkomsten en vaste lasten die je zelf invult. Werkelijke uitgaven kunnen hoger of lager zijn door variabele kosten, incidentele uitgaven en persoonlijke omstandigheden.
+    </div>
+  </div>
+</div>
+
+<!-- Referentietabel Nibud & Budgetnormen -->
+<div class="table-container" style="margin-top: 2rem;">
+  <div class="table-title">Veelgebruikte Budgetverdelingen & Vuistregels (Nibud & 50/30/20)</div>
+  <p class="table-subtitle" style="font-size: 0.875rem; color: var(--color-text-muted, #64748b); margin-bottom: 0.75rem;">
+    Overzicht van algemene referentierichtlijnen voor het verdelen van je netto maandinkomen.
+  </p>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Categorie</th>
+          <th>Richtpercentage (50/30/20)</th>
+          <th>Wat valt hieronder?</th>
+          <th>Nibud-advies</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Vaste lasten</strong></td>
+          <td>Max. 50% van netto inkomen</td>
+          <td>Wonen (huur/hypotheek), energie, water, zorgverzekering, vervoer, internet & abonnementen</td>
+          <td>Houd woonlasten bij voorkeur onder de 33-35% van je netto maandinkomen.</td>
+        </tr>
+        <tr>
+          <td><strong>Huishoudelijk & Variabel</strong></td>
+          <td>Ca. 30% van netto inkomen</td>
+          <td>Boodschappen, persoonlijke verzorging, kleding, huishoudelijke artikelen en ontspanning</td>
+          <td>Reken op een minimumbedrag voor voeding en kleding op basis van je gezinssamenstelling.</td>
+        </tr>
+        <tr>
+          <td><strong>Sparen & Reserveren</strong></td>
+          <td>Min. 20% van netto inkomen</td>
+          <td>Spaarbuffer voor noodgevallen, aflossingen, pensioenopbouw en incidentele uitgaven</td>
+          <td>Zorg voor minimaal 3 tot 6 maanden aan vaste lasten als buffer op een direct opneembare spaarrekening.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-note" style="font-size: 0.75rem; color: var(--color-text-muted, #64748b); margin-top: 0.5rem;">
+    * Bovenstaande percentages zijn algemene referentiewaarden ter oriëntatie en geen wettelijke verplichtingen. De daadwerkelijke budgetverdeling verschilt per inkomensniveau, woonplaats en gezinssituatie.
+  </p>
+</div>
+
+<script>
+  import { calculateNettoBesteedbaarInkomen } from '../../utils/calculations';
+
+  function initBesteedbaarCalculator() {
+    const calc = document.getElementById('besteedbaar-calc');
+    if (!calc) return;
+
+    const inputNetto = calc.querySelector('#input-netto-income') as HTMLInputElement | null;
+    const inputPartner = calc.querySelector('#input-partner-income') as HTMLInputElement | null;
+    const inputOther = calc.querySelector('#input-other-income') as HTMLInputElement | null;
+    const inputAllowances = calc.querySelector('#input-allowances') as HTMLInputElement | null;
+
+    const inputHousing = calc.querySelector('#input-housing') as HTMLInputElement | null;
+    const inputEnergy = calc.querySelector('#input-energy') as HTMLInputElement | null;
+    const inputHealth = calc.querySelector('#input-health') as HTMLInputElement | null;
+    const inputTransport = calc.querySelector('#input-transport') as HTMLInputElement | null;
+    const inputOtherCosts = calc.querySelector('#input-other-costs') as HTMLInputElement | null;
+
+    const groupPartner = calc.querySelector('#group-partner-income') as HTMLElement | null;
+    const alertError = calc.querySelector('#alert-error') as HTMLElement | null;
+    const errorText = calc.querySelector('#error-text') as HTMLElement | null;
+    const btnCalc = calc.querySelector('#btn-calc-besteedbaar');
+    const btnReset = calc.querySelector('#btn-reset-besteedbaar');
+
+    const resHeroBox = calc.querySelector('#result-hero-box') as HTMLElement | null;
+    const resHeroLabel = calc.querySelector('#res-hero-label');
+    const resHeroValue = calc.querySelector('#res-hero-value');
+    const resHeroSub = calc.querySelector('#res-hero-sub');
+    const boxShortfallAlert = calc.querySelector('#box-shortfall-alert') as HTMLElement | null;
+    const textShortfall = calc.querySelector('#text-shortfall');
+
+    const resSpecTotalIncome = calc.querySelector('#res-spec-total-income');
+    const rowSpecPartner = calc.querySelector('#row-spec-partner') as HTMLElement | null;
+    const resSpecPartner = calc.querySelector('#res-spec-partner');
+    const rowSpecAllowances = calc.querySelector('#row-spec-allowances') as HTMLElement | null;
+    const resSpecAllowances = calc.querySelector('#res-spec-allowances');
+
+    const resSpecTotalExpenses = calc.querySelector('#res-spec-total-expenses');
+    const resSpecNettoDisp = calc.querySelector('#res-spec-netto-disp');
+    const resSpecYearDisp = calc.querySelector('#res-spec-year-disp');
+    const resSpecWeekDisp = calc.querySelector('#res-spec-week-disp');
+    const resSpecDayDisp = calc.querySelector('#res-spec-day-disp');
+
+    const resStatFixedPct = calc.querySelector('#res-stat-fixed-pct');
+    const resStatDispPct = calc.querySelector('#res-stat-disp-pct');
+    const resStatHousingPct = calc.querySelector('#res-stat-housing-pct');
+
+    if (!inputNetto || !btnCalc) return;
+
+    const formatCur = (num: number) =>
+      new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(num);
+
+    function isHouseholdSelected(): boolean {
+      const checked = calc.querySelector('input[name="situation"]:checked') as HTMLInputElement | null;
+      return checked?.value === 'household';
+    }
+
+    function updateHouseholdVisibility() {
+      const isHouse = isHouseholdSelected();
+      if (groupPartner) groupPartner.style.display = isHouse ? 'block' : 'none';
+      if (rowSpecPartner) rowSpecPartner.style.display = isHouse ? 'flex' : 'none';
+    }
+
+    function updateCalculation() {
+      if (!inputNetto) return;
+
+      const isHouse = isHouseholdSelected();
+      const nettoVal = parseFloat(inputNetto.value) || 0;
+      const partnerVal = inputPartner ? parseFloat(inputPartner.value) || 0 : 0;
+      const otherVal = inputOther ? parseFloat(inputOther.value) || 0 : 0;
+      const allowVal = inputAllowances ? parseFloat(inputAllowances.value) || 0 : 0;
+
+      const housingVal = inputHousing ? parseFloat(inputHousing.value) || 0 : 0;
+      const energyVal = inputEnergy ? parseFloat(inputEnergy.value) || 0 : 0;
+      const healthVal = inputHealth ? parseFloat(inputHealth.value) || 0 : 0;
+      const transportVal = inputTransport ? parseFloat(inputTransport.value) || 0 : 0;
+      const otherCostsVal = inputOtherCosts ? parseFloat(inputOtherCosts.value) || 0 : 0;
+
+      const res = calculateNettoBesteedbaarInkomen({
+        nettoIncome: nettoVal,
+        partnerIncome: partnerVal,
+        otherIncome: otherVal,
+        allowances: allowVal,
+        isHousehold: isHouse,
+        housingCosts: housingVal,
+        energyWaterCosts: energyVal,
+        healthInsuranceCosts: healthVal,
+        transportCosts: transportVal,
+        otherFixedCosts: otherCostsVal
+      });
+
+      if (!res.isValid) {
+        if (alertError && errorText) {
+          alertError.style.display = 'block';
+          errorText.textContent = res.errorMessage || 'Controleer de ingevoerde bedragen.';
+        }
+        return;
+      }
+
+      if (alertError) alertError.style.display = 'none';
+
+      // Update hero card
+      if (resHeroValue) {
+        if (res.isPositive) {
+          resHeroValue.textContent = formatCur(res.disposableIncomeMonthly);
+          resHeroValue.setAttribute('style', 'color: var(--color-primary, #035644);');
+          if (resHeroLabel) resHeroLabel.textContent = 'Netto besteedbaar inkomen per maand';
+          if (resHeroSub) resHeroSub.textContent = 'Over na vaste lasten voor levensonderhoud & sparen';
+          if (boxShortfallAlert) boxShortfallAlert.style.display = 'none';
+        } else {
+          resHeroValue.textContent = `- ${formatCur(res.shortfallMonthly)}`;
+          resHeroValue.setAttribute('style', 'color: #dc2626;');
+          if (resHeroLabel) resHeroLabel.textContent = 'Maandelijks tekort na vaste lasten';
+          if (resHeroSub) resHeroSub.textContent = 'Je vaste lasten overstijgen je maandelijkse inkomsten';
+          if (boxShortfallAlert && textShortfall) {
+            boxShortfallAlert.style.display = 'block';
+            textShortfall.textContent = `Je komt volgens deze berekening ${formatCur(res.shortfallMonthly)} per maand tekort om al je vaste lasten te dekken.`;
+          }
+        }
+      }
+
+      // Update specification lines
+      if (resSpecTotalIncome) resSpecTotalIncome.textContent = `+ ${formatCur(res.totalIncomeMonthly)}`;
+
+      if (rowSpecPartner && resSpecPartner) {
+        if (res.isHousehold && res.partnerIncome > 0) {
+          rowSpecPartner.style.display = 'flex';
+          resSpecPartner.textContent = formatCur(res.partnerIncome);
+        } else {
+          rowSpecPartner.style.display = 'none';
+        }
+      }
+
+      if (rowSpecAllowances && resSpecAllowances) {
+        const extraSum = res.otherIncome + res.allowances;
+        if (extraSum > 0) {
+          rowSpecAllowances.style.display = 'flex';
+          resSpecAllowances.textContent = formatCur(extraSum);
+        } else {
+          rowSpecAllowances.style.display = 'none';
+        }
+      }
+
+      if (resSpecTotalExpenses) resSpecTotalExpenses.textContent = `- ${formatCur(res.totalExpensesMonthly)}`;
+
+      if (resSpecNettoDisp) {
+        resSpecNettoDisp.textContent = res.isPositive
+          ? formatCur(res.disposableIncomeMonthly)
+          : `- ${formatCur(res.shortfallMonthly)}`;
+        resSpecNettoDisp.setAttribute('style', res.isPositive ? 'color: var(--color-primary, #035644);' : 'color: #dc2626;');
+      }
+
+      if (resSpecYearDisp) resSpecYearDisp.textContent = formatCur(res.disposableIncomeAnnual);
+      if (resSpecWeekDisp) resSpecWeekDisp.textContent = formatCur(res.disposableIncomeWeekly);
+      if (resSpecDayDisp) resSpecDayDisp.textContent = formatCur(res.disposableIncomeDaily);
+
+      // Ratios
+      if (resStatFixedPct) resStatFixedPct.textContent = `${res.fixedCostsPercentage.toFixed(1)}%`;
+      if (resStatDispPct) resStatDispPct.textContent = `${res.disposablePercentage.toFixed(1)}%`;
+      if (resStatHousingPct) resStatHousingPct.textContent = `${res.housingPercentage.toFixed(1)}%`;
+    }
+
+    // Quick pills
+    calc.querySelectorAll('.salary-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        calc.querySelectorAll('.salary-pill').forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        const val = pill.getAttribute('data-val');
+        if (inputNetto && val) {
+          inputNetto.value = val;
+          updateCalculation();
+        }
+      });
+    });
+
+    // Radio change handlers
+    calc.querySelectorAll('input[name="situation"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        updateHouseholdVisibility();
+        updateCalculation();
+      });
+    });
+
+    // Inputs listener
+    const allInputs = [
+      inputNetto,
+      inputPartner,
+      inputOther,
+      inputAllowances,
+      inputHousing,
+      inputEnergy,
+      inputHealth,
+      inputTransport,
+      inputOtherCosts
+    ];
+
+    allInputs.forEach(inp => {
+      if (inp) {
+        inp.addEventListener('input', () => {
+          if (inp === inputNetto) {
+            calc.querySelectorAll('.salary-pill').forEach(p => {
+              if (p.getAttribute('data-val') === inp.value) p.classList.add('is-active');
+              else p.classList.remove('is-active');
+            });
+          }
+          updateCalculation();
+        });
+      }
+    });
+
+    btnCalc.addEventListener('click', updateCalculation);
+
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        inputNetto.value = '2500';
+        if (inputPartner) inputPartner.value = '2000';
+        if (inputOther) inputOther.value = '';
+        if (inputAllowances) inputAllowances.value = '';
+        if (inputHousing) inputHousing.value = '850';
+        if (inputEnergy) inputEnergy.value = '180';
+        if (inputHealth) inputHealth.value = '150';
+        if (inputTransport) inputTransport.value = '150';
+        if (inputOtherCosts) inputOtherCosts.value = '120';
+
+        const radioSingle = calc.querySelector('#sit-single') as HTMLInputElement | null;
+        if (radioSingle) radioSingle.checked = true;
+
+        calc.querySelectorAll('.salary-pill').forEach(p => {
+          if (p.getAttribute('data-val') === '2500') p.classList.add('is-active');
+          else p.classList.remove('is-active');
+        });
+
+        updateHouseholdVisibility();
+        updateCalculation();
+      });
+    }
+
+    // Initial render
+    updateHouseholdVisibility();
+    updateCalculation();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBesteedbaarCalculator);
+  } else {
+    initBesteedbaarCalculator();
+  }
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    border-radius: 9999px;
+  }
+
+  .form-radio-card label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0.25rem;
+  }
+
+  .form-radio-card label small {
+    font-size: 0.75rem;
+    font-weight: normal;
+    opacity: 0.85;
+    line-height: 1.3;
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

@@ -1,0 +1,585 @@
+---
+// src/components/calculators/WajongCalculator.astro
+import { WAJONG_RATES_2026 } from '../../utils/calculations';
+---
+
+<div class="calc-grid" id="wajong-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Gegevens invoeren</h2>
+      <span class="rate-year-tag">UWV Norm 2026</span>
+    </div>
+
+    <!-- Veld 1: Leeftijd -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label for="input-age" class="form-label">Leeftijd</label>
+      <input
+        type="number"
+        id="input-age"
+        class="form-input"
+        value="21"
+        min="18"
+        max="67"
+        step="1"
+        aria-describedby="hint-age"
+      />
+      <div class="quick-pills" id="age-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill age-pill" data-age="18">18 jaar</button>
+        <button type="button" class="quick-pill age-pill" data-age="19">19 jaar</button>
+        <button type="button" class="quick-pill age-pill" data-age="20">20 jaar</button>
+        <button type="button" class="quick-pill age-pill is-active" data-age="21">21+ jaar</button>
+      </div>
+      <span class="form-hint" id="hint-age">
+        Vanaf 21 jaar geldt 100% van het wettelijk minimumloon. Voor 18 t/m 20 jaar geldt het minimumjeugdloon (50%, 60% of 80%).
+      </span>
+    </div>
+
+    <!-- Veld 2: Arbeidsvermogen -->
+    <div class="form-group">
+      <label class="form-label">Arbeidsvermogen (vastgesteld door UWV)</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="cap-geen" name="arbeidsvermogen" value="geen" checked />
+          <label for="cap-geen">
+            <strong>Duurzaam geen arbeidsvermogen (75%)</strong>
+            <small>U kunt nu en in de toekomst niet werken conform UWV-beoordeling.</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="cap-wel" name="arbeidsvermogen" value="wel" />
+          <label for="cap-wel">
+            <strong>Wel arbeidsvermogen (70%)</strong>
+            <small>U heeft mogelijkheden om nu of later te werken (Wajong 2010 of oude Wajong).</small>
+          </label>
+        </div>
+      </div>
+      <span class="form-hint">
+        UWV bepaalt officieel uw arbeidsvermogen. Deze calculator berekent de uitkering volgens de gekozen norm.
+      </span>
+    </div>
+
+    <!-- Veld 3: Werkt u naast uw Wajong? -->
+    <div class="form-group">
+      <label class="form-label">Werkt u naast uw Wajong?</label>
+      <div class="form-radio-group">
+        <div class="form-radio-card">
+          <input type="radio" id="work-no" name="has-work" value="no" checked />
+          <label for="work-no">
+            <strong>Nee, ik werk niet</strong>
+            <small>Geen neveninkomsten uit werk.</small>
+          </label>
+        </div>
+        <div class="form-radio-card">
+          <input type="radio" id="work-yes" name="has-work" value="yes" />
+          <label for="work-yes">
+            <strong>Ja, ik werk wel</strong>
+            <small>U ontvangt loon of inkomsten naast uw uitkering.</small>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Veld 4: Bruto inkomsten uit werk (voorwaardelijk) -->
+    <div class="form-group" id="group-work-income" style="display: none;">
+      <label for="input-work-income" class="form-label">Bruto inkomsten uit werk per maand</label>
+      <div class="input-wrapper">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-work-income"
+          class="form-input input-has-prefix"
+          value="500"
+          min="0"
+          step="50"
+          aria-describedby="hint-work-income"
+        />
+      </div>
+      <div class="quick-pills" id="income-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="quick-pill income-pill" data-income="250">€ 250</button>
+        <button type="button" class="quick-pill income-pill is-active" data-income="500">€ 500</button>
+        <button type="button" class="quick-pill income-pill" data-income="750">€ 750</button>
+        <button type="button" class="quick-pill income-pill" data-income="1000">€ 1.000</button>
+        <button type="button" class="quick-pill income-pill" data-income="1500">€ 1.500</button>
+      </div>
+      <span class="form-hint" id="hint-work-income">
+        Vul je bruto maandloon uit werk in. UWV verrekent 70% met de uitkering, waardoor je 30% van elke verdiende euro extra overhoudt.
+      </span>
+    </div>
+
+    <!-- Optioneel: Garantiebedrag (accordeon / toggle) -->
+    <div class="accordion-item" style="border: 1px solid var(--border-color, #e2e8f0); border-radius: var(--radius-md, 0.5rem); margin-top: 1rem; overflow: hidden;">
+      <button type="button" id="toggle-guarantee" class="accordion-header" style="width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem; background: var(--bg-subtle, #f8fafc); border: none; font-size: 0.875rem; font-weight: 600; color: var(--color-text, #1e293b); cursor: pointer; text-align: left;">
+        <span>Heeft u een garantiebedrag van UWV? (optioneel)</span>
+        <svg id="icon-chevron" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="transition: transform 0.2s ease;">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+      <div id="content-guarantee" style="display: none; padding: 1rem; background: var(--bg-surface, #ffffff); border-top: 1px solid var(--border-color, #e2e8f0);">
+        <label for="input-guarantee" class="form-label" style="font-size: 0.8125rem;">Vastgesteld bruto garantiebedrag per maand</label>
+        <div class="input-wrapper">
+          <span class="input-prefix">€</span>
+          <input
+            type="number"
+            id="input-guarantee"
+            class="form-input input-has-prefix"
+            placeholder="0"
+            min="0"
+            step="10"
+            aria-describedby="hint-guarantee"
+          />
+        </div>
+        <span class="form-hint" id="hint-guarantee" style="font-size: 0.75rem;">
+          Als uw berekende Wajong lager uitvalt dan uw officiële garantiebedrag van het UWV, wordt het garantiebedrag uitbetaald.
+        </span>
+      </div>
+    </div>
+
+    <!-- Foutmelding / Validatie -->
+    <div class="callout callout-warning" id="alert-error" style="display: none; margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Let op:</strong> <span id="error-text">Ongeldige invoer</span>
+    </div>
+
+    <!-- Knoppen -->
+    <div class="form-actions" style="margin-top: 1.5rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+      <button type="button" id="btn-calc-wajong" class="btn btn-primary" style="flex: 1; min-width: 140px;">
+        Berekenen
+      </button>
+      <button type="button" id="btn-reset-wajong" class="btn btn-secondary" style="min-width: 100px;">
+        Wissen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label">Geschatte bruto Wajong per maand</span>
+      <div class="result-hero-value" id="res-hero-wajong">€ 1.752,75</div>
+      <span class="result-hero-sub" id="res-hero-sub">Norm 2026 (75% van € 2.337,00)</span>
+    </div>
+
+    <!-- Extra highlight bij inkomsten uit werk -->
+    <div id="box-working-summary" style="display: none; margin-top: 1rem; padding: 0.875rem 1rem; background: var(--color-primary-light, #eff6ff); border: 1px solid var(--color-primary, #3b82f6); border-radius: var(--radius-md, 0.5rem);">
+      <div style="font-size: 0.8125rem; color: var(--color-primary, #1d4ed8); font-weight: 600;">Geschat totaal bruto maandinkomen</div>
+      <div style="font-size: 1.5rem; font-weight: 700; color: var(--color-primary, #1e40af); margin: 0.25rem 0;" id="res-total-income">€ 1.785,90</div>
+      <div style="font-size: 0.75rem; color: var(--color-text-muted, #475569);" id="res-retention-text">
+        U houdt bruto 30% van uw loon extra over naast uw Wajong.
+      </div>
+    </div>
+
+    <!-- Specificatie van de berekening -->
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Specificatie van de berekening</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Leeftijd & grondslag</span>
+        <span class="result-row-value font-medium" id="res-spec-age">21+ jaar (100%)</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Wettelijk referentiemaandloon</span>
+        <span class="result-row-value font-medium" id="res-spec-refwage">€ 2.337,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Toepasselijk minimum(jeugd)loon</span>
+        <span class="result-row-value font-bold" id="res-spec-appwage">€ 2.337,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Wajong-percentage</span>
+        <span class="result-row-value font-medium" id="res-spec-pct">75% (geen arbeidsvermogen)</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Maximale basis-Wajong</span>
+        <span class="result-row-value font-bold" id="res-spec-maxwajong">€ 1.752,75</span>
+      </div>
+
+      <!-- Rijen die zichtbaar worden bij inkomsten uit werk -->
+      <div class="result-row" id="row-spec-work-income" style="display: none;">
+        <span class="result-row-label">Bruto loon uit werk</span>
+        <span class="result-row-value font-medium text-primary" id="res-spec-work-income">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-spec-deduction" style="display: none;">
+        <span class="result-row-label">Inhouding UWV (70% verrekening)</span>
+        <span class="result-row-value font-medium" style="color: #dc2626;" id="res-spec-deduction">- € 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-spec-guarantee" style="display: none;">
+        <span class="result-row-label">Garantiebedrag toegepast</span>
+        <span class="result-row-value font-bold" style="color: #16a34a;" id="res-spec-guarantee">€ 0,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-row">
+        <span class="result-row-label">Geschatte bruto Wajong</span>
+        <span class="result-row-value font-bold text-primary" id="res-spec-final-wajong">€ 1.752,75</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Vakantiegeld opbouw (~8% p/m)</span>
+        <span class="result-row-value text-muted" id="res-spec-vacation">€ 140,22</span>
+      </div>
+    </div>
+
+    <!-- Garantiebedrag waarschuwing -->
+    <div class="callout callout-info" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem; line-height: 1.5;">
+      <strong>Garantiebedrag:</strong> Heeft u een garantiebedrag? Dan kan uw daadwerkelijke Wajong-uitkering afwijken van deze berekening. UWV keert in dat geval ten minste het geldende garantiebedrag uit.
+    </div>
+
+    <!-- Schatting vs UWV Disclaimer -->
+    <div class="callout callout-warning" style="margin-top: 0.75rem; font-size: 0.8125rem; padding: 0.75rem; line-height: 1.5;">
+      <strong>Indicatieve schatting:</strong> Deze calculator geeft een indicatie van de hoogte van uw Wajong-uitkering. UWV bepaalt uiteindelijk of u recht heeft op Wajong en hoeveel u daadwerkelijk ontvangt. Uw persoonlijke situatie, arbeidsvermogen, inkomsten en eventuele bijzondere regelingen kunnen invloed hebben op de uitkomst.
+    </div>
+  </div>
+</div>
+
+<!-- Referentietabel Wajong 2026 -->
+<div class="table-container" style="margin-top: 2rem;">
+  <div class="table-title">Wajong Bedragen 2026 per Leeftijdscategorie (per 1 juli 2026)</div>
+  <p class="table-subtitle" style="font-size: 0.875rem; color: var(--color-text-muted, #64748b); margin-bottom: 0.75rem;">
+    Overzicht van het officiële referentiemaandloon en de maximale bruto Wajong-uitkeringen zonder neveninkomsten.
+  </p>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Leeftijd</th>
+          <th>Wettelijk %</th>
+          <th>Referentiemaandloon</th>
+          <th>Geen arbeidsvermogen (75%)</th>
+          <th>Wel arbeidsvermogen (70%)</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>21 jaar en ouder</strong></td>
+          <td>100%</td>
+          <td>€ 2.337,00</td>
+          <td><strong>€ 1.752,75</strong></td>
+          <td><strong>€ 1.635,90</strong></td>
+        </tr>
+        <tr>
+          <td><strong>20 jaar</strong></td>
+          <td>80%</td>
+          <td>€ 1.869,60</td>
+          <td>€ 1.402,20</td>
+          <td>€ 1.308,72</td>
+        </tr>
+        <tr>
+          <td><strong>19 jaar</strong></td>
+          <td>60%</td>
+          <td>€ 1.402,20</td>
+          <td>€ 1.051,65</td>
+          <td>€ 981,54</td>
+        </tr>
+        <tr>
+          <td><strong>18 jaar</strong></td>
+          <td>50%</td>
+          <td>€ 1.168,50</td>
+          <td>€ 876,38</td>
+          <td>€ 817,95</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="table-note" style="font-size: 0.75rem; color: var(--color-text-muted, #64748b); margin-top: 0.5rem;">
+    * Bedragen zijn bruto per maand op basis van het referentiemaandloon per 1 juli 2026, exclusief 8% vakantiebijslag die UWV jaarlijks in mei uitbetaalt. Voor de eerste helft van 2026 (januari t/m juni) gold een volwassen referentiemaandloon van € 2.294,40.
+  </p>
+</div>
+
+<script>
+  import { calculateWajong } from '../../utils/calculations';
+
+  function initWajongCalculator() {
+    const inputAge = document.getElementById('input-age') as HTMLInputElement | null;
+    const inputWorkIncome = document.getElementById('input-work-income') as HTMLInputElement | null;
+    const inputGuarantee = document.getElementById('input-guarantee') as HTMLInputElement | null;
+    const groupWorkIncome = document.getElementById('group-work-income');
+    const toggleGuarantee = document.getElementById('toggle-guarantee');
+    const contentGuarantee = document.getElementById('content-guarantee');
+    const iconChevron = document.getElementById('icon-chevron');
+
+    const alertError = document.getElementById('alert-error');
+    const errorText = document.getElementById('error-text');
+    const btnCalc = document.getElementById('btn-calc-wajong');
+    const btnReset = document.getElementById('btn-reset-wajong');
+
+    const resHeroWajong = document.getElementById('res-hero-wajong');
+    const resHeroSub = document.getElementById('res-hero-sub');
+    const boxWorkingSummary = document.getElementById('box-working-summary');
+    const resTotalIncome = document.getElementById('res-total-income');
+    const resRetentionText = document.getElementById('res-retention-text');
+
+    const resSpecAge = document.getElementById('res-spec-age');
+    const resSpecRefwage = document.getElementById('res-spec-refwage');
+    const resSpecAppwage = document.getElementById('res-spec-appwage');
+    const resSpecPct = document.getElementById('res-spec-pct');
+    const resSpecMaxwajong = document.getElementById('res-spec-maxwajong');
+    const rowSpecWorkIncome = document.getElementById('row-spec-work-income');
+    const resSpecWorkIncome = document.getElementById('res-spec-work-income');
+    const rowSpecDeduction = document.getElementById('row-spec-deduction');
+    const resSpecDeduction = document.getElementById('res-spec-deduction');
+    const rowSpecGuarantee = document.getElementById('row-spec-guarantee');
+    const resSpecGuarantee = document.getElementById('res-spec-guarantee');
+    const resSpecFinalWajong = document.getElementById('res-spec-final-wajong');
+    const resSpecVacation = document.getElementById('res-spec-vacation');
+
+    if (!inputAge || !btnCalc) return;
+
+    const formatCur = (num: number) =>
+      new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR', minimumFractionDigits: 2 }).format(num);
+
+    function getArbeidsvermogen(): 'wel' | 'geen' {
+      const checked = document.querySelector('input[name="arbeidsvermogen"]:checked') as HTMLInputElement | null;
+      return (checked?.value as 'wel' | 'geen') || 'geen';
+    }
+
+    function getHasWork(): boolean {
+      const checked = document.querySelector('input[name="has-work"]:checked') as HTMLInputElement | null;
+      return checked?.value === 'yes';
+    }
+
+    function updateWorkVisibility() {
+      const hasWork = getHasWork();
+      if (groupWorkIncome) {
+        groupWorkIncome.style.display = hasWork ? 'block' : 'none';
+      }
+    }
+
+    function updateCalculation() {
+      if (!inputAge) return;
+
+      const ageVal = parseInt(inputAge.value, 10);
+      const capVal = getArbeidsvermogen();
+      const hasWorkVal = getHasWork();
+      const workIncomeVal = inputWorkIncome ? parseFloat(inputWorkIncome.value) || 0 : 0;
+      const guaranteeVal = inputGuarantee ? parseFloat(inputGuarantee.value) || 0 : 0;
+
+      const res = calculateWajong({
+        age: ageVal,
+        arbeidsvermogen: capVal,
+        hasWorkIncome: hasWorkVal,
+        workIncomeMonthly: workIncomeVal,
+        guaranteeAmount: guaranteeVal,
+        period: '2026-07'
+      });
+
+      if (!res.isValid) {
+        if (alertError && errorText) {
+          alertError.style.display = 'block';
+          errorText.textContent = res.errorMessage || 'Controleer de ingevoerde gegevens.';
+        }
+        return;
+      }
+
+      if (alertError) {
+        if (res.noticeMessage && errorText) {
+          alertError.style.display = 'block';
+          errorText.textContent = res.noticeMessage;
+        } else {
+          alertError.style.display = 'none';
+        }
+      }
+
+      // Update hero
+      if (resHeroWajong) resHeroWajong.textContent = formatCur(res.finalWajongMonthly);
+      if (resHeroSub) {
+        resHeroSub.textContent = `Norm 2026 (${res.wajongPercentage}% van ${formatCur(res.applicableMinimumWage)})`;
+      }
+
+      // Update working summary
+      if (boxWorkingSummary && resTotalIncome && resRetentionText) {
+        if (res.hasWorkIncome && res.workIncomeMonthly > 0) {
+          boxWorkingSummary.style.display = 'block';
+          resTotalIncome.textContent = formatCur(res.totalGrossMonthlyIncome);
+          if (res.estimatedWajongMonthly > 0) {
+            resRetentionText.textContent = `Door te werken verdient u ${formatCur(res.workIncomeMonthly)} bruto en houdt u netto/bruto ${formatCur(res.retentionBenefit)} extra over naast uw Wajong.`;
+          } else {
+            resRetentionText.textContent = `Uw inkomen uit werk is hoger dan de Wajong-norm. U ontvangt uw salaris (${formatCur(res.workIncomeMonthly)}).`;
+          }
+        } else {
+          boxWorkingSummary.style.display = 'none';
+        }
+      }
+
+      // Update specification table
+      if (resSpecAge) resSpecAge.textContent = res.ageGroupLabel;
+      if (resSpecRefwage) resSpecRefwage.textContent = formatCur(res.referenceMonthlyWageAdult);
+      if (resSpecAppwage) resSpecAppwage.textContent = formatCur(res.applicableMinimumWage);
+      if (resSpecPct) resSpecPct.textContent = `${res.wajongPercentage}% (${res.arbeidsvermogen === 'geen' ? 'duurzaam geen arbeidsvermogen' : 'wel arbeidsvermogen'})`;
+      if (resSpecMaxwajong) resSpecMaxwajong.textContent = formatCur(res.maxWajongMonthly);
+
+      if (rowSpecWorkIncome && resSpecWorkIncome) {
+        rowSpecWorkIncome.style.display = res.hasWorkIncome ? 'flex' : 'none';
+        resSpecWorkIncome.textContent = formatCur(res.workIncomeMonthly);
+      }
+
+      if (rowSpecDeduction && resSpecDeduction) {
+        rowSpecDeduction.style.display = res.hasWorkIncome ? 'flex' : 'none';
+        resSpecDeduction.textContent = `- ${formatCur(res.incomeDeduction)}`;
+      }
+
+      if (rowSpecGuarantee && resSpecGuarantee) {
+        rowSpecGuarantee.style.display = res.isGuaranteeApplied ? 'flex' : 'none';
+        resSpecGuarantee.textContent = `${formatCur(res.guaranteeAmount)} (garantie van toepassing)`;
+      }
+
+      if (resSpecFinalWajong) resSpecFinalWajong.textContent = formatCur(res.finalWajongMonthly);
+      if (resSpecVacation) resSpecVacation.textContent = `${formatCur(res.vacationAllowanceMonthlyEstimate)} p/m (mei-uitkering)`;
+    }
+
+    // Toggle guarantee accordion
+    if (toggleGuarantee && contentGuarantee && iconChevron) {
+      toggleGuarantee.addEventListener('click', () => {
+        const isOpen = contentGuarantee.style.display === 'block';
+        contentGuarantee.style.display = isOpen ? 'none' : 'block';
+        iconChevron.style.transform = isOpen ? 'rotate(0deg)' : 'rotate(180deg)';
+      });
+    }
+
+    // Age quick pills
+    document.querySelectorAll('.age-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.age-pill').forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        const ageVal = pill.getAttribute('data-age');
+        if (inputAge && ageVal) {
+          inputAge.value = ageVal;
+          updateCalculation();
+        }
+      });
+    });
+
+    // Income quick pills
+    document.querySelectorAll('.income-pill').forEach(pill => {
+      pill.addEventListener('click', () => {
+        document.querySelectorAll('.income-pill').forEach(p => p.classList.remove('is-active'));
+        pill.classList.add('is-active');
+        const incVal = pill.getAttribute('data-income');
+        if (inputWorkIncome && incVal) {
+          inputWorkIncome.value = incVal;
+          updateCalculation();
+        }
+      });
+    });
+
+    // Radio change handlers
+    document.querySelectorAll('input[name="has-work"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        updateWorkVisibility();
+        updateCalculation();
+      });
+    });
+
+    document.querySelectorAll('input[name="arbeidsvermogen"]').forEach(radio => {
+      radio.addEventListener('change', updateCalculation);
+    });
+
+    // Input events
+    inputAge.addEventListener('input', () => {
+      const val = parseInt(inputAge.value, 10);
+      document.querySelectorAll('.age-pill').forEach(p => {
+        const pillAge = parseInt(p.getAttribute('data-age') || '0', 10);
+        if (val >= 21 && pillAge === 21) {
+          p.classList.add('is-active');
+        } else if (val === pillAge) {
+          p.classList.add('is-active');
+        } else {
+          p.classList.remove('is-active');
+        }
+      });
+      updateCalculation();
+    });
+
+    if (inputWorkIncome) inputWorkIncome.addEventListener('input', updateCalculation);
+    if (inputGuarantee) inputGuarantee.addEventListener('input', updateCalculation);
+
+    btnCalc.addEventListener('click', updateCalculation);
+
+    if (btnReset) {
+      btnReset.addEventListener('click', () => {
+        inputAge.value = '21';
+        const radioCapGeen = document.getElementById('cap-geen') as HTMLInputElement | null;
+        if (radioCapGeen) radioCapGeen.checked = true;
+        const radioWorkNo = document.getElementById('work-no') as HTMLInputElement | null;
+        if (radioWorkNo) radioWorkNo.checked = true;
+        if (inputWorkIncome) inputWorkIncome.value = '500';
+        if (inputGuarantee) inputGuarantee.value = '';
+        if (contentGuarantee && iconChevron) {
+          contentGuarantee.style.display = 'none';
+          iconChevron.style.transform = 'rotate(0deg)';
+        }
+        document.querySelectorAll('.age-pill').forEach(p => {
+          if (p.getAttribute('data-age') === '21') p.classList.add('is-active');
+          else p.classList.remove('is-active');
+        });
+        document.querySelectorAll('.income-pill').forEach(p => {
+          if (p.getAttribute('data-income') === '500') p.classList.add('is-active');
+          else p.classList.remove('is-active');
+        });
+        updateWorkVisibility();
+        updateCalculation();
+      });
+    }
+
+    // Initial render
+    updateWorkVisibility();
+    updateCalculation();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWajongCalculator);
+  } else {
+    initWajongCalculator();
+  }
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    border-radius: 9999px;
+  }
+
+  .form-radio-card label {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    gap: 0.25rem;
+  }
+
+  .form-radio-card label small {
+    font-size: 0.75rem;
+    font-weight: normal;
+    opacity: 0.85;
+    line-height: 1.3;
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+

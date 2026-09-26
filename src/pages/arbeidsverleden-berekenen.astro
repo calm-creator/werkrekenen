@@ -1,0 +1,152 @@
+---
+// src/pages/arbeidsverleden-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import ArbeidsverledenCalculator from '../components/calculators/ArbeidsverledenCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('arbeidsverleden-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken ik mijn totale arbeidsverleden?',
+    answer: 'Je berekent de exacte duur van je arbeidsverleden door de startdatum van je eerste baan af te trekken van de einddatum (of de dag van vandaag). Onze calculator berekent de verstreken tijd exact in kalenderjaren, maanden en dagen, en toont tevens het totaal aantal gewerkte kalenderdagen.'
+  },
+  {
+    question: 'Hoeveel jaar heb ik precies gewerkt?',
+    answer: 'Het aantal gewerkte jaren is het aantal volledige kalenderjaren tussen je aanstellingsdatum en je uitdiensttreding of de datum van vandaag. Heb je bijvoorbeeld gewerkt van 1 januari 2018 tot 16 mei 2026, dan heb je exact 8 volle jaren, 4 maanden en 15 dagen gewerkt.'
+  },
+  {
+    question: 'Wat is het verschil tussen arbeidsverleden en een dienstverband?',
+    answer: 'Een dienstverband betreft de tijd dat je bij één specifieke werkgever onder contract staat (je diensttijd of aantal dienstjaren). Arbeidsverleden omvat je gehele loopbaan over meerdere werkgevers, tijdelijke contracten en gewerkte periodes heen.'
+  },
+  {
+    question: 'Wat is het verschil tussen arbeidsverleden en werkervaring?',
+    answer: 'Arbeidsverleden is een feitelijke tijdsduur waarin je hebt gewerkt of loon hebt ontvangen. Werkervaring verwijst naar de opgedane vakkennis, vaardigheden en senioriteit binnen een specifiek beroep of vakgebied, en wordt vaak op je cv vermeld.'
+  },
+  {
+    question: 'Hoe berekent het UWV het arbeidsverleden voor een WW-uitkering?',
+    answer: 'Het UWV hanteert een strikte wettelijke definitie (de jareneis). Voor jaren vóór 2013 telt elk kalenderjaar mee waarin je over minimaal 52 dagen loon ontving. Vanaf 2013 telt een kalenderjaar mee als je over minstens 208 uur loon hebt ontvangen. Dit officiële arbeidsverleden bepaalt de uiteindelijke duur van je WW-uitkering.'
+  },
+  {
+    question: 'Tellen parttime gewerkte jaren volledig mee voor het arbeidsverleden?',
+    answer: 'Ja, voor de algemene kalenderduur en voor de WW-jareneis van het UWV maakt het niet uit of je fulltime of parttime werkt, zolang je in een kalenderjaar maar aan de minimale wettelijke norm van 208 betaalde uren voldoet.'
+  },
+  {
+    question: 'Kan ik mijn arbeidsverleden tot vandaag berekenen?',
+    answer: 'Ja. Vul eenvoudig je startdatum in en laat de einddatum op vandaag staan (of klik op de knop \'Tot vandaag\'). De calculator toont direct op de dag nauwkeurig hoe lang je al werkzaam bent.'
+  },
+  {
+    question: 'Wat gebeurt er met schrikkeljaren in de berekening?',
+    answer: 'Onze calculator houdt rekening met alle schrikkeldagen (zoals 29 februari 2020 en 2024). In het aantal kalenderjaren telt een schrikkeljaar als 1 vol kalenderjaar, terwijl in het totaalaantal dagen automatisch 366 dagen worden meegeteld.'
+  },
+  {
+    question: 'Tellen jaren waarin ik voor kinderen heb gezorgd mee voor het arbeidsverleden?',
+    answer: 'Bij de berekening van de kalenderduur tellen alleen de datums mee waarop je daadwerkelijk een contract had. Voor het officiële UWV-arbeidsverleden bestaat echter het verzorgingsforfait: jaren waarin je zorgde voor een kind jonger dan 5 jaar kunnen onder bepaalde voorwaarden gedeeltelijk meetellen.'
+  },
+  {
+    question: 'Waar kan ik mijn officiële arbeidsverleden controleren?',
+    answer: 'Je kunt je officiële, bij de overheid geregistreerde arbeidsverleden inzien door in te loggen op Mijn UWV met je DigiD. In het online verzekeringsbericht staat een overzicht van al je gewerkte jaren en geregistreerde loongegevens bij de Belastingdienst.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="UWV & Burgerlijk Wetboek"
+>
+  <ArbeidsverledenCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is arbeidsverleden en waarom is het belangrijk?</h2>
+    <p>
+      Het begrip <strong>arbeidsverleden</strong> staat voor de totale periode die iemand gedurende zijn of haar werkzame leven in loondienst of als zelfstandige heeft gewerkt. Het is een fundamenteel gegeven op de Nederlandse arbeidsmarkt dat inzicht geeft in iemands opgebouwde werkduur, ervaring en rechten.
+    </p>
+    <p>
+      Het nauwkeurig kunnen berekenen van de tijd tussen twee werkdatums is van groot belang bij uiteenlopende situaties: het opstellen van een professioneel cv, salarisonderhandelingen over senioriteit, het bepalen van jubileumdata, en het berekenen van je wettelijke opzegtermijn bij een werkgever. Door je startdatum en einddatum in te vullen, berekent deze rekentool direct exact hoeveel <strong>jaren, maanden en dagen</strong> je gewerkt hebt.
+    </p>
+
+    <h2>Hoe bereken je de duur van je arbeidsverleden?</h2>
+    <p>
+      Een correcte berekening van de verstreken arbeidsduur vraagt om een nauwkeurige kalenderberekening. Een veelgemaakte fout is om het totale aantal dagen simpelweg te delen door 365. Doordat kalendermaanden variëren van 28 tot 31 dagen en er schrikkeljaren met 366 dagen bestaan, levert een eenvoudige deling afrondingsfouten op.
+    </p>
+    <p>
+      Onze calculator gebruikt een exacte datum-aftrekking:
+    </p>
+    <ol>
+      <li>
+        <strong>Volle kalenderjaren:</strong> Eerst wordt berekend hoeveel volledige kalenderjaren zijn verstreken tussen de startdatum en de einddatum.
+      </li>
+      <li>
+        <strong>Resterende kalendermaanden:</strong> Vervolgens wordt gekeken hoeveel volle maanden er overblijven na het laatste volledige verjaardagsjaar van het contract.
+      </li>
+      <li>
+        <strong>Resterende dagen:</strong> Ten slotte worden de resterende losse dagen geteld tot aan de einddatum.
+      </li>
+      <li>
+        <strong>Totaal kalenderdagen:</strong> Daarnaast berekent de module het absolute aantal kalenderdagen tussen beide data via een exacte UTC-tijdstempelsom.
+      </li>
+    </ol>
+
+    <div class="callout callout-info">
+      <strong>Rekenvoorbeeld:</strong><br />
+      Stel, je startte op <strong>1 januari 2022</strong> en je contract eindigt op <strong>15 maart 2026</strong>:<br />
+      • Van 1 januari 2022 tot 1 januari 2026 = <strong>4 volle jaren</strong>.<br />
+      • Van 1 januari 2026 tot 1 maart 2026 = <strong>2 volle maanden</strong>.<br />
+      • Van 1 maart 2026 tot 15 maart 2026 = <strong>14 resterende dagen</strong>.<br />
+      • Totale duur: <strong>4 jaar, 2 maanden en 14 dagen</strong> (in totaal 1.534 kalenderdagen).
+    </div>
+
+    <h2>Verschil tussen arbeidsverleden, dienstverband en werkervaring</h2>
+    <p>
+      In het dagelijks spraakgebruik en in personeelsadvertenties worden termen als arbeidsverleden, dienstjaren en werkervaring regelmatig door elkaar gehaald. Toch hebben ze ieder een eigen juridische en praktische betekenis:
+    </p>
+    <ul>
+      <li>
+        <strong>Arbeidsverleden:</strong> De totale som van alle gewerkte periodes over je gehele loopbaan heen, ongeacht of dit bij één of bij tien verschillende bedrijven was.
+      </li>
+      <li>
+        <strong>Dienstverband (dienstjaren / diensttijd):</strong> De ononderbroken contractperiode bij <em>één specifieke werkgever</em>. De duur van je huidige dienstverband is wettelijk bepalend voor de <a href="/opzegtermijn-berekenen/">opzegtermijn bij ontslag</a> (artikel 7:672 BW), de hoogte van een eventuele transitievergoeding en jubileumuitkeringen.
+      </li>
+      <li>
+        <strong>Werkervaring:</strong> De kwalitatieve inhoud van je werkzame jaren binnen een specifieke functiegroep of sector. Wie tien jaar als administratief medewerker heeft gewerkt en vervolgens overstapt naar de IT, heeft 10 jaar arbeidsverleden maar 0 jaar IT-werkervaring.
+      </li>
+    </ul>
+
+    <h2>Arbeidsverleden berekenen tot vandaag</h2>
+    <p>
+      Ben je momenteel nog actief in dienst bij je werkgever en wil je weten hoe lang je al precies in dienst bent? Laat het veld <em>Einddatum</em> dan simpelweg op vandaag staan. De calculator berekent automatisch de exacte duur tot op de huidige dag.
+    </p>
+    <p>
+      Dit is bijzonder handig voor functioneringsgesprekken, het aanvragen van een gratificatie (zoals een 12,5- of 25-jarig ambtsjubileum) of wanneer je overweegt om de overstap te maken naar een nieuwe functie en je exacte actuele diensttijd wilt weten. Benieuwd hoeveel contracturen je in die jaren op jaarbasis hebt gewerkt? Bereken dit eenvoudig via onze calculator voor <a href="/werkuren-per-jaar-berekenen/">werkuren per jaar berekenen</a> of bekijk je deeltijdfactor met <a href="/fte-berekenen/">FTE berekenen</a>.
+    </p>
+
+    <h2>Arbeidsverleden voor de WW-uitkering en UWV-voorwaarden</h2>
+    <p>
+      Het is belangrijk om te benadrukken dat deze calculator de <strong>feitelijke kalenderduur</strong> tussen twee data berekent. Dit is niet automatisch hetzelfde als het <em>fictieve of feitelijke arbeidsverleden</em> dat het UWV hanteert voor het vaststellen van het recht op en de duur van een Werkloosheidsuitkering (WW).
+    </p>
+    <p>
+      Voor de WW gelden in Nederland specifieke wettelijke maatstaven volgens de Werkloosheidswet:
+    </p>
+    <ul>
+      <li>
+        <strong>De wekeneis (basiseis):</strong> Om überhaupt in aanmerking te komen voor een WW-uitkering moet je in de 36 weken direct voorafgaand aan je eerste werkloosheidsdag in minimaal 26 weken hebben gewerkt (ongeacht het aantal uren per week). Dit geeft recht op de basis-WW van 3 maanden.
+      </li>
+      <li>
+        <strong>De jareneis (verlengde WW):</strong> Om recht te hebben op een langere uitkering moet je in de 5 kalenderjaren vóór het jaar waarin je werkloos wordt, in ten minste 4 kalenderjaren hebben gewerkt. Sinds 2013 telt een kalenderjaar als gewerkt jaar als je in dat jaar over ten minste 208 uur loon hebt ontvangen.
+      </li>
+      <li>
+        <strong>Verzorgingsforfait en mantelzorg:</strong> Jaren waarin je niet werkte wegens de zorg voor een kind onder de 5 jaar of wegens intensieve mantelzorg kunnen onder voorwaarden voor 50% of 100% worden meegeteld als opbouwjaar voor het UWV.
+      </li>
+    </ul>
+    <p>
+      Voor ieder vastgesteld jaar arbeidsverleden heb je recht op 1 maand WW-uitkering voor de eerste 10 jaar, en daarna 0,5 maand per extra jaar, tot een wettelijk maximum van 24 maanden. Wil je jouw officiële UWV-opbouw inzien? Download dan je digitale verzekeringsbericht via Mijn UWV. Ben je op jonge leeftijd arbeidsongeschikt geraakt of ontvang je ondersteuning voor jonggehandicapten? Bereken dan je uitkering met onze calculator voor <a href="/wajong-uitkering-berekenen/">Wajong uitkering berekenen</a>.
+    </p>
+
+    <h2>Vakantiedagen en overuren tijdens je loopbaan</h2>
+    <p>
+      Bij het beëindigen van een dienstverband of bij het afsluiten van een periode in je arbeidsverleden moet de werkgever een definitieve eindafrekening opstellen. Hierbij worden niet-opgenomen vakantiedagen uitbetaald. Bereken eenvoudig hoeveel openstaande vakantiedagen je nog hebt via <a href="/vakantiedagen-berekenen/">vakantiedagen berekenen</a> of bekijk de uitbetaling van extra gewerkte uren via <a href="/overuren-berekenen/">overuren berekenen</a>. Wordt het contract op initiatief van de werkgever beëindigd? Bereken dan direct je wettelijke ontslagvergoeding met onze calculator voor <a href="/transitievergoeding-berekenen/">transitievergoeding berekenen</a>.
+    </p>
+  </div>
+</CalculatorLayout>

@@ -1,0 +1,891 @@
+---
+// src/components/calculators/JaarinkomenCalculator.astro
+---
+
+<div class="calc-grid" id="jaarinkomen-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Salaris invoeren</h2>
+      <span class="rate-year-tag">Fiscaal jaar 2026</span>
+    </div>
+
+    <!-- Salarisperiode -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label for="select-salary-period" class="form-label">Salarisperiode</label>
+      <select id="select-salary-period" class="form-select">
+        <option value="maand" selected>Per maand</option>
+        <option value="vierwekelijks">Per 4 weken (13x per jaar)</option>
+        <option value="week">Per week (52 weken)</option>
+        <option value="dag">Per dag</option>
+        <option value="uur">Per uur</option>
+      </select>
+    </div>
+
+    <!-- Bruto salaris invoerveld (voor maand, 4-weken, week, dag) -->
+    <div id="group-gross-salary" class="form-group">
+      <label for="input-gross-salary" class="form-label" id="label-gross-salary">Bruto maandsalaris (€)</label>
+      <input
+        type="number"
+        id="input-gross-salary"
+        class="form-input"
+        min="0"
+        step="50"
+        value="3500"
+        placeholder="3500"
+      />
+      <!-- Snelle keuzeknoppen -->
+      <div id="quick-salary-container" class="quick-salary-buttons" style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem;">
+        <button type="button" class="btn-quick-salary" data-amount="2500">€ 2.500</button>
+        <button type="button" class="btn-quick-salary" data-amount="3000">€ 3.000</button>
+        <button type="button" class="btn-quick-salary active" data-amount="3500">€ 3.500</button>
+        <button type="button" class="btn-quick-salary" data-amount="4000">€ 4.000</button>
+        <button type="button" class="btn-quick-salary" data-amount="5000">€ 5.000</button>
+      </div>
+    </div>
+
+    <!-- Dagsalaris velden (alleen zichtbaar bij 'dag') -->
+    <div id="group-daily-fields" style="display: none;" class="form-group">
+      <label for="input-days-per-week" class="form-label">Aantal werkdagen per week</label>
+      <input
+        type="number"
+        id="input-days-per-week"
+        class="form-input"
+        min="1"
+        max="7"
+        step="1"
+        value="5"
+      />
+      <span class="form-hint">Standaard fulltime werkweek is 5 werkdagen per week.</span>
+    </div>
+
+    <!-- Uurloon velden (alleen zichtbaar bij 'uur') -->
+    <div id="group-hourly-fields" style="display: none; margin-bottom: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="input-hourly-wage" class="form-label">Bruto uurloon (€)</label>
+          <input
+            type="number"
+            id="input-hourly-wage"
+            class="form-input"
+            min="0"
+            step="0.5"
+            value="22"
+            placeholder="22"
+          />
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="input-weekly-hours" class="form-label">Uren per week</label>
+          <input
+            type="number"
+            id="input-weekly-hours"
+            class="form-input"
+            min="1"
+            max="80"
+            step="1"
+            value="36"
+            placeholder="36"
+          />
+        </div>
+      </div>
+      <div style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem;">
+        <button type="button" class="btn-quick-hours" data-hours="32">32 uur</button>
+        <button type="button" class="btn-quick-hours active" data-hours="36">36 uur</button>
+        <button type="button" class="btn-quick-hours" data-hours="40">40 uur</button>
+      </div>
+    </div>
+
+    <!-- Vakantiegeld sectie -->
+    <div class="form-group" style="border-top: 1px solid var(--color-border, #e2e8f0); padding-top: 1rem;">
+      <label class="form-label" style="font-weight: 600;">Vakantiegeld</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+          <label for="select-include-holiday" class="form-label" style="font-size: 0.8125rem;">Vakantiegeld meenemen?</label>
+          <select id="select-include-holiday" class="form-select">
+            <option value="yes" selected>Ja (inclusief)</option>
+            <option value="no">Nee (exclusief)</option>
+          </select>
+        </div>
+        <div id="group-holiday-pct">
+          <label for="input-holiday-pct" class="form-label" style="font-size: 0.8125rem;">Percentage (%)</label>
+          <input
+            type="number"
+            id="input-holiday-pct"
+            class="form-input"
+            min="0"
+            max="100"
+            step="0.1"
+            value="8"
+          />
+        </div>
+      </div>
+      <span class="form-hint">Wettelijk is minimaal 8% over het bruto jaarsalaris verplicht in Nederland.</span>
+    </div>
+
+    <!-- 13e Maand / Eindejaarsuitkering -->
+    <div class="form-group" style="border-top: 1px solid var(--color-border, #e2e8f0); padding-top: 1rem;">
+      <label for="select-thirteenth-type" class="form-label" style="font-weight: 600;">13e maand of eindejaarsuitkering</label>
+      <select id="select-thirteenth-type" class="form-select">
+        <option value="none" selected>Geen 13e maand</option>
+        <option value="percentage">Percentage van het jaarsalaris (bijv. 8,33%)</option>
+        <option value="fixed">Vast bruto bedrag per jaar (€)</option>
+      </select>
+
+      <!-- Conditional 13e maand inputs -->
+      <div id="group-thirteenth-val" style="display: none; margin-top: 0.75rem;">
+        <label for="input-thirteenth-val" class="form-label" id="label-thirteenth-val">Waarde 13e maand</label>
+        <input
+          type="number"
+          id="input-thirteenth-val"
+          class="form-input"
+          min="0"
+          step="0.01"
+          value="8.33"
+        />
+        <div id="thirteenth-quick-pct" style="display: none; margin-top: 0.35rem;">
+          <button type="button" class="btn-quick-salary" id="btn-quick-13th" data-pct="8.33">8,33% (1 maandsalaris)</button>
+        </div>
+        <span class="form-hint">Vul dit alleen in als je 13e maand niet al in je ingevulde basissalaris zit.</span>
+      </div>
+    </div>
+
+    <!-- Bonus / andere vaste jaarlijkse inkomsten -->
+    <div class="form-group" style="border-top: 1px solid var(--color-border, #e2e8f0); padding-top: 1rem;">
+      <label for="input-annual-bonus" class="form-label" style="font-weight: 600;">Bonus of overige vaste jaarlijkse inkomsten (€)</label>
+      <input
+        type="number"
+        id="input-annual-bonus"
+        class="form-input"
+        min="0"
+        step="100"
+        value="0"
+        placeholder="0"
+      />
+      <span class="form-hint">Voor variabele bonussen, tantièmes of provisies. Omdat variabele inkomsten kunnen fluctueren, is dit een indicatieve schatting.</span>
+    </div>
+
+    <!-- Aantal gewerkte maanden (gebroken werkjaar) -->
+    <div class="form-group" style="border-top: 1px solid var(--color-border, #e2e8f0); padding-top: 1rem;">
+      <label for="select-worked-full-year" class="form-label" style="font-weight: 600;">Heb je het hele jaar gewerkt?</label>
+      <select id="select-worked-full-year" class="form-select">
+        <option value="yes" selected>Ja (volledig kalenderjaar)</option>
+        <option value="no">Nee (deel van het jaar gewerkt)</option>
+      </select>
+
+      <div id="group-months-worked" style="display: none; margin-top: 0.75rem;">
+        <label for="input-months-worked" class="form-label">Aantal gewerkte maanden in dit jaar</label>
+        <input
+          type="number"
+          id="input-months-worked"
+          class="form-input"
+          min="1"
+          max="12"
+          step="1"
+          value="6"
+        />
+        <span class="form-hint">Het basissalaris en vakantiegeld worden naar evenredigheid berekend.</span>
+      </div>
+    </div>
+
+    <!-- Optionele Netto Schatting (Accordion) -->
+    <details class="advanced-details" id="details-net-estimate" style="margin-top: 1rem;">
+      <summary class="advanced-summary">
+        <span>Ook netto jaarinkomen schatten (optioneel)</span>
+        <svg class="summary-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </summary>
+
+      <div class="advanced-body" style="padding-top: 0.75rem;">
+        <label class="toggle-label" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; margin-bottom: 1rem;">
+          <input type="checkbox" id="checkbox-enable-net" />
+          <span>Activeer indicatieve netto berekening</span>
+        </label>
+
+        <div id="net-fields-container" style="opacity: 0.6; pointer-events: none;">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="form-group">
+              <label for="select-age-cat" class="form-label">Leeftijd</label>
+              <select id="select-age-cat" class="form-select">
+                <option value="standard" selected>Onder AOW-leeftijd</option>
+                <option value="aow">AOW-gerechtigd (67+)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="select-lhk-opt" class="form-label">Loonheffingskorting?</label>
+              <select id="select-lhk-opt" class="form-select">
+                <option value="yes" selected>Ja (toepassen)</option>
+                <option value="no">Nee (geen korting)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="input-net-pension" class="form-label">Pensioenpremie werknemer (€ / maand)</label>
+            <input
+              type="number"
+              id="input-net-pension"
+              class="form-input"
+              min="0"
+              step="10"
+              value="0"
+              placeholder="0"
+            />
+            <span class="form-hint">Pre-tax aftrek: verlaagt je fiscaal belastbaar jaarloon.</span>
+          </div>
+
+          <div class="callout callout-info" style="font-size: 0.775rem; padding: 0.65rem; margin-top: 0.5rem;">
+            <strong>Let op:</strong> Dit is een indicatieve schatting op basis van box 1 tarieven en heffingskortingen 2026. Geen officiële belastingaanslag van de Belastingdienst.
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <div class="form-actions" style="margin-top: 1.5rem;">
+      <button type="button" id="btn-reset-jaar" class="btn btn-secondary btn-sm">
+        Standaardwaarden herstellen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <!-- Hero Resultaat: Bruto Jaarinkomen -->
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label">Bruto jaarinkomen</span>
+      <div class="result-hero-value" id="res-hero-gross">€ 0,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">Inclusief vakantiegeld</span>
+    </div>
+
+    <!-- Uitsplitsing Inkomenscomponenten -->
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Inkomensspecificatie (op jaarbasis)</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Bruto jaarsalaris (basis)</span>
+        <span class="result-row-value font-medium" id="res-base-salary">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-holiday">
+        <span class="result-row-label" id="label-res-holiday">Vakantiegeld (8%)</span>
+        <span class="result-row-value" id="res-holiday-amount">+ € 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-13th" style="display: none;">
+        <span class="result-row-label" id="label-res-13th">13e maand / eindejaarsuitkering</span>
+        <span class="result-row-value" id="res-13th-amount">+ € 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-bonus" style="display: none;">
+        <span class="result-row-label">Bonus / extra inkomsten</span>
+        <span class="result-row-value" id="res-bonus-amount">+ € 0,00</span>
+      </div>
+
+      <div class="result-row result-total" style="border-top: 2px solid var(--color-border, #e2e8f0); margin-top: 0.5rem; padding-top: 0.625rem;">
+        <span class="result-row-label font-bold">Totaal bruto jaarinkomen</span>
+        <span class="result-row-value font-bold" style="color: var(--color-primary, #035644); font-size: 1.125rem;" id="res-total-gross">€ 0,00</span>
+      </div>
+    </div>
+
+    <!-- Periodieke Omrekeningen -->
+    <div class="result-breakdown" style="margin-top: 1rem;">
+      <div class="result-subtitle">Gemiddeld inkomen per periode</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Gemiddeld bruto per maand</span>
+        <span class="result-row-value font-medium" id="res-avg-monthly">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Gemiddeld per 4 weken (13x/jaar)</span>
+        <span class="result-row-value" id="res-avg-4weekly">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Gemiddeld per week (52 weken)</span>
+        <span class="result-row-value" id="res-avg-weekly">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-avg-hourly" style="display: none;">
+        <span class="result-row-label">Gemiddeld bruto uurloon</span>
+        <span class="result-row-value" id="res-avg-hourly">€ 0,00</span>
+      </div>
+    </div>
+
+    <!-- Optionele Netto Schatting Card -->
+    <div id="card-net-estimate-result" class="result-breakdown" style="display: none; margin-top: 1rem; background-color: var(--color-bg-subtle, #f8fafc); border-radius: 0.5rem; border: 1px solid var(--color-border, #e2e8f0); padding: 0.875rem;">
+      <div class="result-subtitle" style="display: flex; justify-content: space-between; align-items: center;">
+        <span>Geschat netto inkomen 2026</span>
+        <span style="font-size: 0.75rem; font-weight: normal; color: var(--color-text-muted, #64748b);">Indicatie</span>
+      </div>
+
+      <div class="result-row" style="margin-top: 0.5rem;">
+        <span class="result-row-label font-bold">Geschat netto jaarinkomen</span>
+        <span class="result-row-value font-bold" style="color: #15803d; font-size: 1.05rem;" id="res-net-annual">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Geschat netto per maand (gemiddeld)</span>
+        <span class="result-row-value font-medium" id="res-net-monthly">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-net-pension-annual" style="display: none;">
+        <span class="result-row-label">Pensioenpremie (jaarbasis)</span>
+        <span class="result-row-value text-muted" id="res-net-pension-annual">- € 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Geschatte loonheffing (jaar)</span>
+        <span class="result-row-value text-muted" id="res-net-tax-annual">- € 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-net-credits-annual">
+        <span class="result-row-label">Verrekende heffingskortingen</span>
+        <span class="result-row-value text-muted" id="res-net-credits-annual">+ € 0,00</span>
+      </div>
+
+      <p style="font-size: 0.725rem; color: var(--color-text-muted, #64748b); margin-top: 0.75rem; margin-bottom: 0; line-height: 1.4;">
+        * Dit is een indicatieve schatting. Je werkelijke netto inkomen kan afwijken door je loonstrook, pensioenregeling, persoonlijke situatie, meerdere inkomens en andere inhoudingen.
+      </p>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="calc-disclaimer" style="margin-top: 1rem; font-size: 0.75rem; color: var(--color-text-muted, #64748b); line-height: 1.45;">
+      <em>Deze berekening is een indicatie. Het uiteindelijke loon, de loonheffing en je toetsingsinkomen kunnen afwijken door CAO-afspraken, pensioenpremies, fiscale aftrekposten of meerdere inkomensbronnen.</em>
+    </div>
+  </div>
+</div>
+
+<!-- Referentietabel voor gangbare jaarsalarissen -->
+<div class="content-block" style="margin-top: 2rem;">
+  <h3>Referentietabel bruto jaarsalaris en vakantiegeld (bij fulltime)</h3>
+  <p style="font-size: 0.875rem; color: var(--color-text-muted, #64748b); margin-bottom: 1rem;">
+    Onderstaand overzicht toont hoe verschillende bruto maandsalarissen zich verhouden tot het bruto jaarsalaris en het wettelijke vakantiegeld (8%):
+  </p>
+  <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Bruto maandsalaris naar jaarinkomen inclusief vakantiegeld">
+    <table class="table-wide">
+      <thead>
+        <tr>
+          <th>Bruto maandsalaris</th>
+          <th>Bruto jaarsalaris (12x)</th>
+          <th>Vakantiegeld (8%)</th>
+          <th>Totaal bruto jaarinkomen</th>
+          <th>Gemiddeld per 4 weken</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>€ 2.000,00</strong></td>
+          <td>€ 24.000,00</td>
+          <td>€ 1.920,00</td>
+          <td><strong>€ 25.920,00</strong></td>
+          <td>€ 1.993,85</td>
+        </tr>
+        <tr>
+          <td><strong>€ 2.500,00</strong></td>
+          <td>€ 30.000,00</td>
+          <td>€ 2.400,00</td>
+          <td><strong>€ 32.400,00</strong></td>
+          <td>€ 2.492,31</td>
+        </tr>
+        <tr>
+          <td><strong>€ 3.000,00</strong></td>
+          <td>€ 36.000,00</td>
+          <td>€ 2.880,00</td>
+          <td><strong>€ 38.880,00</strong></td>
+          <td>€ 2.990,77</td>
+        </tr>
+        <tr>
+          <td><strong>€ 3.500,00</strong></td>
+          <td>€ 42.000,00</td>
+          <td>€ 3.360,00</td>
+          <td><strong>€ 45.360,00</strong></td>
+          <td>€ 3.489,23</td>
+        </tr>
+        <tr>
+          <td><strong>€ 4.000,00</strong></td>
+          <td>€ 48.000,00</td>
+          <td>€ 3.840,00</td>
+          <td><strong>€ 51.840,00</strong></td>
+          <td>€ 3.987,69</td>
+        </tr>
+        <tr>
+          <td><strong>€ 5.000,00</strong></td>
+          <td>€ 60.000,00</td>
+          <td>€ 4.800,00</td>
+          <td><strong>€ 64.800,00</strong></td>
+          <td>€ 4.984,62</td>
+        </tr>
+        <tr>
+          <td><strong>€ 6.000,00</strong></td>
+          <td>€ 72.000,00</td>
+          <td>€ 5.760,00</td>
+          <td><strong>€ 77.760,00</strong></td>
+          <td>€ 5.981,54</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  import { calculateJaarinkomen, type SalaryPeriodYearly } from '../../utils/calculations';
+
+  (() => {
+    const calc = document.getElementById('jaarinkomen-calc');
+    if (!calc) return;
+
+    // Elements
+    const selectPeriod = calc.querySelector('#select-salary-period') as HTMLSelectElement;
+    const groupGross = calc.querySelector('#group-gross-salary') as HTMLElement;
+    const labelGross = calc.querySelector('#label-gross-salary') as HTMLElement;
+    const inputGross = calc.querySelector('#input-gross-salary') as HTMLInputElement;
+    const quickSalaryContainer = calc.querySelector('#quick-salary-container') as HTMLElement;
+    const quickButtons = calc.querySelectorAll('.btn-quick-salary') as NodeListOf<HTMLButtonElement>;
+
+    const groupDaily = calc.querySelector('#group-daily-fields') as HTMLElement;
+    const inputDaysPerWeek = calc.querySelector('#input-days-per-week') as HTMLInputElement;
+
+    const groupHourly = calc.querySelector('#group-hourly-fields') as HTMLElement;
+    const inputHourlyWage = calc.querySelector('#input-hourly-wage') as HTMLInputElement;
+    const inputWeeklyHours = calc.querySelector('#input-weekly-hours') as HTMLInputElement;
+    const quickHoursButtons = calc.querySelectorAll('.btn-quick-hours') as NodeListOf<HTMLButtonElement>;
+
+    const selectIncludeHoliday = calc.querySelector('#select-include-holiday') as HTMLSelectElement;
+    const groupHolidayPct = calc.querySelector('#group-holiday-pct') as HTMLElement;
+    const inputHolidayPct = calc.querySelector('#input-holiday-pct') as HTMLInputElement;
+
+    const selectThirteenthType = calc.querySelector('#select-thirteenth-type') as HTMLSelectElement;
+    const groupThirteenthVal = calc.querySelector('#group-thirteenth-val') as HTMLElement;
+    const labelThirteenthVal = calc.querySelector('#label-thirteenth-val') as HTMLElement;
+    const prefixThirteenth = calc.querySelector('#prefix-thirteenth') as HTMLElement | null;
+    const inputThirteenthVal = calc.querySelector('#input-thirteenth-val') as HTMLInputElement;
+    const thirteenthQuickPct = calc.querySelector('#thirteenth-quick-pct') as HTMLElement;
+    const btnQuick13th = calc.querySelector('#btn-quick-13th') as HTMLButtonElement;
+
+    const inputAnnualBonus = calc.querySelector('#input-annual-bonus') as HTMLInputElement;
+
+    const selectWorkedFullYear = calc.querySelector('#select-worked-full-year') as HTMLSelectElement;
+    const groupMonthsWorked = calc.querySelector('#group-months-worked') as HTMLElement;
+    const inputMonthsWorked = calc.querySelector('#input-months-worked') as HTMLInputElement;
+
+    // Net details
+    const checkboxEnableNet = calc.querySelector('#checkbox-enable-net') as HTMLInputElement;
+    const netFieldsContainer = calc.querySelector('#net-fields-container') as HTMLElement;
+    const selectAgeCat = calc.querySelector('#select-age-cat') as HTMLSelectElement;
+    const selectLhkOpt = calc.querySelector('#select-lhk-opt') as HTMLSelectElement;
+    const inputNetPension = calc.querySelector('#input-net-pension') as HTMLInputElement;
+
+    const btnReset = calc.querySelector('#btn-reset-jaar') as HTMLButtonElement;
+
+    // Output elements
+    const resHeroGross = calc.querySelector('#res-hero-gross') as HTMLElement;
+    const resHeroSub = calc.querySelector('#res-hero-sub') as HTMLElement;
+
+    const resBaseSalary = calc.querySelector('#res-base-salary') as HTMLElement;
+    const rowHoliday = calc.querySelector('#row-holiday') as HTMLElement;
+    const labelResHoliday = calc.querySelector('#label-res-holiday') as HTMLElement;
+    const resHolidayAmount = calc.querySelector('#res-holiday-amount') as HTMLElement;
+
+    const row13th = calc.querySelector('#row-13th') as HTMLElement;
+    const labelRes13th = calc.querySelector('#label-res-13th') as HTMLElement;
+    const res13thAmount = calc.querySelector('#res-13th-amount') as HTMLElement;
+
+    const rowBonus = calc.querySelector('#row-bonus') as HTMLElement;
+    const resBonusAmount = calc.querySelector('#res-bonus-amount') as HTMLElement;
+
+    const resTotalGross = calc.querySelector('#res-total-gross') as HTMLElement;
+
+    const resAvgMonthly = calc.querySelector('#res-avg-monthly') as HTMLElement;
+    const resAvg4Weekly = calc.querySelector('#res-avg-4weekly') as HTMLElement;
+    const resAvgWeekly = calc.querySelector('#res-avg-weekly') as HTMLElement;
+    const rowAvgHourly = calc.querySelector('#row-avg-hourly') as HTMLElement;
+    const resAvgHourly = calc.querySelector('#res-avg-hourly') as HTMLElement;
+
+    const cardNetEstimate = calc.querySelector('#card-net-estimate-result') as HTMLElement;
+    const resNetAnnual = calc.querySelector('#res-net-annual') as HTMLElement;
+    const resNetMonthly = calc.querySelector('#res-net-monthly') as HTMLElement;
+    const rowNetPensionAnnual = calc.querySelector('#row-net-pension-annual') as HTMLElement;
+    const resNetPensionAnnual = calc.querySelector('#res-net-pension-annual') as HTMLElement;
+    const resNetTaxAnnual = calc.querySelector('#res-net-tax-annual') as HTMLElement;
+    const rowNetCreditsAnnual = calc.querySelector('#row-net-credits-annual') as HTMLElement;
+    const resNetCreditsAnnual = calc.querySelector('#res-net-credits-annual') as HTMLElement;
+
+    function formatCurrency(val: number): string {
+      return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(val);
+    }
+
+    function updatePeriodVisibility() {
+      const period = selectPeriod.value as SalaryPeriodYearly;
+
+      if (period === 'uur') {
+        groupGross.style.display = 'none';
+        groupDaily.style.display = 'none';
+        groupHourly.style.display = 'block';
+      } else if (period === 'dag') {
+        groupGross.style.display = 'block';
+        groupDaily.style.display = 'block';
+        groupHourly.style.display = 'none';
+        labelGross.textContent = 'Bruto dagsalaris (€)';
+        quickSalaryContainer.style.display = 'none';
+      } else {
+        groupGross.style.display = 'block';
+        groupDaily.style.display = 'none';
+        groupHourly.style.display = 'none';
+        quickSalaryContainer.style.display = 'flex';
+
+        if (period === 'maand') {
+          labelGross.textContent = 'Bruto maandsalaris (€)';
+        } else if (period === 'vierwekelijks') {
+          labelGross.textContent = 'Bruto 4-wekensalaris (€)';
+        } else if (period === 'week') {
+          labelGross.textContent = 'Bruto weeksalaris (€)';
+        }
+      }
+    }
+
+    function calculate() {
+      const period = selectPeriod.value as SalaryPeriodYearly;
+      let grossInput = 0;
+      let weeklyHours: number | undefined = undefined;
+      let daysPerWeek: number | undefined = undefined;
+
+      if (period === 'uur') {
+        grossInput = Math.max(0, parseFloat(inputHourlyWage.value) || 0);
+        weeklyHours = Math.max(1, parseFloat(inputWeeklyHours.value) || 36);
+      } else if (period === 'dag') {
+        grossInput = Math.max(0, parseFloat(inputGross.value) || 0);
+        daysPerWeek = Math.max(1, Math.min(7, parseInt(inputDaysPerWeek.value, 10) || 5));
+      } else {
+        grossInput = Math.max(0, parseFloat(inputGross.value) || 0);
+      }
+
+      const inclHoliday = selectIncludeHoliday.value === 'yes';
+      const holidayPct = Math.max(0, parseFloat(inputHolidayPct.value) || 0);
+
+      const thirteenthType = selectThirteenthType.value as 'none' | 'fixed' | 'percentage';
+      const thirteenthVal = Math.max(0, parseFloat(inputThirteenthVal.value) || 0);
+
+      const annualBonus = Math.max(0, parseFloat(inputAnnualBonus.value) || 0);
+
+      const workedFullYear = selectWorkedFullYear.value === 'yes';
+      const monthsWorked = Math.max(1, Math.min(12, parseInt(inputMonthsWorked.value, 10) || 12));
+
+      const estimateNet = checkboxEnableNet.checked;
+      const isAow = selectAgeCat.value === 'aow';
+      const applyLhk = selectLhkOpt.value === 'yes';
+      const pensionMonthly = Math.max(0, parseFloat(inputNetPension.value) || 0);
+
+      const result = calculateJaarinkomen({
+        grossSalary: grossInput,
+        salaryPeriod: period,
+        weeklyHours,
+        daysPerWeek,
+        includeHolidayAllowance: inclHoliday,
+        holidayAllowancePercentage: holidayPct,
+        thirteenthMonthType: thirteenthType,
+        thirteenthMonthValue: thirteenthVal,
+        annualBonus,
+        workedFullYear,
+        monthsWorked,
+        estimateNet,
+        isAowEligible: isAow,
+        applyLoonheffingskorting: applyLhk,
+        employeePensionMonthly: pensionMonthly,
+        taxYear: 2026
+      });
+
+      // Update Hero
+      resHeroGross.textContent = formatCurrency(result.totalGrossAnnualIncome);
+      if (result.includeHolidayAllowance && result.holidayAllowanceAmount > 0) {
+        resHeroSub.textContent = `Inclusief ${formatCurrency(result.holidayAllowanceAmount)} vakantiegeld (${result.holidayAllowancePercentage}%)`;
+      } else {
+        resHeroSub.textContent = 'Exclusief vakantiegeld';
+      }
+
+      // Breakdown rows
+      resBaseSalary.textContent = formatCurrency(result.baseAnnualSalary);
+
+      if (result.includeHolidayAllowance && result.holidayAllowanceAmount > 0) {
+        rowHoliday.style.display = 'flex';
+        labelResHoliday.textContent = `Vakantiegeld (${result.holidayAllowancePercentage}%)`;
+        resHolidayAmount.textContent = `+ ${formatCurrency(result.holidayAllowanceAmount)}`;
+      } else {
+        rowHoliday.style.display = 'none';
+      }
+
+      if (result.thirteenthMonthAmount > 0) {
+        row13th.style.display = 'flex';
+        labelRes13th.textContent = result.thirteenthMonthType === 'percentage'
+          ? `13e maand (${thirteenthVal}%)`
+          : '13e maand / eindejaarsuitkering';
+        res13thAmount.textContent = `+ ${formatCurrency(result.thirteenthMonthAmount)}`;
+      } else {
+        row13th.style.display = 'none';
+      }
+
+      if (result.annualBonus > 0) {
+        rowBonus.style.display = 'flex';
+        resBonusAmount.textContent = `+ ${formatCurrency(result.annualBonus)}`;
+      } else {
+        rowBonus.style.display = 'none';
+      }
+
+      resTotalGross.textContent = formatCurrency(result.totalGrossAnnualIncome);
+
+      // Periodieke omrekeningen
+      resAvgMonthly.textContent = formatCurrency(result.averageGrossMonthly);
+      resAvg4Weekly.textContent = formatCurrency(result.averageGrossFourWeekly);
+      resAvgWeekly.textContent = formatCurrency(result.averageGrossWeekly);
+
+      if (result.averageGrossHourly !== undefined) {
+        rowAvgHourly.style.display = 'flex';
+        resAvgHourly.textContent = formatCurrency(result.averageGrossHourly);
+      } else {
+        rowAvgHourly.style.display = 'none';
+      }
+
+      // Optionele netto schatting
+      if (result.estimateNet && result.estimatedNetAnnualIncome !== undefined) {
+        cardNetEstimate.style.display = 'block';
+        resNetAnnual.textContent = formatCurrency(result.estimatedNetAnnualIncome);
+        resNetMonthly.textContent = formatCurrency(result.estimatedNetMonthlyIncome || 0);
+
+        if (result.employeePensionAnnual && result.employeePensionAnnual > 0) {
+          rowNetPensionAnnual.style.display = 'flex';
+          resNetPensionAnnual.textContent = `- ${formatCurrency(result.employeePensionAnnual)}`;
+        } else {
+          rowNetPensionAnnual.style.display = 'none';
+        }
+
+        resNetTaxAnnual.textContent = `- ${formatCurrency(result.estimatedPayrollTaxAnnual || 0)}`;
+
+        if (result.estimatedTaxCreditsAnnual && result.estimatedTaxCreditsAnnual > 0) {
+          rowNetCreditsAnnual.style.display = 'flex';
+          resNetCreditsAnnual.textContent = `+ ${formatCurrency(result.estimatedTaxCreditsAnnual)}`;
+        } else {
+          rowNetCreditsAnnual.style.display = 'none';
+        }
+      } else {
+        cardNetEstimate.style.display = 'none';
+      }
+    }
+
+    // Event listeners
+    selectPeriod.addEventListener('change', () => {
+      updatePeriodVisibility();
+      calculate();
+    });
+
+    inputGross.addEventListener('input', calculate);
+    inputDaysPerWeek.addEventListener('input', calculate);
+    inputHourlyWage.addEventListener('input', calculate);
+    inputWeeklyHours.addEventListener('input', calculate);
+
+    selectIncludeHoliday.addEventListener('change', () => {
+      groupHolidayPct.style.display = selectIncludeHoliday.value === 'yes' ? 'block' : 'none';
+      calculate();
+    });
+    inputHolidayPct.addEventListener('input', calculate);
+
+    selectThirteenthType.addEventListener('change', () => {
+      const type = selectThirteenthType.value;
+      if (type === 'none') {
+        groupThirteenthVal.style.display = 'none';
+      } else if (type === 'fixed') {
+        groupThirteenthVal.style.display = 'block';
+        labelThirteenthVal.textContent = 'Vast bruto bedrag per jaar (€)';
+        if (prefixThirteenth) prefixThirteenth.textContent = '€';
+        inputThirteenthVal.value = '3000';
+        inputThirteenthVal.step = '50';
+        thirteenthQuickPct.style.display = 'none';
+      } else if (type === 'percentage') {
+        groupThirteenthVal.style.display = 'block';
+        labelThirteenthVal.textContent = 'Percentage van het jaarsalaris (%)';
+        if (prefixThirteenth) prefixThirteenth.textContent = '%';
+        inputThirteenthVal.value = '8.33';
+        inputThirteenthVal.step = '0.01';
+        thirteenthQuickPct.style.display = 'block';
+      }
+      calculate();
+    });
+    inputThirteenthVal.addEventListener('input', calculate);
+
+    if (btnQuick13th) {
+      btnQuick13th.addEventListener('click', () => {
+        inputThirteenthVal.value = '8.33';
+        calculate();
+      });
+    }
+
+    inputAnnualBonus.addEventListener('input', calculate);
+
+    selectWorkedFullYear.addEventListener('change', () => {
+      groupMonthsWorked.style.display = selectWorkedFullYear.value === 'no' ? 'block' : 'none';
+      calculate();
+    });
+    inputMonthsWorked.addEventListener('input', calculate);
+
+    // Net inputs
+    checkboxEnableNet.addEventListener('change', () => {
+      const enabled = checkboxEnableNet.checked;
+      netFieldsContainer.style.opacity = enabled ? '1' : '0.6';
+      netFieldsContainer.style.pointerEvents = enabled ? 'auto' : 'none';
+      calculate();
+    });
+    selectAgeCat.addEventListener('change', calculate);
+    selectLhkOpt.addEventListener('change', calculate);
+    inputNetPension.addEventListener('input', calculate);
+
+    // Quick salary buttons
+    quickButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        quickButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        inputGross.value = btn.dataset.amount || '3500';
+        calculate();
+      });
+    });
+
+    // Quick hours buttons
+    quickHoursButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        quickHoursButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        inputWeeklyHours.value = btn.dataset.hours || '36';
+        calculate();
+      });
+    });
+
+    // Reset button
+    btnReset.addEventListener('click', () => {
+      selectPeriod.value = 'maand';
+      inputGross.value = '3500';
+      inputDaysPerWeek.value = '5';
+      inputHourlyWage.value = '22';
+      inputWeeklyHours.value = '36';
+      selectIncludeHoliday.value = 'yes';
+      groupHolidayPct.style.display = 'block';
+      inputHolidayPct.value = '8';
+      selectThirteenthType.value = 'none';
+      groupThirteenthVal.style.display = 'none';
+      inputThirteenthVal.value = '8.33';
+      inputAnnualBonus.value = '0';
+      selectWorkedFullYear.value = 'yes';
+      groupMonthsWorked.style.display = 'none';
+      inputMonthsWorked.value = '6';
+
+      checkboxEnableNet.checked = false;
+      netFieldsContainer.style.opacity = '0.6';
+      netFieldsContainer.style.pointerEvents = 'none';
+      selectAgeCat.value = 'standard';
+      selectLhkOpt.value = 'yes';
+      inputNetPension.value = '0';
+
+      quickButtons.forEach(b => {
+        b.classList.toggle('active', b.dataset.amount === '3500');
+      });
+      quickHoursButtons.forEach(b => {
+        b.classList.toggle('active', b.dataset.hours === '36');
+      });
+
+      updatePeriodVisibility();
+      calculate();
+    });
+
+    updatePeriodVisibility();
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    border-radius: 9999px;
+  }
+
+  .btn-quick-salary,
+  .btn-quick-hours {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text, #1e293b);
+    background-color: var(--color-bg-subtle, #f8fafc);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-quick-salary:hover,
+  .btn-quick-hours:hover {
+    border-color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    color: var(--color-primary, #035644);
+  }
+
+  .btn-quick-salary.active,
+  .btn-quick-hours.active {
+    background-color: var(--color-primary, #035644);
+    color: #ffffff;
+    border-color: var(--color-primary, #035644);
+  }
+
+  .advanced-details {
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    background-color: var(--color-bg-subtle, #f8fafc);
+  }
+
+  .advanced-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text, #1e293b);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  .advanced-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .advanced-details[open] .summary-chevron {
+    transform: rotate(180deg);
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

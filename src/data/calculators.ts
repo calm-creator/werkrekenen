@@ -287,6 +287,97 @@ export const CALCULATORS: CalculatorMeta[] = [
     icon: 'coins',
     popular: true,
     relatedSlugs: ['vakantiegeld-berekenen', 'salarisverhoging-berekenen', 'parttime-salaris-berekenen', 'maandloon-naar-uurloon-berekenen']
+  },
+  {
+    id: 'opzegtermijn',
+    slug: 'opzegtermijn-berekenen',
+    title: 'Opzegtermijn berekenen',
+    shortTitle: 'Opzegtermijn',
+    category: 'werkuren',
+    categoryTitle: 'Werkuren & vakantie',
+    description: 'Bereken direct je wettelijke opzegtermijn en verwachte einddatum dienstverband conform het Nederlandse arbeidsrecht (art. 7:672 BW).',
+    metaDescription: 'Bereken je wettelijke opzegtermijn en einddatum dienstverband bij ontslag door werknemer of werkgever. Inclusief kalendermaandprincipe en dienstjaren.',
+    icon: 'calendar',
+    popular: true,
+    relatedSlugs: ['transitievergoeding-berekenen', 'fte-berekenen', 'vakantiedagen-berekenen', 'werkdagen-berekenen']
+  },
+  {
+    id: 'arbeidsverleden',
+    slug: 'arbeidsverleden-berekenen',
+    title: 'Arbeidsverleden berekenen',
+    shortTitle: 'Arbeidsverleden',
+    category: 'werkuren',
+    categoryTitle: 'Werkuren & vakantie',
+    description: 'Bereken exact de duur van je arbeidsverleden of dienstverband in jaren, maanden en dagen, inclusief het totaal aantal gewerkte kalenderdagen.',
+    metaDescription: 'Bereken je arbeidsverleden en duur van je dienstverband in jaren, maanden en dagen. Exacte kalenderberekening met schrikkeljaren tot vandaag of een gekozen datum.',
+    icon: 'calendar',
+    popular: true,
+    relatedSlugs: ['transitievergoeding-berekenen', 'opzegtermijn-berekenen', 'fte-berekenen', 'werkuren-per-jaar-berekenen']
+  },
+  {
+    id: 'wajong-uitkering',
+    slug: 'wajong-uitkering-berekenen',
+    title: 'Wajong uitkering berekenen',
+    shortTitle: 'Wajong',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken direct je geschatte bruto Wajong-uitkering per maand in 2026. Inclusief arbeidsvermogen (70% of 75%), minimum(jeugd)loon en verrekening van inkomsten uit werk.',
+    metaDescription: 'Bereken je bruto Wajong-uitkering voor 2026. Zie direct hoeveel Wajong je per maand ontvangt, het verschil tussen 70% en 75%, en wat werken naast je Wajong oplevert.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['arbeidsverleden-berekenen', 'uurloon-berekenen', 'parttime-salaris-berekenen', 'weekloon-berekenen']
+  },
+  {
+    id: 'netto-besteedbaar-inkomen',
+    slug: 'netto-besteedbaar-inkomen-berekenen',
+    title: 'Netto besteedbaar inkomen berekenen',
+    shortTitle: 'Besteedbaar Inkomen',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken eenvoudig hoeveel geld je per maand overhoudt na aftrek van huur of hypotheek, energie, zorgpremie en overige vaste lasten.',
+    metaDescription: 'Bereken direct je netto besteedbaar inkomen per maand en jaar. Zie exact hoeveel geld je overhoudt na je vaste lasten en toeslagen.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['netto-salaris-berekenen', 'uurloon-naar-maandloon-berekenen', 'parttime-salaris-berekenen', 'woon-werk-kosten-berekenen']
+  },
+  {
+    id: 'transitievergoeding',
+    slug: 'transitievergoeding-berekenen',
+    title: 'Transitievergoeding berekenen',
+    shortTitle: 'Transitievergoeding',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken direct je wettelijke transitievergoeding bij ontslag volgens de WAB-formule van 1/3 maandsalaris per dienstjaar en het wettelijk maximum van 2026.',
+    metaDescription: 'Bereken eenvoudig en nauwkeurig je transitievergoeding in 2026. Inclusief vakantiegeld, 13e maand, dienstjaren, maanden en dagen, en het wettelijk maximum van € 102.000.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['opzegtermijn-berekenen', 'arbeidsverleden-berekenen', '13e-maand-berekenen', 'vakantiegeld-berekenen']
+  },
+  {
+    id: 'netto-salaris',
+    slug: 'netto-salaris-berekenen',
+    title: 'Netto salaris berekenen',
+    shortTitle: 'Netto salaris',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken eenvoudig en nauwkeurig je netto salaris uit je bruto salaris volgens de officiële Belastingdienst loonbelastingregels van 2026.',
+    metaDescription: 'Bereken direct je geschatte netto salaris in 2026 uit je bruto salaris. Inclusief loonheffingskorting, pensioenpremie, vakantiegeld en 13e maand.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['jaarinkomen-berekenen', 'netto-besteedbaar-inkomen-berekenen', 'uurloon-naar-maandloon-berekenen', 'vakantiegeld-berekenen']
+  },
+  {
+    id: 'jaarinkomen',
+    slug: 'jaarinkomen-berekenen',
+    title: 'Jaarinkomen berekenen',
+    shortTitle: 'Jaarinkomen',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken eenvoudig je bruto jaarinkomen inclusief vakantiegeld (8%), 13e maand en bonus vanuit je maandsalaris, 4-wekenloon of uurloon.',
+    metaDescription: 'Bereken direct je bruto jaarinkomen en geschat netto jaarloon in 2026. Inclusief vakantiegeld, dertiende maand, bonus en omrekening per maand, 4 weken of uur.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['netto-salaris-berekenen', 'vakantiegeld-berekenen', '13e-maand-berekenen', 'uurloon-naar-maandloon-berekenen']
   }
 ];
 

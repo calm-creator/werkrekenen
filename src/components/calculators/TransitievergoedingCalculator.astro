@@ -1,0 +1,811 @@
+---
+// src/components/calculators/TransitievergoedingCalculator.astro
+---
+
+<div class="calc-grid" id="transitievergoeding-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Gegevens invullen</h2>
+      <span class="rate-year-tag">WAB 2026 (art. 7:673 BW)</span>
+    </div>
+
+    <!-- Datum selectie -->
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="input-start-date" class="form-label">Startdatum contract</label>
+        <input
+          type="date"
+          id="input-start-date"
+          class="form-input"
+          aria-describedby="hint-start-date"
+        />
+        <span class="form-hint" id="hint-start-date">Eerste werkdag</span>
+      </div>
+
+      <div class="form-group" style="margin-bottom: 0;">
+        <label for="input-end-date" class="form-label">Einddatum contract</label>
+        <input
+          type="date"
+          id="input-end-date"
+          class="form-input"
+          aria-describedby="hint-end-date"
+        />
+        <span class="form-hint" id="hint-end-date">Laatste werkdag</span>
+      </div>
+    </div>
+
+    <!-- Contractvorm -->
+    <div class="form-group" style="margin-top: 1rem;">
+      <label for="select-contract-type" class="form-label">Contractvorm</label>
+      <select id="select-contract-type" class="form-select">
+        <option value="vast" selected>Vast contract (onbepaalde tijd)</option>
+        <option value="tijdelijk">Tijdelijk contract (bepaalde tijd)</option>
+        <option value="oproep">Oproepcontract / nuluren / min-max</option>
+      </select>
+    </div>
+
+    <!-- Salarisvelden (voor vast en tijdelijk) -->
+    <div id="group-fixed-salary" class="form-group">
+      <label for="input-monthly-salary" class="form-label">Bruto maandsalaris (€)</label>
+      <div class="input-with-prefix">
+        <span class="input-prefix">€</span>
+        <input
+          type="number"
+          id="input-monthly-salary"
+          class="form-input"
+          min="0"
+          step="50"
+          value="3500"
+          placeholder="3500"
+        />
+      </div>
+      <span class="form-hint">Basis maandsalaris exclusief vakantiegeld en toeslagen.</span>
+    </div>
+
+    <!-- Salarisvelden (voor oproepcontract) -->
+    <div id="group-oncall-salary" style="display: none; margin-bottom: 1rem;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="input-hourly-wage" class="form-label">Bruto uurloon (€)</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">€</span>
+            <input
+              type="number"
+              id="input-hourly-wage"
+              class="form-input"
+              min="0"
+              step="0.5"
+              value="16.50"
+              placeholder="16.50"
+            />
+          </div>
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="input-monthly-hours" class="form-label">Gem. uren / mnd</label>
+          <input
+            type="number"
+            id="input-monthly-hours"
+            class="form-input"
+            min="0"
+            step="1"
+            value="100"
+            placeholder="100"
+          />
+        </div>
+      </div>
+      <span class="form-hint" style="margin-top: 0.35rem; display: block;">
+        Voor oproepkrachten geldt het gemiddeld gewerkte aantal uren over de laatste 12 maanden.
+      </span>
+    </div>
+
+    <!-- Reden van beëindiging -->
+    <div class="form-group">
+      <label for="select-termination-reason" class="form-label">Reden van beëindiging</label>
+      <select id="select-termination-reason" class="form-select">
+        <option value="ontslag_werkgever" selected>Ontslag door werkgever (via UWV of kantonrechter)</option>
+        <option value="tijdelijk_niet_verlengd">Tijdelijk contract niet verlengd door werkgever</option>
+        <option value="wederzijds_goedvinden">Vaststellingsovereenkomst (VSO / met wederzijds goedvinden)</option>
+        <option value="zelf_ontslag">Zelf ontslag genomen door werknemer</option>
+        <option value="ernstig_verwijtbaar_werkgever">Ontslag door ernstig verwijtbaar handelen werkgever</option>
+        <option value="ernstig_verwijtbaar_werknemer">Ontslag door ernstig verwijtbaar handelen werknemer</option>
+        <option value="pensioen">Beëindiging wegens AOW- of pensioengerechtigde leeftijd</option>
+        <option value="anders">Andere situatie</option>
+      </select>
+    </div>
+
+    <!-- Uitklapbaar deel: Extra looncomponenten (Besluit loonbegrip) -->
+    <details class="extra-components-details" style="margin-top: 1.25rem;">
+      <summary class="extra-components-summary">
+        <span>Extra looncomponenten (vakantiegeld, 13e maand, bonus)</span>
+        <svg class="summary-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </summary>
+
+      <div class="extra-components-body" style="padding-top: 0.75rem;">
+        <!-- Vakantiegeld -->
+        <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
+            <label class="form-label" style="margin-bottom: 0;">Vakantiegeld (standaard 8%)</label>
+            <label class="toggle-label" style="display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.8125rem; cursor: pointer;">
+              <input type="checkbox" id="checkbox-include-holiday" checked />
+              <span>Meerekenen</span>
+            </label>
+          </div>
+          <div class="input-with-prefix" id="box-holiday-percentage">
+            <span class="input-prefix">%</span>
+            <input
+              type="number"
+              id="input-holiday-percent"
+              class="form-input"
+              min="0"
+              max="25"
+              step="0.5"
+              value="8"
+            />
+          </div>
+          <span class="form-hint">Volgens de wet (Besluit loonbegrip) telt 8% vakantiebijslag wettelijk altijd mee.</span>
+        </div>
+
+        <!-- 13e maand / vaste eindejaarsuitkering -->
+        <div class="form-group">
+          <label for="input-13th-month" class="form-label">Vaste 13e maand / eindejaarsuitkering (€ / jaar)</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">€</span>
+            <input
+              type="number"
+              id="input-13th-month"
+              class="form-input"
+              min="0"
+              step="100"
+              value="0"
+              placeholder="0"
+            />
+          </div>
+          <span class="form-hint">Vaste jaarlijkse uitkering (wordt gedeeld door 12 voor de maandgrondslag).</span>
+        </div>
+
+        <!-- Vaste maandelijkse toeslagen -->
+        <div class="form-group">
+          <label for="input-structural-allowances" class="form-label">Vaste toeslagen (€ / maand)</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">€</span>
+            <input
+              type="number"
+              id="input-structural-allowances"
+              class="form-input"
+              min="0"
+              step="50"
+              value="0"
+              placeholder="0"
+            />
+          </div>
+          <span class="form-hint">Vaste ploegentoeslag of structurele onregelmatigheidstoeslag per maand.</span>
+        </div>
+
+        <!-- Variabele beloning / bonus / overwerk -->
+        <div class="form-group">
+          <label for="input-variable-bonus" class="form-label">Variabele beloning & overwerk (€ / maand)</label>
+          <div class="input-with-prefix">
+            <span class="input-prefix">€</span>
+            <input
+              type="number"
+              id="input-variable-bonus"
+              class="form-input"
+              min="0"
+              step="50"
+              value="0"
+              placeholder="0"
+            />
+          </div>
+          <span class="form-hint">Gemiddelde bonus/provisie per maand (laatste 36 mnd) of overwerk (laatste 12 mnd).</span>
+        </div>
+      </div>
+    </details>
+
+    <!-- Foutmelding bij ongeldige datums -->
+    <div class="callout callout-warning" id="alert-date-error" style="display: none; margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Ongeldige periode:</strong> <span id="error-message-text">De einddatum kan niet vóór de startdatum liggen.</span>
+    </div>
+
+    <div class="form-actions" style="margin-top: 1.5rem;">
+      <button type="button" id="btn-reset-transitievergoeding" class="btn btn-secondary btn-sm">
+        Standaardwaarden herstellen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label">Geschatte bruto transitievergoeding</span>
+      <div class="result-hero-value" id="res-hero-amount">€ 0,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">Dienstverband: laden...</span>
+    </div>
+
+    <!-- Statusbadge ontslagsituatie -->
+    <div id="eligibility-card" class="eligibility-notice" style="margin-top: 1rem; padding: 0.875rem; border-radius: 0.5rem; font-size: 0.8125rem; line-height: 1.5;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+        <span id="eligibility-badge" class="badge" style="font-weight: 700; font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 9999px;">
+          Wettelijk recht
+        </span>
+      </div>
+      <p id="eligibility-explanation" style="margin: 0; color: inherit;"></p>
+    </div>
+
+    <!-- Aftopping notificatie (indien wettelijk gemaximeerd) -->
+    <div id="cap-alert" class="callout callout-warning" style="display: none; margin-top: 0.75rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Let op:</strong> De berekende vergoeding overschrijdt het wettelijk maximum voor 2026. Het bedrag is afgetopt op <span id="cap-alert-amount" class="font-bold">€ 102.000</span> (of maximaal 1 bruto jaarsalaris).
+    </div>
+
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Opbouw en berekeningsgrondslag</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Totale dienstduur</span>
+        <span class="result-row-value font-bold text-primary" id="res-duration-text">0 dagen</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Contractperiode</span>
+        <span class="result-row-value font-medium" id="res-period-text">-</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Basis maandsalaris</span>
+        <span class="result-row-value font-medium" id="res-base-salary">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Vakantietoeslag per maand</span>
+        <span class="result-row-value text-muted" id="res-holiday-salary">+ € 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-13th" style="display: none;">
+        <span class="result-row-label">13e maand / eindejaarsuitkering</span>
+        <span class="result-row-value text-muted" id="res-13th-salary">+ € 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-allowances" style="display: none;">
+        <span class="result-row-label">Toeslagen & variabele beloning</span>
+        <span class="result-row-value text-muted" id="res-allowances-salary">+ € 0,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-row">
+        <span class="result-row-label font-bold">Maandloon berekeningsgrondslag</span>
+        <span class="result-row-value font-bold" id="res-total-monthly-salary">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Opbouw per vol dienstjaar (1/3)</span>
+        <span class="result-row-value text-muted" id="res-accrual-per-year">€ 0,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding volle jaren</span>
+        <span class="result-row-value font-medium" id="res-severance-years">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding resterende maanden</span>
+        <span class="result-row-value font-medium" id="res-severance-months">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Vergoeding resterende dagen</span>
+        <span class="result-row-value font-medium" id="res-severance-days">€ 0,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-row">
+        <span class="result-row-label">Wettelijk maximum 2026</span>
+        <span class="result-row-value text-muted" id="res-cap-rule">€ 102.000</span>
+      </div>
+    </div>
+
+    <!-- Juridische toelichting -->
+    <div class="callout callout-info" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem; line-height: 1.5;">
+      <strong>Goed om te weten:</strong> Sinds de Wet arbeidsmarkt in balans (WAB) bouw je direct vanaf je eerste werkdag een transitievergoeding op (1/3 maandsalaris per jaar). De vergoeding is bruto; je werkgever houdt hierop bij de uitbetaling loonbelasting in volgens het bijzondere belastingtarief.
+    </div>
+  </div>
+</div>
+
+<!-- Referentietabel Transitievergoeding per dienstjaar -->
+<div class="table-container" style="margin-top: 2rem;">
+  <div class="table-title">Voorbeelden transitievergoeding per dienstjaren en salaris (2026)</div>
+  <p class="table-subtitle" style="font-size: 0.875rem; color: var(--color-text-muted, #64748b); margin-bottom: 0.75rem;">
+    Onderstaand overzicht toont de bruto transitievergoeding inclusief 8% wettelijke vakantiebijslag (1/3 maandsalaris per vol jaar).
+  </p>
+  <div class="table-responsive">
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>Basis maandsalaris</th>
+          <th>Grondslag (+8% vakantiegeld)</th>
+          <th>1 dienstjaar</th>
+          <th>3 dienstjaren</th>
+          <th>5 dienstjaren</th>
+          <th>10 dienstjaren</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>€ 2.500</td>
+          <td>€ 2.700,00</td>
+          <td class="font-bold">€ 900,00</td>
+          <td class="font-bold">€ 2.700,00</td>
+          <td class="font-bold">€ 4.500,00</td>
+          <td class="font-bold text-primary">€ 9.000,00</td>
+        </tr>
+        <tr>
+          <td>€ 3.000</td>
+          <td>€ 3.240,00</td>
+          <td class="font-bold">€ 1.080,00</td>
+          <td class="font-bold">€ 3.240,00</td>
+          <td class="font-bold">€ 5.400,00</td>
+          <td class="font-bold text-primary">€ 10.800,00</td>
+        </tr>
+        <tr>
+          <td>€ 3.500</td>
+          <td>€ 3.780,00</td>
+          <td class="font-bold">€ 1.260,00</td>
+          <td class="font-bold">€ 3.780,00</td>
+          <td class="font-bold">€ 6.300,00</td>
+          <td class="font-bold text-primary">€ 12.600,00</td>
+        </tr>
+        <tr>
+          <td>€ 4.000</td>
+          <td>€ 4.320,00</td>
+          <td class="font-bold">€ 1.440,00</td>
+          <td class="font-bold">€ 4.320,00</td>
+          <td class="font-bold">€ 7.200,00</td>
+          <td class="font-bold text-primary">€ 14.400,00</td>
+        </tr>
+        <tr>
+          <td>€ 5.000</td>
+          <td>€ 5.400,00</td>
+          <td class="font-bold">€ 1.800,00</td>
+          <td class="font-bold">€ 5.400,00</td>
+          <td class="font-bold">€ 9.000,00</td>
+          <td class="font-bold text-primary">€ 18.000,00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('transitievergoeding-calc');
+    if (!calc) return;
+
+    // Inputs
+    const inputStart = calc.querySelector('#input-start-date') as HTMLInputElement;
+    const inputEnd = calc.querySelector('#input-end-date') as HTMLInputElement;
+    const selectContract = calc.querySelector('#select-contract-type') as HTMLSelectElement;
+    const selectTermination = calc.querySelector('#select-termination-reason') as HTMLSelectElement;
+
+    const groupFixed = calc.querySelector('#group-fixed-salary') as HTMLElement;
+    const groupOnCall = calc.querySelector('#group-oncall-salary') as HTMLElement;
+
+    const inputMonthlySalary = calc.querySelector('#input-monthly-salary') as HTMLInputElement;
+    const inputHourlyWage = calc.querySelector('#input-hourly-wage') as HTMLInputElement;
+    const inputMonthlyHours = calc.querySelector('#input-monthly-hours') as HTMLInputElement;
+
+    const checkboxHoliday = calc.querySelector('#checkbox-include-holiday') as HTMLInputElement;
+    const boxHolidayPercent = calc.querySelector('#box-holiday-percentage') as HTMLElement;
+    const inputHolidayPercent = calc.querySelector('#input-holiday-percent') as HTMLInputElement;
+    const input13th = calc.querySelector('#input-13th-month') as HTMLInputElement;
+    const inputStructural = calc.querySelector('#input-structural-allowances') as HTMLInputElement;
+    const inputVariable = calc.querySelector('#input-variable-bonus') as HTMLInputElement;
+
+    const btnReset = calc.querySelector('#btn-reset-transitievergoeding') as HTMLButtonElement;
+
+    // Outputs
+    const alertError = calc.querySelector('#alert-date-error') as HTMLElement;
+    const errorMessageText = calc.querySelector('#error-message-text') as HTMLElement;
+    const capAlert = calc.querySelector('#cap-alert') as HTMLElement;
+    const capAlertAmount = calc.querySelector('#cap-alert-amount') as HTMLElement;
+
+    const resHeroAmount = calc.querySelector('#res-hero-amount') as HTMLElement;
+    const resHeroSub = calc.querySelector('#res-hero-sub') as HTMLElement;
+
+    const eligibilityCard = calc.querySelector('#eligibility-card') as HTMLElement;
+    const eligibilityBadge = calc.querySelector('#eligibility-badge') as HTMLElement;
+    const eligibilityExplanation = calc.querySelector('#eligibility-explanation') as HTMLElement;
+
+    const resDurationText = calc.querySelector('#res-duration-text') as HTMLElement;
+    const resPeriodText = calc.querySelector('#res-period-text') as HTMLElement;
+    const resBaseSalary = calc.querySelector('#res-base-salary') as HTMLElement;
+    const resHolidaySalary = calc.querySelector('#res-holiday-salary') as HTMLElement;
+    const row13th = calc.querySelector('#row-13th') as HTMLElement;
+    const res13thSalary = calc.querySelector('#res-13th-salary') as HTMLElement;
+    const rowAllowances = calc.querySelector('#row-allowances') as HTMLElement;
+    const resAllowancesSalary = calc.querySelector('#res-allowances-salary') as HTMLElement;
+
+    const resTotalMonthlySalary = calc.querySelector('#res-total-monthly-salary') as HTMLElement;
+    const resAccrualPerYear = calc.querySelector('#res-accrual-per-year') as HTMLElement;
+    const resSeveranceYears = calc.querySelector('#res-severance-years') as HTMLElement;
+    const resSeveranceMonths = calc.querySelector('#res-severance-months') as HTMLElement;
+    const resSeveranceDays = calc.querySelector('#res-severance-days') as HTMLElement;
+    const resCapRule = calc.querySelector('#res-cap-rule') as HTMLElement;
+
+    // Formatters
+    const toIsoDate = (d: Date): string => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    };
+
+    const parseDateSafe = (dStr: string): Date => {
+      const parts = (dStr || '').split('-').map(Number);
+      if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+        return new Date(parts[0], parts[1] - 1, parts[2]);
+      }
+      return new Date();
+    };
+
+    const formatDateDutch = (d: Date): string => {
+      return new Intl.DateTimeFormat('nl-NL', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(d);
+    };
+
+    const formatCurrency = (val: number): string => {
+      return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(val);
+    };
+
+    // Defaults: 3 full years ending today
+    const initToday = new Date();
+    const initStart = new Date(initToday.getFullYear() - 3, initToday.getMonth(), initToday.getDate());
+
+    inputStart.value = toIsoDate(initStart);
+    inputEnd.value = toIsoDate(initToday);
+
+    function updateContractFields() {
+      const isOproep = selectContract.value === 'oproep';
+      groupFixed.style.display = isOproep ? 'none' : 'block';
+      groupOnCall.style.display = isOproep ? 'block' : 'none';
+    }
+
+    function calculate() {
+      const startD = parseDateSafe(inputStart.value);
+      const endD = parseDateSafe(inputEnd.value);
+
+      const utc1 = Date.UTC(startD.getFullYear(), startD.getMonth(), startD.getDate());
+      const utc2 = Date.UTC(endD.getFullYear(), endD.getMonth(), endD.getDate());
+
+      if (utc2 < utc1) {
+        alertError.style.display = 'block';
+        errorMessageText.textContent = 'De einddatum kan niet vóór de startdatum liggen.';
+        resHeroAmount.textContent = '€ 0,00';
+        resHeroSub.textContent = 'Kies een geldige periode';
+        resDurationText.textContent = '-';
+        resPeriodText.textContent = '-';
+        return;
+      }
+
+      alertError.style.display = 'none';
+
+      // Duration calculation inclusive of last day ("tot en met de laatste werkdag")
+      const calcEndD = new Date(endD.getFullYear(), endD.getMonth(), endD.getDate() + 1);
+      let years = calcEndD.getFullYear() - startD.getFullYear();
+      let months = calcEndD.getMonth() - startD.getMonth();
+      let days = calcEndD.getDate() - startD.getDate();
+
+      if (days < 0) {
+        months--;
+        const prevMonth = new Date(calcEndD.getFullYear(), calcEndD.getMonth(), 0);
+        days += prevMonth.getDate();
+      }
+
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      const formatDuration = (y: number, m: number, d: number): string => {
+        if (y === 0 && m === 0 && d === 0) return '0 dagen';
+        const parts: string[] = [];
+        if (y > 0) parts.push(`${y} ${y === 1 ? 'jaar' : 'jaar'}`);
+        if (m > 0) parts.push(`${m} ${m === 1 ? 'maand' : 'maanden'}`);
+        if (d > 0) parts.push(`${d} ${d === 1 ? 'dag' : 'dagen'}`);
+        if (parts.length === 1) return parts[0];
+        if (parts.length === 2) return `${parts[0]} en ${parts[1]}`;
+        return `${parts[0]}, ${parts[1]} en ${parts[2]}`;
+      };
+
+      const durationText = formatDuration(years, months, days);
+
+      // Base monthly salary
+      let baseSalary = 0;
+      if (selectContract.value === 'oproep') {
+        const wage = Math.max(0, parseFloat(inputHourlyWage.value) || 0);
+        const hours = Math.max(0, parseFloat(inputMonthlyHours.value) || 0);
+        baseSalary = Math.round(wage * hours * 100) / 100;
+      } else {
+        baseSalary = Math.max(0, parseFloat(inputMonthlySalary.value) || 0);
+      }
+
+      // Holiday allowance
+      const inclHoliday = checkboxHoliday.checked;
+      const holidayPercent = inclHoliday ? Math.max(0, parseFloat(inputHolidayPercent.value) || 0) : 0;
+      const holidayMonthly = Math.round(baseSalary * (holidayPercent / 100) * 100) / 100;
+
+      // Other components
+      const annual13th = Math.max(0, parseFloat(input13th.value) || 0);
+      const monthly13th = Math.round((annual13th / 12) * 100) / 100;
+
+      const monthlyStructural = Math.max(0, parseFloat(inputStructural.value) || 0);
+      const monthlyVariable = Math.max(0, parseFloat(inputVariable.value) || 0);
+      const otherAllowancesMonthly = Math.round((monthlyStructural + monthlyVariable) * 100) / 100;
+
+      // Total monthly calculation base
+      const totalMonthlySalary = Math.round((baseSalary + holidayMonthly + monthly13th + otherAllowancesMonthly) * 100) / 100;
+      const totalAnnualSalary = Math.round(totalMonthlySalary * 12 * 100) / 100;
+
+      // Accrual (1/3 per full year + proportional months and days)
+      const monthlyAccrual = totalMonthlySalary / 3;
+      const sevYears = Math.round(years * monthlyAccrual * 100) / 100;
+      const sevMonths = Math.round((months / 12) * monthlyAccrual * 100) / 100;
+      const sevDays = Math.round((days / 365) * monthlyAccrual * 100) / 100;
+
+      const rawTransitievergoeding = Math.round((years + months / 12 + days / 365) * monthlyAccrual * 100) / 100;
+
+      // 2026 cap: € 102.000 of 1 bruto jaarsalaris
+      const statutoryCap2026 = 102000;
+      const effectiveCap = Math.max(statutoryCap2026, totalAnnualSalary);
+      const isCapped = rawTransitievergoeding > effectiveCap;
+      const finalTransitievergoeding = isCapped ? effectiveCap : rawTransitievergoeding;
+
+      // Eligibility & reason handling
+      const reason = selectTermination.value;
+      let badgeText = 'Wettelijk recht';
+      let badgeClass = 'badge-success';
+      let cardBg = '#f0fdf4';
+      let cardBorder = '#bbf7d0';
+      let cardColor = '#166534';
+      let explanation = 'Bij ontslag op initiatief van de werkgever heb je volgens art. 7:673 BW wettelijk recht op deze transitievergoeding.';
+
+      if (reason === 'tijdelijk_niet_verlengd') {
+        badgeText = 'Wettelijk recht';
+        badgeClass = 'badge-success';
+        explanation = 'Wanneer een tijdelijk contract op initiatief van de werkgever niet wordt verlengd, heb je vanaf dag 1 recht op de volledige transitievergoeding.';
+      } else if (reason === 'wederzijds_goedvinden') {
+        badgeText = 'Onderhandelbaar (VSO norm)';
+        badgeClass = 'badge-warning';
+        cardBg = '#fffbeb';
+        cardBorder = '#fef08a';
+        cardColor = '#854d0e';
+        explanation = 'Bij een vaststellingsovereenkomst (ontslag met wederzijds goedvinden) geldt de transitievergoeding als de minimale wettelijke onderhandelingsbasis.';
+      } else if (reason === 'zelf_ontslag') {
+        badgeText = 'In de regel geen recht';
+        badgeClass = 'badge-danger';
+        cardBg = '#fef2f2';
+        cardBorder = '#fecaca';
+        cardColor = '#991b1b';
+        explanation = 'Bij vrijwillig eigen ontslag vervalt in principe het recht op een transitievergoeding, tenzij de werkgever ernstig verwijtbaar heeft gehandeld.';
+      } else if (reason === 'ernstig_verwijtbaar_werkgever') {
+        badgeText = 'Recht op vergoeding (+ billijke vergoeding)';
+        badgeClass = 'badge-success';
+        explanation = 'Wegens ernstig verwijtbaar handelen van de werkgever behoud je de transitievergoeding en kan de kantonrechter een aanvullende billijke vergoeding toekennen.';
+      } else if (reason === 'ernstig_verwijtbaar_werknemer') {
+        badgeText = 'Geen recht (verwijtbaar)';
+        badgeClass = 'badge-danger';
+        cardBg = '#fef2f2';
+        cardBorder = '#fecaca';
+        cardColor = '#991b1b';
+        explanation = 'Bij ontslag wegens ernstig verwijtbaar handelen (zoals diefstal of fraude) vervalt volgens de wet het recht op een transitievergoeding.';
+      } else if (reason === 'pensioen') {
+        badgeText = 'Geen recht bij AOW/pensioen';
+        badgeClass = 'badge-secondary';
+        cardBg = '#f8fafc';
+        cardBorder = '#e2e8f0';
+        cardColor = '#475569';
+        explanation = 'Bij beëindiging wegens het bereiken van de AOW- of pensioengerechtigde leeftijd bestaat wettelijk geen recht op een transitievergoeding.';
+      } else if (reason === 'anders') {
+        badgeText = 'Situatie-afhankelijk';
+        badgeClass = 'badge-info';
+        cardBg = '#f0f9ff';
+        cardBorder = '#bae6fd';
+        cardColor = '#0369a1';
+        explanation = 'Of je recht hebt op een transitievergoeding hangt af van wie het initiatief neemt en de specifieke omstandigheden van de beëindiging.';
+      }
+
+      // Update UI elements
+      resHeroAmount.textContent = formatCurrency(finalTransitievergoeding);
+      resHeroSub.textContent = `Op basis van ${durationText} diensttijd`;
+
+      eligibilityBadge.textContent = badgeText;
+      eligibilityExplanation.textContent = explanation;
+      eligibilityCard.style.backgroundColor = cardBg;
+      eligibilityCard.style.border = `1px solid ${cardBorder}`;
+      eligibilityCard.style.color = cardColor;
+
+      // Cap alert
+      if (isCapped) {
+        capAlert.style.display = 'block';
+        capAlertAmount.textContent = formatCurrency(effectiveCap);
+      } else {
+        capAlert.style.display = 'none';
+      }
+
+      resDurationText.textContent = durationText;
+      resPeriodText.textContent = `${formatDateDutch(startD)} t/m ${formatDateDutch(endD)}`;
+      resBaseSalary.textContent = formatCurrency(baseSalary);
+      resHolidaySalary.textContent = `+ ${formatCurrency(holidayMonthly)}`;
+
+      if (monthly13th > 0) {
+        row13th.style.display = 'flex';
+        res13thSalary.textContent = `+ ${formatCurrency(monthly13th)}`;
+      } else {
+        row13th.style.display = 'none';
+      }
+
+      if (otherAllowancesMonthly > 0) {
+        rowAllowances.style.display = 'flex';
+        resAllowancesSalary.textContent = `+ ${formatCurrency(otherAllowancesMonthly)}`;
+      } else {
+        rowAllowances.style.display = 'none';
+      }
+
+      resTotalMonthlySalary.textContent = formatCurrency(totalMonthlySalary);
+      resAccrualPerYear.textContent = `${formatCurrency(monthlyAccrual)} / jaar`;
+      resSeveranceYears.textContent = formatCurrency(sevYears);
+      resSeveranceMonths.textContent = formatCurrency(sevMonths);
+      resSeveranceDays.textContent = formatCurrency(sevDays);
+      resCapRule.textContent = effectiveCap > statutoryCap2026
+        ? `${formatCurrency(effectiveCap)} (1 jaarsalaris)`
+        : '€ 102.000 (norm 2026)';
+    }
+
+    // Listeners
+    inputStart.addEventListener('input', calculate);
+    inputStart.addEventListener('change', calculate);
+    inputEnd.addEventListener('input', calculate);
+    inputEnd.addEventListener('change', calculate);
+
+    selectContract.addEventListener('change', () => {
+      updateContractFields();
+      calculate();
+    });
+
+    selectTermination.addEventListener('change', calculate);
+
+    inputMonthlySalary.addEventListener('input', calculate);
+    inputHourlyWage.addEventListener('input', calculate);
+    inputMonthlyHours.addEventListener('input', calculate);
+
+    checkboxHoliday.addEventListener('change', () => {
+      boxHolidayPercent.style.display = checkboxHoliday.checked ? 'flex' : 'none';
+      calculate();
+    });
+
+    inputHolidayPercent.addEventListener('input', calculate);
+    input13th.addEventListener('input', calculate);
+    inputStructural.addEventListener('input', calculate);
+    inputVariable.addEventListener('input', calculate);
+
+    btnReset.addEventListener('click', () => {
+      const todayDate = new Date();
+      const resetStart = new Date(todayDate.getFullYear() - 3, todayDate.getMonth(), todayDate.getDate());
+      inputStart.value = toIsoDate(resetStart);
+      inputEnd.value = toIsoDate(todayDate);
+      selectContract.value = 'vast';
+      selectTermination.value = 'ontslag_werkgever';
+      inputMonthlySalary.value = '3500';
+      inputHourlyWage.value = '16.50';
+      inputMonthlyHours.value = '100';
+      checkboxHoliday.checked = true;
+      boxHolidayPercent.style.display = 'flex';
+      inputHolidayPercent.value = '8';
+      input13th.value = '0';
+      inputStructural.value = '0';
+      inputVariable.value = '0';
+      updateContractFields();
+      calculate();
+    });
+
+    updateContractFields();
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #035644);
+    background-color: var(--color-primary-light, #e6f5f1);
+    border-radius: 9999px;
+  }
+
+  .extra-components-details {
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    background-color: var(--color-bg-subtle, #f8fafc);
+  }
+
+  .extra-components-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--color-text, #1e293b);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  .extra-components-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .extra-components-details[open] .summary-chevron {
+    transform: rotate(180deg);
+  }
+
+  .badge-success {
+    background-color: #dcfce7;
+    color: #15803d;
+  }
+
+  .badge-warning {
+    background-color: #fef9c3;
+    color: #a16207;
+  }
+
+  .badge-danger {
+    background-color: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .badge-secondary {
+    background-color: #f1f5f9;
+    color: #475569;
+  }
+
+  .badge-info {
+    background-color: #e0f2fe;
+    color: #0369a1;
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

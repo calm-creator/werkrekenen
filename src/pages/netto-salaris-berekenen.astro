@@ -1,0 +1,181 @@
+---
+// src/pages/netto-salaris-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import NettoSalarisCalculator from '../components/calculators/NettoSalarisCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+
+const meta = getCalculatorBySlug('netto-salaris-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoe bereken ik mijn netto salaris in 2026?',
+    answer: 'Je berekent je netto salaris door van je bruto salaris eerst eventuele fiscale inhoudingen (zoals het werknemersdeel van de pensioenpremie) af te trekken. Over het resterende fiscale loon wordt de loonheffing berekend via het schijventarief van box 1. Vervolgens worden de toepasselijke heffingskortingen (algemene heffingskorting en arbeidskorting) verrekend als je de loonheffingskorting hebt aangezet. Het netto salaris is het bedrag dat overblijft na loonheffing en eventuele netto inhoudingen.'
+  },
+  {
+    question: 'Hoeveel is € 3.000 bruto netto in 2026?',
+    answer: 'Bij een bruto maandsalaris van € 3.000 (onder de AOW-leeftijd en met toepassing van de loonheffingskorting) bedraagt je geschatte nettoloon in 2026 circa € 2.592 per maand. Zonder loonheffingskorting houd je ongeveer € 1.925 netto over, omdat de heffingskortingen dan niet maandelijks op je loonstrook worden verrekend.'
+  },
+  {
+    question: 'Hoeveel is € 4.000 bruto netto in 2026?',
+    answer: 'Bij een bruto maandsalaris van € 4.000 ontvang je in 2026 circa € 3.161 netto per maand met loonheffingskorting. De ingehouden loonheffing bedraagt ongeveer € 839 per maand, wat neerkomt op een effectieve belastingdruk van circa 21%.'
+  },
+  {
+    question: 'Wat is het verschil tussen bruto en netto salaris?',
+    answer: 'Bruto salaris is het totale salaris dat je contractueel met je werkgever hebt afgesproken vóór aftrek van belastingen en premies. Netto salaris is het bedrag dat daadwerkelijk door je werkgever op je bankrekening wordt gestort nadat de loonheffing, pensioenpremies en eventuele overige inhoudingen zijn voldaan.'
+  },
+  {
+    question: 'Wat is loonheffingskorting?',
+    answer: 'Loonheffingskorting is de instructie aan je werkgever om bij de maandelijkse inhouding van loonheffing direct rekening te houden met de wettelijke heffingskortingen (de algemene heffingskorting en de arbeidskorting). Hierdoor betaal je per maand minder belasting en houd je meer nettoloon over. Je mag deze korting slechts bij één werkgever of uitkeringsinstantie tegelijk laten toepassen.'
+  },
+  {
+    question: 'Wat is arbeidskorting?',
+    answer: 'Arbeidskorting is een inkomensafhankelijke heffingskorting die specifiek geldt voor werkenden. In 2026 bedraagt de maximale arbeidskorting € 5.685 op jaarbasis. Hoeveel arbeidskorting je daadwerkelijk ontvangt, hangt af van de hoogte van je arbeidsinkomen. Boven een inkomen van € 44.097 wordt de arbeidskorting geleidelijk afgebouwd.'
+  },
+  {
+    question: 'Wat gebeurt er als ik geen loonheffingskorting toepas?',
+    answer: 'Als je de loonheffingskorting op \'Nee\' zet, past je werkgever geen heffingskortingen toe op je loonstrook. Je werkgever houdt dan het volledige belastingtarief in, waardoor je maandelijkse nettoloon aanzienlijk lager uitvalt. Het eventueel te veel ingehouden belastingbedrag vraag je na afloop van het jaar terug via je jaarlijkse aangifte inkomstenbelasting.'
+  },
+  {
+    question: 'Hoe beïnvloedt mijn pensioenpremie mijn netto salaris?',
+    answer: 'Het werknemersdeel van je pensioenpremie wordt vóór de belastingberekening van je bruto salaris ingehouden (de zogeheten omkeerregel). Hierdoor daalt je fiscaal belastbare loon en betaal je minder loonheffing. Een pensioenpremie van € 100 bruto kost je daardoor netto vaak slechts zo\'n € 60 tot € 65.'
+  },
+  {
+    question: 'Hoe bereken ik mijn netto uurloon?',
+    answer: 'Je netto uurloon bereken je door je wekelijkse nettoloon te delen door het aantal overeengekomen contracturen per week. Bij een maandsalaris reken je eerst om naar een weeksalaris via de formule: (maandsalaris × 12) / 52, en deel je dit bedrag vervolgens door je wekelijkse uren.'
+  },
+  {
+    question: 'Waarom kan mijn loonstrook afwijken van een online netto salarisberekening?',
+    answer: 'Een online calculator berekent een nauwkeurige schatting volgens de standaard landelijke witte maandtabel. Je werkelijke loonstrook kan afwijken door specifieke cao-inhoudingen (zoals WGA-hiaatpremies of sociaal fonds), een afwijkende bedrijfspensioenregeling, de fiscale bijtelling van een leaseauto of personeelsvergoedingen.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Belastingdienst & Ministerie van Financiën"
+>
+  <NettoSalarisCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is netto salaris en hoe bereken je bruto naar netto?</h2>
+    <p>
+      Het <strong>netto salaris</strong> is het uiteindelijke geldbedrag dat je als werknemer maandelijks op je bankrekening gestort krijgt van je werkgever. Waar je arbeidscontract en salarisonderhandelingen altijd uitgaan van het <strong>bruto salaris</strong>, bepaalt het nettoloon wat je daadwerkelijk te besteden hebt voor je vaste lasten, boodschappen en levensonderhoud.
+    </p>
+    <p>
+      De overgang van bruto naar netto wordt in Nederland bepaald door de inhoudingen die de werkgever wettelijk verplicht is te doen. De belangrijkste inhouding is de <strong>loonheffing</strong>, bestaande uit de loonbelasting en de premies voor de volksverzekeringen (AOW, Anw en Wlz). Daarnaast houden veel werkgevers een pensioenpremie in en eventuele overige werknemersbijdragen.
+    </p>
+
+    <h2>Het verschil tussen bruto en netto salaris</h2>
+    <p>
+      Om grip te houden op je loonstrook is het essentieel om de begrippen zuiver uit elkaar te houden:
+    </p>
+    <ul>
+      <li>
+        <strong>Bruto salaris:</strong> Het totale bedrag dat je met je werkgever bent overeengekomen voor je werkzaamheden. Dit bedrag staat vermeld in je arbeidsovereenkomst en vormt het vertrekpunt voor alle berekeningen.
+      </li>
+      <li>
+        <strong>Fiscaal loon (loon voor loonheffing):</strong> Je bruto salaris verminderd met eventuele pre-tax inhoudingen, zoals het werknemersdeel van de pensioenpremie. Over dit bedrag berekent de Belastingdienst de loonheffing.
+      </li>
+      <li>
+        <strong>Netto salaris:</strong> Het bedrag dat resteert nadat alle belastingen, heffingen, pensioenpremies en eventuele netto inhoudingen zijn afgetrokken. Dit is jouw uitbetaalde loon.
+      </li>
+    </ul>
+
+    <h2>Hoe werkt de loonheffing in 2026? (Schijventarief box 1)</h2>
+    <p>
+      In Nederland betaal je inkomstenbelasting en premies volksverzekeringen over je inkomen uit werk en woning volgens het progressieve schijventarief van box 1. Voor werknemers onder de AOW-leeftijd gelden in 2026 de volgende wettelijke tarieven:
+    </p>
+    <ul>
+      <li>
+        <strong>Schijf 1 (tot € 38.441 per jaar):</strong> Een gecombineerd belasting- en premietarief van <strong>35,82%</strong>.
+      </li>
+      <li>
+        <strong>Schijf 2 (€ 38.441 tot € 76.817 per jaar):</strong> Een tarief van <strong>37,48%</strong>.
+      </li>
+      <li>
+        <strong>Schijf 3 (boven € 76.817 per jaar):</strong> Het toptarief van <strong>49,50%</strong>.
+      </li>
+    </ul>
+    <p>
+      Heb je de AOW-gerechtigde leeftijd bereikt? Dan betaal je geen AOW-premie meer (een korting van 17,90% in de eerste schijf), waardoor het tarief in schijf 1 voor AOW-gerechtigden daalt naar <strong>17,92%</strong>.
+    </p>
+
+    <h2>Loonheffingskorting versus heffingskortingen</h2>
+    <p>
+      Veel mensen halen de termen <em>loonheffingskorting</em> en <em>heffingskortingen</em> door elkaar. Het verschil is echter fundamenteel:
+    </p>
+    <p>
+      <strong>Heffingskortingen</strong> zijn wettelijke kortingen op de te betalen inkomstenbelasting. De twee belangrijkste heffingskortingen voor werkenden zijn:
+    </p>
+    <ol>
+      <li>
+        <strong>Algemene heffingskorting (AHK):</strong> Een basiskorting die in 2026 maximaal <strong>€ 3.115</strong> per jaar bedraagt. Deze korting is inkomensafhankelijk en wordt boven een inkomen van € 28.406 geleidelijk afgebouwd met circa 6,43% tot € 0 bij een jaarinkomen van € 76.817.
+      </li>
+      <li>
+        <strong>Arbeidskorting (AK):</strong> Een stimulans voor werkenden die oploopt naarmate je meer verdient, tot een maximum van <strong>€ 5.685</strong> in 2026 bij een jaarinkomen rond € 44.097. Boven dit bedrag bouwt de arbeidskorting met 6,51% af naar nul bij hogere inkomens.
+      </li>
+    </ol>
+    <p>
+      <strong>Loonheffingskorting</strong> is slechts de administratieve knop waarmee je werkgever toestemming krijgt om deze heffingskortingen direct maandelijks op je salaris toe te passen. Pas je de loonheffingskorting toe, dan houdt de werkgever minder loonheffing in en ontvang je direct een hoger nettosalaris. Pas je hem niet toe, dan betaal je maandelijks de volle mep aan belasting en vraag je het verschil achteraf terug bij je belastingaangifte.
+    </p>
+
+    <h2>Hoe beïnvloedt pensioenpremie je nettoloon?</h2>
+    <p>
+      In veel bedrijfstakken en cao's is deelname aan een pensioenfonds verplicht. De pensioenpremie wordt doorgaans verdeeld tussen werkgever en werknemer. Het werknemersdeel wordt ingehouden op je bruto salaris volgens de fiscale <em>omkeerregel</em>.
+    </p>
+    <p>
+      Dit betekent dat je over het deel dat naar je pensioen gaat op dit moment geen loonbelasting betaalt. Je pensioenpremie verlaagt je fiscaal belastbare loon. Pas wanneer je met pensioen gaat en uitkeringen ontvangt, betaal je hierover belasting (veelal tegen een lager senioren belastingtarief). Hierdoor merk je van een bruto pensioeninhouding van bijvoorbeeld € 150 netto vaak slechts zo'n € 90 tot € 95 op je bankrekening.
+    </p>
+
+    <h2>Vakantiegeld en 13e maand: Tabel Bijzondere Beloningen</h2>
+    <p>
+      Jaarlijkse extra uitkeringen zoals het vakantiegeld (standaard 8%), een vaste 13e maand of een prestatiebonus worden fiscaal niet belast als regulier maandsalaris, maar volgens de <strong>Tabel Bijzondere Beloningen</strong>.
+    </p>
+    <p>
+      Bij bijzondere beloningen hanteert de Belastingdienst een marginaal tarief dat is gebaseerd op je totale jaarloon van het voorgaande kalenderjaar. Omdat een bonus of vakantie-uitkering bovenop je normale jaarinkomen komt, leidt dit extra inkomen er vaak toe dat je algemene heffingskorting en arbeidskorting sneller afbouwen. Hierdoor bedraagt het effectieve belastingtarief op een 13e maand of bonus voor midden- en hogere inkomens al snel <strong>tussen de 49% en 56%</strong>. Bereken je vakantiegeld exact met onze tool voor <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a> of bekijk <a href="/13e-maand-berekenen/">13e maand berekenen</a>.
+    </p>
+
+    <h2>Maandloon versus 4-wekenloon</h2>
+    <p>
+      Niet elke werkgever keert het salaris per kalendermaand uit. In sectoren zoals transport, beveiliging, horeca en uitzendwerk wordt regelmatig gewerkt met een <strong>4-weken verloning</strong>.
+    </p>
+    <p>
+      Een jaar telt 52 weken. Dat betekent dat er 13 periodes van 4 weken in een jaar passen, terwijl een kalenderjaar slechts 12 maanden telt. Een 4-wekensalaris is daardoor per betaling lager dan een maandsalaris:
+    </p>
+    <p style="text-align: center; font-weight: 600; padding: 0.75rem; background: var(--color-bg-subtle, #f8fafc); border-radius: 0.5rem; border: 1px solid var(--color-border, #e2e8f0);">
+      Bruto maandsalaris = (4-wekensalaris × 13) / 12
+    </p>
+    <p>
+      Onze calculator rekent betalingen per 4 weken, per week en per uur direct om naar een representatief maand- en jaartotaal. Wil je specifiek je totale jaarloon inclusief vakantiegeld en 13e maand berekenen? Gebruik dan onze module voor <a href="/jaarinkomen-berekenen/">jaarinkomen berekenen</a>.
+    </p>
+
+    <h2>Drie praktijkvoorbeelden bruto naar netto in 2026</h2>
+    <p>
+      Onderstaande rekenvoorbeelden geven inzicht in de verhouding tussen bruto en netto bij werknemers onder de AOW-leeftijd (met loonheffingskorting en zonder pensioenpremie):
+    </p>
+    <ul>
+      <li>
+        <strong>Voorbeeld 1: Modaal salaris van € 3.000 bruto per maand:</strong><br />
+        Bruto jaarloon is € 36.000. De bruto belasting over schijf 1 bedraagt € 1.074,60 per maand. Dankzij de algemene heffingskorting (€ 218,86) en arbeidskorting (€ 448,17) wordt in totaal € 667,03 aan heffingskorting verrekend. De netto loonheffing is € 407,57. Het netto salaris bedraagt <strong>€ 2.592,43 per maand</strong> (belastingdruk 13,6%).
+      </li>
+      <li>
+        <strong>Voorbeeld 2: Salaris van € 4.000 bruto per maand:</strong><br />
+        Bruto jaarloon is € 48.000. Door het bereiken van schijf 2 en de afbouw van heffingskortingen bedraagt de loonheffing € 838,92 per maand. Het netto salaris bedraagt <strong>€ 3.161,08 per maand</strong> (belastingdruk 21,0%).
+      </li>
+      <li>
+        <strong>Voorbeeld 3: Salaris van € 2.500 bruto per maand:</strong><br />
+        Bruto jaarloon is € 30.000. Dankzij relatief hoge heffingskortingen bedraagt de loonheffing slechts circa € 226 per maand. Het nettoloon komt uit op circa <strong>€ 2.274 per maand</strong> (belastingdruk slechts 9,0%).
+      </li>
+    </ul>
+
+    <h2>Netto salaris versus netto besteedbaar inkomen</h2>
+    <p>
+      Tot slot is er een cruciaal onderscheid tussen je netto salaris en je <em>netto besteedbaar inkomen</em>. Je netto salaris is het geld dat op je rekening binnenkomt. Je netto besteedbare inkomen is het bedrag dat overblijft nadat al je vaste lasten (huur of hypotheek, energie, zorgpremie en verzekeringen) van je inkomsten zijn afgetrokken.
+    </p>
+    <p>
+      Wil je weten hoeveel geld je daadwerkelijk vrij te besteden hebt na al je maandelijkse woon- en leeflasten? Bereken dit direct met onze calculator voor <a href="/netto-besteedbaar-inkomen-berekenen/">netto besteedbaar inkomen berekenen</a>.
+    </p>
+  </div>
+</CalculatorLayout>
