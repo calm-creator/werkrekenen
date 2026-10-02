@@ -1,0 +1,602 @@
+---
+// src/components/calculators/MinimumloonCalculator.astro
+import { DUTCH_RATES, MINIMUM_WAGE_RATES_2026 } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="minimumloon-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Gegevens invullen</h2>
+      <span class="rate-year-tag">Rijksoverheid {DUTCH_RATES.year}</span>
+    </div>
+
+    <!-- 1. Minimumloon vanaf (Periode) -->
+    <div class="form-group" style="margin-top: 1.25rem;">
+      <label for="select-period" class="form-label font-semibold">Minimumloon vanaf</label>
+      <select id="select-period" class="form-select">
+        <option value="2026-07" selected>1 juli 2026 (meest recent)</option>
+        <option value="2026-01">1 januari 2026</option>
+      </select>
+      <span class="form-hint">Het wettelijk minimumuurloon wordt halfjaarlijks geïndexeerd door de Rijksoverheid.</span>
+    </div>
+
+    <!-- 2. Leeftijd -->
+    <div class="form-group">
+      <label for="select-age" class="form-label font-semibold">Leeftijd</label>
+      <select id="select-age" class="form-select">
+        <option value="21+" selected>21 jaar of ouder (100% volwassen minimumloon)</option>
+        <option value="20">20 jaar (80% minimumjeugdloon)</option>
+        <option value="19">19 jaar (60% minimumjeugdloon)</option>
+        <option value="18">18 jaar (50% minimumjeugdloon)</option>
+        <option value="17">17 jaar (39,5% minimumjeugdloon)</option>
+        <option value="16">16 jaar (34,5% minimumjeugdloon)</option>
+        <option value="15">15 jaar (30% minimumjeugdloon)</option>
+      </select>
+      <span class="form-hint">Vanaf 21 jaar geldt het volledige minimumloon. Voor 15 t/m 20 jaar geldt het minimumjeugdloon.</span>
+    </div>
+
+    <!-- 3. BBL-opleiding -->
+    <div class="form-group">
+      <label for="select-bbl" class="form-label font-semibold">Is dit een BBL-opleiding?</label>
+      <select id="select-bbl" class="form-select">
+        <option value="no" selected>Nee (reguliere werknemer / bijbaan)</option>
+        <option value="yes">Ja (beroepsbegeleidende leerweg / BBL-leerling)</option>
+      </select>
+      <span class="form-hint" id="hint-bbl">
+        Voor leerlingen in de beroepsbegeleidende leerweg (BBL) van 18, 19 en 20 jaar gelden speciale wettelijke staffels.
+      </span>
+    </div>
+
+    <!-- 4. Urenperiode selector -->
+    <div class="form-group">
+      <label for="select-hours-frequency" class="form-label font-semibold">Hoeveel uur werk je?</label>
+      <select id="select-hours-frequency" class="form-select">
+        <option value="week" selected>Per week</option>
+        <option value="fourWeeks">Per 4 weken</option>
+        <option value="month">Per maand</option>
+      </select>
+      <span class="form-hint">Kies de periode waarin je contracturen of gewerkte uren zijn afgesproken.</span>
+    </div>
+
+    <!-- 5. Uren invoerveld -->
+    <div class="form-group">
+      <label for="input-hours" class="form-label" id="label-hours">Uren per week</label>
+      <input
+        type="number"
+        id="input-hours"
+        class="form-input"
+        min="0"
+        max="168"
+        step="0.5"
+        value="40"
+        placeholder="40"
+        aria-describedby="hint-hours"
+      />
+      <span class="form-hint" id="hint-hours">Voer je gemiddelde aantal werkuren per week in.</span>
+
+      <!-- Snelle keuzeknoppen -->
+      <div class="quick-pills" id="container-quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="btn-quick-hours" data-hours="24">24 uur</button>
+        <button type="button" class="btn-quick-hours" data-hours="32">32 uur</button>
+        <button type="button" class="btn-quick-hours" data-hours="36">36 uur</button>
+        <button type="button" class="btn-quick-hours" data-hours="38">38 uur</button>
+        <button type="button" class="btn-quick-hours active" data-hours="40">40 uur</button>
+      </div>
+    </div>
+
+    <!-- Actieknoppen -->
+    <div class="form-actions" style="margin-top: 1.5rem;">
+      <button type="button" id="btn-reset-minimumloon" class="btn btn-secondary btn-sm">
+        Standaardwaarden herstellen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart (Strict volgens WerkRekenen Design System) -->
+  <div class="calc-result-card" aria-live="polite">
+    <!-- Hero Resultaat -->
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label" id="res-hero-label">Wettelijk minimumuurloon</span>
+      <div class="result-hero-value" id="res-hero-hourly">€ 14,99</div>
+      <span class="result-hero-sub" id="res-hero-sub">Bruto per uur (1 juli 2026, 21 jaar of ouder)</span>
+    </div>
+
+    <!-- Belangrijke toelichting: geen vast maandbedrag sinds 2024 -->
+    <div class="callout callout-info" style="margin-top: 0.875rem; margin-bottom: 0.875rem; font-size: 0.8125rem; line-height: 1.5; padding: 0.75rem 0.875rem;">
+      <strong>Let op:</strong> Er is sinds 1 januari 2024 geen vast wettelijk minimumloon per maand, week of dag meer in Nederland. Het bedrag hangt volledig af van het aantal gewerkte uren.
+    </div>
+
+    <!-- Specificatie van de Berekening -->
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Geschat minimumloon op basis van je uren</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Minimumloon per week</span>
+        <span class="result-row-value font-medium" id="res-wage-weekly">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Minimumloon per 4 weken</span>
+        <span class="result-row-value font-medium" id="res-wage-four-weekly">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label font-bold">Geschat minimumloon per maand</span>
+        <span class="result-row-value font-bold text-primary" id="res-wage-monthly">€ 0,00</span>
+      </div>
+
+      <div class="result-row result-total" style="border-top: 2px solid var(--border-color); margin-top: 0.5rem; padding-top: 0.5rem;">
+        <span class="result-row-label font-bold">Geschat minimumloon per jaar</span>
+        <span class="result-row-value font-bold text-primary" id="res-wage-annual">€ 0,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+      <div class="result-subtitle" style="margin-top: 0.5rem;">Specificaties & staffel</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Geldende periode</span>
+        <span class="result-row-value" id="res-spec-period">1 juli 2026</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Leeftijd & Percentage</span>
+        <span class="result-row-value" id="res-spec-age">21+ jaar (100%)</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Type dienstverband</span>
+        <span class="result-row-value" id="res-spec-type">Regulier</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Arbeidsduur basis</span>
+        <span class="result-row-value" id="res-spec-hours">40 uur per week</span>
+      </div>
+    </div>
+
+    <!-- Uitklapbare uitleg "Hoe is dit berekend?" -->
+    <details class="advanced-details" style="margin-top: 1rem;">
+      <summary class="advanced-summary">
+        <span>Hoe is dit berekend?</span>
+        <svg class="summary-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </summary>
+      <div id="box-math-content" style="padding-top: 0.75rem; font-size: 0.8125rem; line-height: 1.55;">
+        <!-- Dynamisch gevuld via script -->
+      </div>
+    </details>
+
+    <!-- Informatief: Vakantiegeld en Netto Salaris -->
+    <div class="callout callout-subtle" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem 0.875rem;">
+      <strong>Vakantiegeld & Netto salaris:</strong>
+      <span style="display: block; margin-top: 0.25rem;">
+        Bovenop het wettelijk minimumloon heb je wettelijk recht op 8% vakantiebijslag (bereken dit via <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>). Wil je weten wat je netto op je bankrekening ontvangt? Gebruik onze rekentool voor <a href="/netto-salaris-berekenen/">netto salaris berekenen</a>.
+      </span>
+    </div>
+
+    <!-- Officiële disclaimer -->
+    <div class="calc-disclaimer" style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-subtle);">
+      <em>Deze calculator berekent het wettelijke minimumloon op basis van de door jou ingevulde leeftijd, arbeidsduur en gekozen periode. Je daadwerkelijke loon kan hoger zijn door je arbeidsovereenkomst, cao of andere loonafspraken. Deze calculator is geen officiële rekentool van de Rijksoverheid.</em>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('minimumloon-calc');
+    if (!calc) return;
+
+    // Minimum Wage Rates Configuration (Client-side mirror)
+    const RATES = {
+      '2026-07': {
+        label: '1 juli 2026',
+        rates: {
+          '21+': { label: '21 jaar of ouder', regularPercentage: 100, regularRate: 14.99, bblPercentage: 100, bblRate: 14.99 },
+          '20': { label: '20 jaar', regularPercentage: 80, regularRate: 11.99, bblPercentage: 61.5, bblRate: 9.22 },
+          '19': { label: '19 jaar', regularPercentage: 60, regularRate: 8.99, bblPercentage: 52.5, bblRate: 7.87 },
+          '18': { label: '18 jaar', regularPercentage: 50, regularRate: 7.50, bblPercentage: 45.5, bblRate: 6.82 },
+          '17': { label: '17 jaar', regularPercentage: 39.5, regularRate: 5.92, bblPercentage: 39.5, bblRate: 5.92 },
+          '16': { label: '16 jaar', regularPercentage: 34.5, regularRate: 5.17, bblPercentage: 34.5, bblRate: 5.17 },
+          '15': { label: '15 jaar', regularPercentage: 30, regularRate: 4.50, bblPercentage: 30, bblRate: 4.50 }
+        }
+      },
+      '2026-01': {
+        label: '1 januari 2026',
+        rates: {
+          '21+': { label: '21 jaar of ouder', regularPercentage: 100, regularRate: 14.71, bblPercentage: 100, bblRate: 14.71 },
+          '20': { label: '20 jaar', regularPercentage: 80, regularRate: 11.77, bblPercentage: 61.5, bblRate: 9.05 },
+          '19': { label: '19 jaar', regularPercentage: 60, regularRate: 8.83, bblPercentage: 52.5, bblRate: 7.72 },
+          '18': { label: '18 jaar', regularPercentage: 50, regularRate: 7.36, bblPercentage: 45.5, bblRate: 6.69 },
+          '17': { label: '17 jaar', regularPercentage: 39.5, regularRate: 5.81, bblPercentage: 39.5, bblRate: 5.81 },
+          '16': { label: '16 jaar', regularPercentage: 34.5, regularRate: 5.07, bblPercentage: 34.5, bblRate: 5.07 },
+          '15': { label: '15 jaar', regularPercentage: 30, regularRate: 4.41, bblPercentage: 30, bblRate: 4.41 }
+        }
+      }
+    };
+
+    // Form Elements
+    const selectPeriod = calc.querySelector('#select-period') as HTMLSelectElement;
+    const selectAge = calc.querySelector('#select-age') as HTMLSelectElement;
+    const selectBbl = calc.querySelector('#select-bbl') as HTMLSelectElement;
+    const selectHoursFrequency = calc.querySelector('#select-hours-frequency') as HTMLSelectElement;
+    const inputHours = calc.querySelector('#input-hours') as HTMLInputElement;
+    const labelHours = calc.querySelector('#label-hours') as HTMLElement;
+    const hintHours = calc.querySelector('#hint-hours') as HTMLElement;
+    const hintBbl = calc.querySelector('#hint-bbl') as HTMLElement;
+    const containerQuickPills = calc.querySelector('#container-quick-pills') as HTMLElement;
+    const btnReset = calc.querySelector('#btn-reset-minimumloon') as HTMLButtonElement;
+
+    // Result Elements
+    const resHeroHourly = calc.querySelector('#res-hero-hourly') as HTMLElement;
+    const resHeroSub = calc.querySelector('#res-hero-sub') as HTMLElement;
+    const resWageWeekly = calc.querySelector('#res-wage-weekly') as HTMLElement;
+    const resWageFourWeekly = calc.querySelector('#res-wage-four-weekly') as HTMLElement;
+    const resWageMonthly = calc.querySelector('#res-wage-monthly') as HTMLElement;
+    const resWageAnnual = calc.querySelector('#res-wage-annual') as HTMLElement;
+    const resSpecPeriod = calc.querySelector('#res-spec-period') as HTMLElement;
+    const resSpecAge = calc.querySelector('#res-spec-age') as HTMLElement;
+    const resSpecType = calc.querySelector('#res-spec-type') as HTMLElement;
+    const resSpecHours = calc.querySelector('#res-spec-hours') as HTMLElement;
+    const boxMathContent = calc.querySelector('#box-math-content') as HTMLElement;
+
+    const formatCurrency = (val: number): string => {
+      return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(val);
+    };
+
+    const formatNumber = (val: number, decimals: number = 2): string => {
+      return new Intl.NumberFormat('nl-NL', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }).format(val);
+    };
+
+    const round2 = (val: number): number => {
+      return Math.round((val + Number.EPSILON) * 100) / 100;
+    };
+
+    const updateQuickPills = () => {
+      const freq = selectHoursFrequency.value;
+      let pillsData: { hours: number; label: string; activeVal: number }[] = [];
+
+      if (freq === 'week') {
+        labelHours.textContent = 'Uren per week';
+        hintHours.textContent = 'Voer je gemiddelde aantal werkuren per week in.';
+        pillsData = [
+          { hours: 24, label: '24 uur', activeVal: 40 },
+          { hours: 32, label: '32 uur', activeVal: 40 },
+          { hours: 36, label: '36 uur', activeVal: 40 },
+          { hours: 38, label: '38 uur', activeVal: 40 },
+          { hours: 40, label: '40 uur', activeVal: 40 }
+        ];
+      } else if (freq === 'fourWeeks') {
+        labelHours.textContent = 'Uren per 4 weken';
+        hintHours.textContent = 'Voer je aantal werkuren per 4-wekelijkse salarisperiode in.';
+        pillsData = [
+          { hours: 96, label: '96 uur', activeVal: 160 },
+          { hours: 128, label: '128 uur', activeVal: 160 },
+          { hours: 144, label: '144 uur', activeVal: 160 },
+          { hours: 152, label: '152 uur', activeVal: 160 },
+          { hours: 160, label: '160 uur', activeVal: 160 }
+        ];
+      } else {
+        labelHours.textContent = 'Uren per maand';
+        hintHours.textContent = 'Voer je gemiddelde aantal werkuren per kalendermaand in.';
+        pillsData = [
+          { hours: 104, label: '104 uur', activeVal: 173.33 },
+          { hours: 138.67, label: '138,67 uur', activeVal: 173.33 },
+          { hours: 156, label: '156 uur', activeVal: 173.33 },
+          { hours: 164.67, label: '164,67 uur', activeVal: 173.33 },
+          { hours: 173.33, label: '173,33 uur', activeVal: 173.33 }
+        ];
+      }
+
+      containerQuickPills.innerHTML = pillsData
+        .map(
+          item =>
+            `<button type="button" class="btn-quick-hours ${parseFloat(inputHours.value) === item.hours ? 'active' : ''}" data-hours="${item.hours}">${item.label}</button>`
+        )
+        .join('');
+
+      // Re-bind pill clicks
+      containerQuickPills.querySelectorAll('.btn-quick-hours').forEach(btn => {
+        btn.addEventListener('click', () => {
+          containerQuickPills.querySelectorAll('.btn-quick-hours').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          inputHours.value = (btn as HTMLElement).dataset.hours || '40';
+          calculate();
+        });
+      });
+    };
+
+    const calculate = () => {
+      const periodKey = (selectPeriod.value === '2026-01' ? '2026-01' : '2026-07') as '2026-07' | '2026-01';
+      const ageKey = (selectAge.value || '21+') as keyof (typeof RATES)['2026-07']['rates'];
+      const isBbl = selectBbl.value === 'yes';
+      const freq = selectHoursFrequency.value as 'week' | 'fourWeeks' | 'month';
+
+      const periodConfig = RATES[periodKey];
+      const rateConfig = periodConfig.rates[ageKey] || periodConfig.rates['21+'];
+
+      const hourlyWage = isBbl ? rateConfig.bblRate : rateConfig.regularRate;
+      const percentage = isBbl ? rateConfig.bblPercentage : rateConfig.regularPercentage;
+
+      const rawHours = parseFloat(inputHours.value);
+      const inputHoursVal = isNaN(rawHours) ? 0 : Math.max(0, rawHours);
+
+      let weeklyWage = 0;
+      let fourWeeklyWage = 0;
+      let monthlyWage = 0;
+      let annualWage = 0;
+
+      let weeklyHours = 0;
+      let fourWeeklyHours = 0;
+      let monthlyHours = 0;
+
+      if (freq === 'week') {
+        weeklyHours = inputHoursVal;
+        fourWeeklyHours = round2(inputHoursVal * 4);
+        monthlyHours = round2((inputHoursVal * 52) / 12);
+
+        weeklyWage = round2(inputHoursVal * hourlyWage);
+        fourWeeklyWage = round2(weeklyWage * 4);
+        monthlyWage = round2((weeklyWage * 52) / 12);
+        annualWage = round2(weeklyWage * 52);
+      } else if (freq === 'fourWeeks') {
+        fourWeeklyHours = inputHoursVal;
+        weeklyHours = round2(inputHoursVal / 4);
+        monthlyHours = round2((weeklyHours * 52) / 12);
+
+        fourWeeklyWage = round2(inputHoursVal * hourlyWage);
+        weeklyWage = round2(fourWeeklyWage / 4);
+        monthlyWage = round2((weeklyWage * 52) / 12);
+        annualWage = round2(weeklyWage * 52);
+      } else {
+        monthlyHours = inputHoursVal;
+        weeklyHours = round2((inputHoursVal * 12) / 52);
+        fourWeeklyHours = round2(weeklyHours * 4);
+
+        monthlyWage = round2(inputHoursVal * hourlyWage);
+        annualWage = round2(monthlyWage * 12);
+        weeklyWage = round2(annualWage / 52);
+        fourWeeklyWage = round2(weeklyWage * 4);
+      }
+
+      // Update BBL hint
+      if (isBbl && (ageKey === '15' || ageKey === '16' || ageKey === '17' || ageKey === '21+')) {
+        hintBbl.textContent = 'Voor 15-17 jaar en 21+ geldt bij BBL hetzelfde minimumloon als voor reguliere werknemers.';
+      } else if (isBbl) {
+        hintBbl.textContent = `Voor BBL-leerlingen van ${rateConfig.label} geldt de wettelijke BBL-staffel van ${formatNumber(percentage, 1)}%.`;
+      } else {
+        hintBbl.textContent = 'Voor BBL-leerlingen van 18, 19 en 20 jaar geldt een afwijkende wettelijke staffel.';
+      }
+
+      // Update Hero
+      resHeroHourly.textContent = `${formatCurrency(hourlyWage)}`;
+      resHeroSub.textContent = `Bruto per uur (${periodConfig.label}, ${rateConfig.label}${isBbl ? ' - BBL' : ''})`;
+
+      // Update Breakdown
+      resWageWeekly.textContent = formatCurrency(weeklyWage);
+      resWageFourWeekly.textContent = formatCurrency(fourWeeklyWage);
+      resWageMonthly.textContent = formatCurrency(monthlyWage);
+      resWageAnnual.textContent = formatCurrency(annualWage);
+
+      // Update Specifications
+      resSpecPeriod.textContent = periodConfig.label;
+      resSpecAge.textContent = `${rateConfig.label} (${formatNumber(percentage, 1).replace('.', ',')}%)`;
+      resSpecType.textContent = isBbl ? 'BBL-opleiding' : 'Regulier dienstverband';
+
+      if (freq === 'week') {
+        resSpecHours.textContent = `${formatNumber(inputHoursVal, 1).replace(',0', '')} uur per week`;
+      } else if (freq === 'fourWeeks') {
+        resSpecHours.textContent = `${formatNumber(inputHoursVal, 1).replace(',0', '')} uur per 4 weken`;
+      } else {
+        resSpecHours.textContent = `${formatNumber(inputHoursVal, 1).replace(',0', '')} uur per maand`;
+      }
+
+      // Update Math explanation
+      let mathContent = `
+        <p><strong>1. Wettelijk minimumuurloon:</strong><br />
+        Gekozen periode: <strong>${periodConfig.label}</strong>.<br />
+        Leeftijdscategorie: <strong>${rateConfig.label}</strong> ${isBbl ? '(BBL-staffel)' : '(reguliere staffel)'}.<br />
+        Staffelpercentage: <code>${formatNumber(percentage, 1)}%</code> van het volwassen minimumloon (€ ${periodKey === '2026-07' ? '14,99' : '14,71'}).<br />
+        → <strong>Wettelijk minimumuurloon = ${formatCurrency(hourlyWage)} bruto per uur</strong>.</p>
+
+        <p style="margin-top: 0.5rem;"><strong>2. Berekening op basis van ${formatNumber(inputHoursVal, 1).replace(',0', '')} gewerkte uren:</strong><br />
+      `;
+
+      if (freq === 'week') {
+        mathContent += `
+          • Per week: <code>${formatNumber(inputHoursVal, 1)} uur × ${formatCurrency(hourlyWage)} = ${formatCurrency(weeklyWage)}</code><br />
+          • Per 4 weken: <code>${formatCurrency(weeklyWage)} × 4 = ${formatCurrency(fourWeeklyWage)}</code><br />
+          • Per maand (wettelijke formule): <code>(${formatCurrency(weeklyWage)} × 52 weken) ÷ 12 maanden = ${formatCurrency(monthlyWage)}</code><br />
+          • Per jaar: <code>${formatCurrency(weeklyWage)} × 52 weken = ${formatCurrency(annualWage)}</code>
+        `;
+      } else if (freq === 'fourWeeks') {
+        mathContent += `
+          • Per 4 weken: <code>${formatNumber(inputHoursVal, 1)} uur × ${formatCurrency(hourlyWage)} = ${formatCurrency(fourWeeklyWage)}</code><br />
+          • Per week: <code>${formatCurrency(fourWeeklyWage)} ÷ 4 = ${formatCurrency(weeklyWage)}</code><br />
+          • Per maand: <code>(${formatCurrency(weeklyWage)} × 52 weken) ÷ 12 maanden = ${formatCurrency(monthlyWage)}</code><br />
+          • Per jaar: <code>${formatCurrency(weeklyWage)} × 52 weken = ${formatCurrency(annualWage)}</code>
+        `;
+      } else {
+        mathContent += `
+          • Per maand: <code>${formatNumber(inputHoursVal, 1)} uur × ${formatCurrency(hourlyWage)} = ${formatCurrency(monthlyWage)}</code><br />
+          • Per jaar: <code>${formatCurrency(monthlyWage)} × 12 maanden = ${formatCurrency(annualWage)}</code><br />
+          • Per week: <code>${formatCurrency(annualWage)} ÷ 52 weken = ${formatCurrency(weeklyWage)}</code><br />
+          • Per 4 weken: <code>${formatCurrency(weeklyWage)} × 4 = ${formatCurrency(fourWeeklyWage)}</code>
+        `;
+      }
+
+      mathContent += `</p>
+        <p style="margin-top: 0.5rem; font-size: 0.775rem; color: var(--text-subtle);">
+          <em>Let op: Bovenop dit minimumloon bouwt elke werknemer wettelijk minimaal 8% vakantiebijslag op.</em>
+        </p>
+      `;
+
+      boxMathContent.innerHTML = mathContent;
+    };
+
+    // Event Listeners (LIVE calculation, NO calculate button)
+    ['change'].forEach(evt => {
+      selectPeriod.addEventListener(evt, calculate);
+      selectAge.addEventListener(evt, calculate);
+      selectBbl.addEventListener(evt, calculate);
+      selectHoursFrequency.addEventListener(evt, () => {
+        // Set sensible defaults when changing frequency
+        if (selectHoursFrequency.value === 'week') {
+          inputHours.value = '40';
+        } else if (selectHoursFrequency.value === 'fourWeeks') {
+          inputHours.value = '160';
+        } else {
+          inputHours.value = '173.33';
+        }
+        updateQuickPills();
+        calculate();
+      });
+    });
+
+    ['input', 'change'].forEach(evt => {
+      inputHours.addEventListener(evt, () => {
+        // Unset pill active state if custom number typed
+        containerQuickPills.querySelectorAll('.btn-quick-hours').forEach(btn => {
+          const btnVal = parseFloat((btn as HTMLElement).dataset.hours || '-1');
+          btn.classList.toggle('active', btnVal === parseFloat(inputHours.value));
+        });
+        calculate();
+      });
+    });
+
+    // Reset button
+    btnReset.addEventListener('click', () => {
+      selectPeriod.value = '2026-07';
+      selectAge.value = '21+';
+      selectBbl.value = 'no';
+      selectHoursFrequency.value = 'week';
+      inputHours.value = '40';
+
+      updateQuickPills();
+      calculate();
+    });
+
+    // Initial load
+    updateQuickPills();
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #1d4ed8);
+    background-color: var(--color-primary-light, #eff6ff);
+    border-radius: 9999px;
+  }
+
+  .btn-quick-hours {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-main);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-quick-hours:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .btn-quick-hours.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+  }
+
+  .advanced-details {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    background-color: var(--bg-subtle);
+  }
+
+  .advanced-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  .advanced-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .advanced-details[open] .summary-chevron {
+    transform: rotate(180deg);
+  }
+
+  .result-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .font-medium {
+    font-weight: 600;
+  }
+
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

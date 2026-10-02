@@ -52,7 +52,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken direct je bruto uurloon vanuit je maand- of jaarsalaris. Inclusief instelbare werkweek (36, 38 of 40 uur) en Nederlandse CAO-normen.',
     icon: 'coins',
     popular: true,
-    relatedSlugs: ['uurloon-naar-maandloon-berekenen', 'parttime-salaris-berekenen', 'vakantiegeld-berekenen']
+    relatedSlugs: ['uurloon-naar-maandloon-berekenen', 'dagloon-berekenen', 'parttime-salaris-berekenen', 'vakantiegeld-berekenen']
   },
   {
     id: 'reiskostenvergoeding',
@@ -364,7 +364,7 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken direct je geschatte netto salaris in 2026 uit je bruto salaris. Inclusief loonheffingskorting, pensioenpremie, vakantiegeld en 13e maand.',
     icon: 'coins',
     popular: true,
-    relatedSlugs: ['jaarinkomen-berekenen', 'netto-besteedbaar-inkomen-berekenen', 'uurloon-naar-maandloon-berekenen', 'vakantiegeld-berekenen']
+    relatedSlugs: ['dagloon-berekenen', 'jaarinkomen-berekenen', 'netto-besteedbaar-inkomen-berekenen', 'uurloon-naar-maandloon-berekenen']
   },
   {
     id: 'jaarinkomen',
@@ -377,7 +377,59 @@ export const CALCULATORS: CalculatorMeta[] = [
     metaDescription: 'Bereken direct je bruto jaarinkomen en geschat netto jaarloon in 2026. Inclusief vakantiegeld, dertiende maand, bonus en omrekening per maand, 4 weken of uur.',
     icon: 'coins',
     popular: true,
-    relatedSlugs: ['netto-salaris-berekenen', 'vakantiegeld-berekenen', '13e-maand-berekenen', 'uurloon-naar-maandloon-berekenen']
+    relatedSlugs: ['netto-salaris-berekenen', 'dagloon-berekenen', 'vakantiegeld-berekenen', '13e-maand-berekenen']
+  },
+  {
+    id: 'dagloon',
+    slug: 'dagloon-berekenen',
+    title: 'Dagloon berekenen',
+    shortTitle: 'Dagloon',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken direct je gemiddeld bruto dagloon of je officiële UWV-dagloon voor WW, Ziektewet, WIA of WAO in 2026. Inclusief SV-loon, referteperiode en maximumdagloon.',
+    metaDescription: 'Bereken eenvoudig je bruto dagloon en UWV-dagloon voor WW, Ziektewet of WIA in 2026. Inclusief SV-loon, vakantiegeld, 261 dagloondagen en het maximumdagloon van € 309,91.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['ww-berekenen', 'netto-salaris-berekenen', 'uurloon-berekenen', 'jaarinkomen-berekenen', 'transitievergoeding-berekenen']
+  },
+  {
+    id: 'ww',
+    slug: 'ww-berekenen',
+    title: 'WW berekenen',
+    shortTitle: 'WW-uitkering',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken eenvoudig en snel de geschatte hoogte en duur van je WW-uitkering in 2026. Inclusief WW-dagloon, wekeneis, jareneis, arbeidsverleden en maximumdagloon.',
+    metaDescription: 'Bereken eenvoudig de hoogte en duur van je WW-uitkering in 2026. Bereken je WW-dagloon, maandloon (75% en 70%), wekeneis, jareneis, arbeidsverleden en werken naast je WW.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['dagloon-berekenen', 'arbeidsverleden-berekenen', 'opzegtermijn-berekenen', 'transitievergoeding-berekenen', 'netto-salaris-berekenen']
+  },
+  {
+    id: 'minimumloon',
+    slug: 'minimumloon-berekenen',
+    title: 'Minimumloon berekenen',
+    shortTitle: 'Minimumloon',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken direct je wettelijk minimumuurloon en minimumloon per week, 4 weken, maand en jaar in 2026. Inclusief minimumjeugdloon (15-20 jaar) en BBL.',
+    metaDescription: 'Bereken eenvoudig je wettelijk minimumloon in 2026 per uur, week, 4 weken en maand. Actuele Rijksoverheid bedragen per 1 januari en 1 juli 2026, inclusief jeugdloon en BBL.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['uurloon-berekenen', 'netto-salaris-berekenen', 'uurloon-naar-maandloon-berekenen', 'jaarinkomen-berekenen', 'parttime-salaris-berekenen']
+  },
+  {
+    id: 'arbeidskorting',
+    slug: 'arbeidskorting-berekenen',
+    title: 'Arbeidskorting berekenen',
+    shortTitle: 'Arbeidskorting',
+    category: 'salaris',
+    categoryTitle: 'Salaris & loon',
+    description: 'Bereken eenvoudig en snel je geschatte arbeidskorting voor 2026 volgens de officiële Belastingdienst tabellen. Inclusief AOW-situaties en afbouw.',
+    metaDescription: 'Bereken direct je arbeidskorting in 2026. Bekijk de officiële Belastingdienst tabel, maximale korting (€ 5.685), afbouw en invloed op je netto salaris en belastingaangifte.',
+    icon: 'coins',
+    popular: true,
+    relatedSlugs: ['netto-salaris-berekenen', 'jaarinkomen-berekenen', 'minimumloon-berekenen', 'uurloon-berekenen', 'netto-besteedbaar-inkomen-berekenen']
   }
 ];
 

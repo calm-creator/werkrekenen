@@ -1,0 +1,922 @@
+---
+// src/components/calculators/WwCalculator.astro
+import { DUTCH_RATES } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="ww-calc" data-max-dagloon={DUTCH_RATES.uwvRates.maxDagloon}>
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Gegevens invullen</h2>
+      <span class="rate-year-tag">UWV normen {DUTCH_RATES.year}</span>
+    </div>
+
+    <!-- 1. Wat wil je berekenen? -->
+    <div class="form-group" style="margin-top: 1.25rem;">
+      <label for="select-calc-goal" class="form-label font-semibold">Wat wil je berekenen?</label>
+      <select id="select-calc-goal" class="form-select">
+        <option value="both" selected>Hoogte en duur van mijn WW-uitkering</option>
+        <option value="amount">Alleen hoogte van mijn WW-uitkering</option>
+        <option value="duration">Alleen duur van mijn WW-uitkering</option>
+      </select>
+      <span class="form-hint">Kies of je de hoogte, de duur of beide tegelijk wilt schatten.</span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DEEL 1: HOOGTE VAN DE WW                   -->
+    <!-- ========================================== -->
+    <div id="section-ww-amount">
+      <!-- SV-loon invoer (Standaard) -->
+      <div id="group-sv-loon" class="form-group">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.25rem;">
+          <label for="input-sv-loon" class="form-label" style="margin-bottom: 0;">SV-loon in de referteperiode (€)</label>
+          <button type="button" id="btn-toggle-salary-mode" class="text-xs text-primary" style="background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline;">
+            SV-loon niet bekend?
+          </button>
+        </div>
+        <input
+          type="number"
+          id="input-sv-loon"
+          class="form-input"
+          min="0"
+          step="250"
+          value="36000"
+          placeholder="36000"
+          aria-describedby="hint-sv-loon"
+        />
+        <span class="form-hint" id="hint-sv-loon">
+          Je SV-loon vind je onder <em>Loongegevens</em> in Mijn UWV (totaal over het refertejaar).
+        </span>
+
+        <!-- Snelle keuzeknoppen -->
+        <div class="quick-pills" style="margin-top: 0.5rem;">
+          <button type="button" class="btn-quick-sv" data-amount="24000">€ 24.000</button>
+          <button type="button" class="btn-quick-sv active" data-amount="36000">€ 36.000</button>
+          <button type="button" class="btn-quick-sv" data-amount="48000">€ 48.000</button>
+          <button type="button" class="btn-quick-sv" data-amount="60000">€ 60.000</button>
+          <button type="button" class="btn-quick-sv" data-amount="85000">€ 85.000</button>
+        </div>
+      </div>
+
+      <!-- Alternatief: Bruto salaris (wanneer SV-loon niet bekend is) -->
+      <div id="group-gross-salary" class="form-group" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.25rem;">
+          <label for="input-gross-salary" class="form-label" style="margin-bottom: 0;">Bruto salaris per maand (€)</label>
+          <button type="button" id="btn-back-to-sv" class="text-xs text-primary" style="background: none; border: none; padding: 0; cursor: pointer; text-decoration: underline;">
+            Terug naar SV-loon
+          </button>
+        </div>
+        <input
+          type="number"
+          id="input-gross-salary"
+          class="form-input"
+          min="0"
+          step="100"
+          value="3000"
+          placeholder="3000"
+        />
+
+        <div style="margin-top: 0.75rem;">
+          <label for="select-salary-period" class="form-label">Salarisperiode</label>
+          <select id="select-salary-period" class="form-select">
+            <option value="month" selected>Per maand (12 perioden)</option>
+            <option value="4weeks">Per 4 weken (13 perioden)</option>
+          </select>
+        </div>
+
+        <div class="callout callout-warning" style="margin-top: 0.75rem; font-size: 0.8125rem; padding: 0.65rem 0.75rem;">
+          <strong>Let op:</strong> Een schatting op basis van je bruto salaris kan afwijken van het officiële dagloon van UWV.
+        </div>
+      </div>
+
+      <!-- Datum eerste werkloosheidsdag -->
+      <div class="form-group">
+        <label for="input-unemployment-date" class="form-label">Datum eerste werkloosheidsdag</label>
+        <input
+          type="date"
+          id="input-unemployment-date"
+          class="form-input"
+        />
+        <span class="form-hint" id="text-ref-period-preview">
+          Bepaalt de referteperiode (12 volle kalendermaanden vóór de voorlaatste maand).
+        </span>
+      </div>
+
+      <!-- Uitklapbaar: Werken tijdens WW -->
+      <details class="advanced-details" style="margin-top: 1.25rem;">
+        <summary class="advanced-summary">
+          <span>Werken naast je WW-uitkering (inkomstenverrekening)</span>
+          <svg class="summary-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </summary>
+        <div style="padding-top: 0.75rem;">
+          <div class="form-group" style="margin-bottom: 0.75rem;">
+            <label for="select-work-on-ww" class="form-label">Ga je werken tijdens je WW?</label>
+            <select id="select-work-on-ww" class="form-select">
+              <option value="no" selected>Nee, voorlopig geen inkomsten uit werk</option>
+              <option value="yes">Ja, ik verwacht (deeltijd) te gaan werken</option>
+            </select>
+          </div>
+          <div id="group-expected-income" class="form-group" style="display: none; margin-bottom: 0;">
+            <label for="input-expected-income" class="form-label">Verwacht bruto inkomen per maand (€)</label>
+            <input
+              type="number"
+              id="input-expected-income"
+              class="form-input"
+              min="0"
+              step="50"
+              value="0"
+              placeholder="1000"
+            />
+            <span class="form-hint">UWV vult 75% (mnd 1-2) of 70% (vanaf mnd 3) van het inkomensverlies aan.</span>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- DEEL 2: DUUR EN VOORWAARDEN VAN DE WW       -->
+    <!-- ========================================== -->
+    <div id="section-ww-duration">
+      <!-- Vraag 1: Wekeneis -->
+      <div class="form-group" style="margin-top: 1rem;">
+        <label for="select-wekeneis" class="form-label">
+          In laatste 36 weken minimaal 26 weken gewerkt? (Wekeneis)
+        </label>
+        <select id="select-wekeneis" class="form-select">
+          <option value="yes" selected>Ja (minimaal 26 weken gewerkt)</option>
+          <option value="no">Nee (minder dan 26 weken)</option>
+          <option value="unknown">Weet ik niet zeker</option>
+        </select>
+        <span class="form-hint">Gewerkte uren per week maken niet uit; ook 1 uur telt als gewerkte week.</span>
+      </div>
+
+      <!-- Vraag 2: Jareneis -->
+      <div class="form-group">
+        <label for="select-jareneis" class="form-label">
+          In laatste 5 jaar minimaal 4 jaar gewerkt? (Jareneis)
+        </label>
+        <select id="select-jareneis" class="form-select">
+          <option value="yes" selected>Ja (in minstens 4 kalenderjaren gewerkt)</option>
+          <option value="no">Nee (in minder dan 4 kalenderjaren)</option>
+          <option value="unknown">Weet ik niet zeker</option>
+        </select>
+        <span class="form-hint">Bepaalt of je WW langer duurt dan de basisduur van 3 maanden.</span>
+      </div>
+
+      <!-- Vraag 3: Arbeidsverleden -->
+      <div class="form-group">
+        <label for="input-employment-years" class="form-label">
+          Aantal jaren arbeidsverleden
+        </label>
+        <input
+          type="number"
+          id="input-employment-years"
+          class="form-input"
+          min="0"
+          max="50"
+          value="8"
+          placeholder="8"
+        />
+        <span class="form-hint">
+          Kalenderjaren vóór het jaar van werkloosheid. Zie ook <a href="/arbeidsverleden-berekenen/">arbeidsverleden berekenen</a>.
+        </span>
+      </div>
+
+      <!-- Vraag 4: Verwijtbare werkloosheid -->
+      <div class="form-group">
+        <label for="select-involuntary" class="form-label">
+          Buiten eigen schuld werkloos geworden?
+        </label>
+        <select id="select-involuntary" class="form-select">
+          <option value="yes" selected>Ja (ontslag door werkgever, einde contract of neutrale VSO)</option>
+          <option value="no">Nee (zelf ontslag genomen of dringende reden)</option>
+          <option value="unknown">Weet ik niet / twijfelgeval</option>
+        </select>
+        <span class="form-hint">Bij verwijtbare werkloosheid kan UWV de uitkering weigeren.</span>
+      </div>
+
+      <!-- Fictieve opzegtermijn notitie -->
+      <div class="callout callout-subtle" style="font-size: 0.8125rem; padding: 0.65rem 0.75rem; margin-top: 0.75rem;">
+        <strong>Opzegtermijn:</strong> Je WW start mogelijk pas na afloop van de fictieve opzegtermijn. Bereken dit via <a href="/opzegtermijn-berekenen/">opzegtermijn berekenen</a>.
+      </div>
+    </div>
+
+    <!-- Actieknoppen -->
+    <div class="form-actions" style="margin-top: 1.5rem;">
+      <button type="button" id="btn-reset-ww" class="btn btn-secondary btn-sm">
+        Standaardwaarden herstellen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart (Strict volgens WerkRekenen Design System) -->
+  <div class="calc-result-card" aria-live="polite">
+    <!-- Hero Resultaat -->
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label" id="res-hero-label">Geschatte bruto WW-uitkering</span>
+      <div class="result-hero-value" id="res-hero-amount">€ 0,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">Eerste 2 maanden: 75% van WW-maandloon</span>
+    </div>
+
+    <!-- Alert bij Maximumdagloon -->
+    <div id="box-max-dagloon-alert" class="callout callout-warning" style="display: none; margin-top: 0.75rem; font-size: 0.8125rem; padding: 0.75rem;">
+      <strong>Maximumdagloon toegepast ({DUTCH_RATES.year}):</strong> Gemaximeerd op € {DUTCH_RATES.uwvRates.maxDagloon.toFixed(2).replace('.', ',')} bruto per dag.
+    </div>
+
+    <!-- Statusbadge Voorwaarden Toetsing (Stijl conform TransitievergoedingCalculator) -->
+    <div id="eligibility-card" class="eligibility-notice" style="margin-top: 0.75rem; padding: 0.875rem; border-radius: 0.5rem; font-size: 0.8125rem; line-height: 1.5;">
+      <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+        <span id="eligibility-badge" class="badge badge-success" style="font-weight: 700; font-size: 0.75rem; padding: 0.2rem 0.55rem; border-radius: 9999px;">
+          Voldoet waarschijnlijk
+        </span>
+      </div>
+      <p id="eligibility-explanation" style="margin: 0; color: inherit;"></p>
+    </div>
+
+    <!-- Specificatie van de Berekening -->
+    <div class="result-breakdown" id="result-breakdown-box">
+      <!-- Deel A: Hoogte Uitkering -->
+      <div id="breakdown-amount-part">
+        <div class="result-subtitle">Hoogte van de uitkering (bruto)</div>
+
+        <div class="result-row">
+          <span class="result-row-label">WW-dagloon (deler 261 dagen)</span>
+          <span class="result-row-value font-medium" id="res-dagloon">€ 0,00</span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-row-label">WW-maandloon (dagloon × 21,75)</span>
+          <span class="result-row-value font-medium" id="res-maandloon">€ 0,00</span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-row-label font-bold">Uitkering maand 1 & 2 (75%)</span>
+          <span class="result-row-value font-bold text-primary" id="res-month-1-2">€ 0,00</span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-row-label font-bold">Uitkering vanaf maand 3 (70%)</span>
+          <span class="result-row-value font-bold" id="res-month-3-plus">€ 0,00</span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-row-label">Geschat bruto per week (mnd 1-2)</span>
+          <span class="result-row-value" id="res-weekly-1-2">€ 0,00</span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-row-label">Geschat bruto per week (vanaf mnd 3)</span>
+          <span class="result-row-value" id="res-weekly-3-plus">€ 0,00</span>
+        </div>
+
+        <!-- Werken tijdens WW -->
+        <div id="box-work-results" style="display: none;">
+          <div class="result-section-divider"></div>
+          <div class="result-subtitle" style="margin-top: 0.5rem;">Inkomstenverrekening met werk</div>
+
+          <div class="result-row">
+            <span class="result-row-label">Inkomsten uit werk per maand</span>
+            <span class="result-row-value" id="res-work-income">€ 0,00</span>
+          </div>
+
+          <div class="result-row">
+            <span class="result-row-label">Resterende WW maand 1-2</span>
+            <span class="result-row-value font-medium text-primary" id="res-work-benefit-1-2">€ 0,00</span>
+          </div>
+
+          <div class="result-row">
+            <span class="result-row-label">Resterende WW vanaf maand 3</span>
+            <span class="result-row-value font-medium text-primary" id="res-work-benefit-3-plus">€ 0,00</span>
+          </div>
+
+          <div class="result-row result-total" style="border-top: 2px solid var(--border-color); margin-top: 0.5rem; padding-top: 0.5rem;">
+            <span class="result-row-label font-bold">Totaal bruto per maand (werk + WW)</span>
+            <span class="result-row-value font-bold text-primary" id="res-total-income-1-2">€ 0,00</span>
+          </div>
+
+          <!-- Alert 87,5% drempel -->
+          <div id="alert-87half-percent" class="callout callout-warning" style="display: none; margin-top: 0.75rem; font-size: 0.8125rem; padding: 0.65rem 0.75rem;">
+            <strong>Drempel overschreden (&gt; 87,5%):</strong> Je inkomsten uit werk zijn hoger dan 87,5% van je WW-maandloon. Als je dit 2 opeenvolgende maanden verdient, stopt je WW-uitkering.
+          </div>
+        </div>
+      </div>
+
+      <!-- Deel B: Duur & Arbeidsverleden -->
+      <div id="breakdown-duration-part">
+        <div class="result-section-divider" id="divider-duration"></div>
+        <div class="result-subtitle" style="margin-top: 0.5rem;">Duur & arbeidsverleden</div>
+
+        <div class="result-row">
+          <span class="result-row-label">Wekeneis (26 uit 36 weken)</span>
+          <span class="result-row-value font-medium" id="res-check-weken">Voldaan</span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-row-label">Jareneis (4 uit 5 kalenderjaren)</span>
+          <span class="result-row-value font-medium" id="res-check-jaren">Voldaan</span>
+        </div>
+
+        <div class="result-row">
+          <span class="result-row-label">Totale duur arbeidsverleden</span>
+          <span class="result-row-value" id="res-employment-history">0 jaar</span>
+        </div>
+
+        <div class="result-row result-total" style="border-top: 2px solid var(--border-color); margin-top: 0.5rem; padding-top: 0.5rem;">
+          <span class="result-row-label font-bold">Geschatte totale WW-duur</span>
+          <span class="result-row-value font-bold text-primary" id="res-total-duration">0 maanden</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Uitklapbare uitleg "Hoe is dit berekend?" -->
+    <details class="advanced-details" style="margin-top: 1rem;">
+      <summary class="advanced-summary">
+        <span>Hoe is dit berekend?</span>
+        <svg class="summary-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </summary>
+      <div id="box-math-content" style="padding-top: 0.75rem; font-size: 0.8125rem; line-height: 1.55;">
+        <!-- Dynamisch gevuld via script -->
+      </div>
+    </details>
+
+    <!-- Informatief: Netto WW en Loonheffingskorting -->
+    <div class="callout callout-info" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem 0.875rem;">
+      <strong>Wil je weten wat je netto ontvangt?</strong>
+      <span style="display: block; margin-top: 0.25rem;">
+        Bekijk hiervoor je betaalspecificatie in Mijn UWV. Het exacte nettobedrag hangt af van je loonbelasting, inhoudingen en of je de loonheffingskorting toepast.
+      </span>
+    </div>
+
+    <!-- Garantiedagloon Informatie -->
+    <div class="callout callout-subtle" style="margin-top: 0.75rem; font-size: 0.775rem; padding: 0.65rem 0.75rem;">
+      <strong>Eerder een baan gehad met een hoger loon?</strong> Een garantiedagloon kan in bepaalde situaties gelden. Deze calculator houdt daar niet automatisch rekening mee.
+    </div>
+
+    <!-- Officiële disclaimer -->
+    <div class="calc-disclaimer" style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-subtle);">
+      <em>Deze calculator geeft een schatting van de hoogte en duur van je WW-uitkering op basis van de door jou ingevulde gegevens. De officiële berekening en beslissing worden door UWV gemaakt. Deze calculator is geen officiële UWV-rekentool.</em>
+    </div>
+  </div>
+</div>
+
+<script>
+  (() => {
+    const calc = document.getElementById('ww-calc');
+    if (!calc) return;
+
+    const maxDagloonConst = parseFloat(calc.dataset.maxDagloon || '309.91');
+
+    // Goal selector
+    const selectCalcGoal = calc.querySelector('#select-calc-goal') as HTMLSelectElement;
+
+    // Form containers
+    const sectionAmount = calc.querySelector('#section-ww-amount') as HTMLElement;
+    const sectionDuration = calc.querySelector('#section-ww-duration') as HTMLElement;
+    const breakdownAmountPart = calc.querySelector('#breakdown-amount-part') as HTMLElement;
+    const breakdownDurationPart = calc.querySelector('#breakdown-duration-part') as HTMLElement;
+    const dividerDuration = calc.querySelector('#divider-duration') as HTMLElement;
+
+    // Amount Form Elements
+    const btnToggleSalaryMode = calc.querySelector('#btn-toggle-salary-mode') as HTMLButtonElement;
+    const btnBackToSv = calc.querySelector('#btn-back-to-sv') as HTMLButtonElement;
+    const groupSvLoon = calc.querySelector('#group-sv-loon') as HTMLElement;
+    const groupGrossSalary = calc.querySelector('#group-gross-salary') as HTMLElement;
+    const inputSvLoon = calc.querySelector('#input-sv-loon') as HTMLInputElement;
+    const inputGrossSalary = calc.querySelector('#input-gross-salary') as HTMLInputElement;
+    const selectSalaryPeriod = calc.querySelector('#select-salary-period') as HTMLSelectElement;
+    const inputUnemploymentDate = calc.querySelector('#input-unemployment-date') as HTMLInputElement;
+    const textRefPeriodPreview = calc.querySelector('#text-ref-period-preview') as HTMLElement;
+    const quickSvButtons = calc.querySelectorAll('.btn-quick-sv') as NodeListOf<HTMLButtonElement>;
+
+    // Work on WW
+    const selectWorkOnWw = calc.querySelector('#select-work-on-ww') as HTMLSelectElement;
+    const groupExpectedIncome = calc.querySelector('#group-expected-income') as HTMLElement;
+    const inputExpectedIncome = calc.querySelector('#input-expected-income') as HTMLInputElement;
+
+    // Duration Form Elements
+    const selectWekeneis = calc.querySelector('#select-wekeneis') as HTMLSelectElement;
+    const selectJareneis = calc.querySelector('#select-jareneis') as HTMLSelectElement;
+    const inputEmploymentYears = calc.querySelector('#input-employment-years') as HTMLInputElement;
+    const selectInvoluntary = calc.querySelector('#select-involuntary') as HTMLSelectElement;
+
+    // Actions
+    const btnResetWw = calc.querySelector('#btn-reset-ww') as HTMLButtonElement;
+
+    // Result Elements
+    const resHeroLabel = calc.querySelector('#res-hero-label') as HTMLElement;
+    const resHeroAmount = calc.querySelector('#res-hero-amount') as HTMLElement;
+    const resHeroSub = calc.querySelector('#res-hero-sub') as HTMLElement;
+    const boxMaxDagloonAlert = calc.querySelector('#box-max-dagloon-alert') as HTMLElement;
+
+    // Eligibility Card
+    const eligibilityCard = calc.querySelector('#eligibility-card') as HTMLElement;
+    const eligibilityBadge = calc.querySelector('#eligibility-badge') as HTMLElement;
+    const eligibilityExplanation = calc.querySelector('#eligibility-explanation') as HTMLElement;
+
+    // Breakdown Elements
+    const resDagloon = calc.querySelector('#res-dagloon') as HTMLElement;
+    const resMaandloon = calc.querySelector('#res-maandloon') as HTMLElement;
+    const resMonth12 = calc.querySelector('#res-month-1-2') as HTMLElement;
+    const resMonth3Plus = calc.querySelector('#res-month-3-plus') as HTMLElement;
+    const resWeekly12 = calc.querySelector('#res-weekly-1-2') as HTMLElement;
+    const resWeekly3Plus = calc.querySelector('#res-weekly-3-plus') as HTMLElement;
+
+    // Work Results
+    const boxWorkResults = calc.querySelector('#box-work-results') as HTMLElement;
+    const resWorkIncome = calc.querySelector('#res-work-income') as HTMLElement;
+    const resWorkBenefit12 = calc.querySelector('#res-work-benefit-1-2') as HTMLElement;
+    const resWorkBenefit3Plus = calc.querySelector('#res-work-benefit-3-plus') as HTMLElement;
+    const resTotalIncome12 = calc.querySelector('#res-total-income-1-2') as HTMLElement;
+    const alert87halfPercent = calc.querySelector('#alert-87half-percent') as HTMLElement;
+
+    // Duration Results
+    const resCheckWeken = calc.querySelector('#res-check-weken') as HTMLElement;
+    const resCheckJaren = calc.querySelector('#res-check-jaren') as HTMLElement;
+    const resEmploymentHistory = calc.querySelector('#res-employment-history') as HTMLElement;
+    const resTotalDuration = calc.querySelector('#res-total-duration') as HTMLElement;
+    const boxMathContent = calc.querySelector('#box-math-content') as HTMLElement;
+
+    let isGrossMode = false;
+
+    // Default Date to today
+    const today = new Date();
+    const toIsoDate = (d: Date) => d.toISOString().split('T')[0];
+    if (inputUnemploymentDate && !inputUnemploymentDate.value) {
+      inputUnemploymentDate.value = toIsoDate(today);
+    }
+
+    const formatCurrency = (val: number): string => {
+      return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(val);
+    };
+
+    const updateReferencePeriodHelper = () => {
+      const dateVal = inputUnemploymentDate.value;
+      if (!dateVal) {
+        textRefPeriodPreview.textContent = 'Bepaalt de referteperiode (12 volle kalendermaanden vóór de voorlaatste maand).';
+        return;
+      }
+      const refDate = new Date(dateVal);
+      if (isNaN(refDate.getTime())) return;
+
+      const monthNames = [
+        'januari', 'februari', 'maart', 'april', 'mei', 'juni',
+        'juli', 'augustus', 'september', 'oktober', 'november', 'december'
+      ];
+      const year = refDate.getFullYear();
+      const month = refDate.getMonth();
+
+      const endMonthDate = new Date(year, month - 1, 0);
+      const startMonthDate = new Date(endMonthDate.getFullYear() - 1, endMonthDate.getMonth() + 1, 1);
+
+      const startStr = `1 ${monthNames[startMonthDate.getMonth()]} ${startMonthDate.getFullYear()}`;
+      const endStr = `${endMonthDate.getDate()} ${monthNames[endMonthDate.getMonth()]} ${endMonthDate.getFullYear()}`;
+      textRefPeriodPreview.innerHTML = `<strong>UWV Referteperiode:</strong> ${startStr} t/m ${endStr} (12 kalendermaanden vóór de voorlaatste maand).`;
+    };
+
+    const updateVisibility = () => {
+      const goal = selectCalcGoal.value as 'both' | 'amount' | 'duration';
+
+      if (goal === 'both') {
+        sectionAmount.style.display = 'block';
+        sectionDuration.style.display = 'block';
+        breakdownAmountPart.style.display = 'block';
+        breakdownDurationPart.style.display = 'block';
+        if (dividerDuration) dividerDuration.style.display = 'block';
+      } else if (goal === 'amount') {
+        sectionAmount.style.display = 'block';
+        sectionDuration.style.display = 'none';
+        breakdownAmountPart.style.display = 'block';
+        breakdownDurationPart.style.display = 'none';
+        if (dividerDuration) dividerDuration.style.display = 'none';
+      } else {
+        sectionAmount.style.display = 'none';
+        sectionDuration.style.display = 'block';
+        breakdownAmountPart.style.display = 'none';
+        breakdownDurationPart.style.display = 'block';
+        if (dividerDuration) dividerDuration.style.display = 'none';
+      }
+
+      // Salary mode
+      groupSvLoon.style.display = isGrossMode ? 'none' : 'block';
+      groupGrossSalary.style.display = isGrossMode ? 'block' : 'none';
+
+      // Work on WW
+      const isWorkOnWw = selectWorkOnWw.value === 'yes';
+      groupExpectedIncome.style.display = isWorkOnWw ? 'block' : 'none';
+      boxWorkResults.style.display = isWorkOnWw ? 'block' : 'none';
+    };
+
+    const calculate = () => {
+      const goal = selectCalcGoal.value as 'both' | 'amount' | 'duration';
+      const isWorkOnWw = selectWorkOnWw.value === 'yes';
+
+      // 1. Grondslag bepalen
+      let effectiveSvLoon = 0;
+      if (!isGrossMode) {
+        effectiveSvLoon = Math.max(0, parseFloat(inputSvLoon.value) || 0);
+      } else {
+        const rawMonthly = Math.max(0, parseFloat(inputGrossSalary.value) || 0);
+        const period = selectSalaryPeriod.value;
+        const annualGross = period === '4weeks' ? rawMonthly * 13 * 1.08 : rawMonthly * 12 * 1.08;
+        effectiveSvLoon = Math.round(annualGross * 100) / 100;
+      }
+
+      const rawDagloon = effectiveSvLoon > 0 ? Math.round((effectiveSvLoon / 261) * 100) / 100 : 0;
+      const isMaxApplied = rawDagloon > maxDagloonConst;
+      const applicableDagloon = isMaxApplied ? maxDagloonConst : rawDagloon;
+
+      const wwMaandloon = Math.round(applicableDagloon * 21.75 * 100) / 100;
+      const benefit12 = Math.round(wwMaandloon * 0.75 * 100) / 100;
+      const benefit3Plus = Math.round(wwMaandloon * 0.70 * 100) / 100;
+      const weekly12 = Math.round(applicableDagloon * 0.75 * 5 * 100) / 100;
+      const weekly3Plus = Math.round(applicableDagloon * 0.70 * 5 * 100) / 100;
+
+      // 2. Werken tijdens WW
+      const expectedIncome = isWorkOnWw ? Math.max(0, parseFloat(inputExpectedIncome.value) || 0) : 0;
+      const loss = Math.max(0, wwMaandloon - expectedIncome);
+      const workBenefit12 = isWorkOnWw ? Math.round(loss * 0.75 * 100) / 100 : benefit12;
+      const workBenefit3Plus = isWorkOnWw ? Math.round(loss * 0.70 * 100) / 100 : benefit3Plus;
+      const totalIncome12 = Math.round((expectedIncome + workBenefit12) * 100) / 100;
+      const totalIncome3Plus = Math.round((expectedIncome + workBenefit3Plus) * 100) / 100;
+      const isOver87Half = isWorkOnWw && expectedIncome > (wwMaandloon * 0.875);
+
+      // 3. Voorwaarden & Duur
+      const wekeneisVal = selectWekeneis.value;
+      const jareneisVal = selectJareneis.value;
+      const involuntaryVal = selectInvoluntary.value;
+      const empYears = Math.max(0, Math.min(50, parseFloat(inputEmploymentYears.value) || 0));
+
+      let durationMonths = 0;
+      let durationDetailText = '';
+
+      if (wekeneisVal === 'no') {
+        durationMonths = 0;
+        durationDetailText = 'Geen recht op WW (wekeneis niet behaald)';
+      } else if (wekeneisVal === 'yes' && jareneisVal === 'no') {
+        durationMonths = 3;
+        durationDetailText = '3 maanden basis-WW (jareneis niet behaald)';
+      } else if (wekeneisVal === 'unknown' && jareneisVal === 'no') {
+        durationMonths = 3;
+        durationDetailText = 'Max. 3 maanden mits wekeneis is behaald';
+      } else {
+        // Wel aan jareneis voldaan
+        if (empYears <= 0 || empYears < 3) {
+          durationMonths = 3;
+          durationDetailText = '3 maanden basis-WW (minimumgarantie)';
+        } else if (empYears <= 10) {
+          durationMonths = empYears;
+          durationDetailText = `${empYears} maanden (${empYears} kalenderjaren)`;
+        } else {
+          const yearsAbove10 = empYears - 10;
+          const post2016Years = Math.min(yearsAbove10, 10);
+          const pre2016Years = yearsAbove10 - post2016Years;
+          const calculatedDuration = 10 + (pre2016Years * 1.0) + (post2016Years * 0.5);
+          durationMonths = Math.min(24, Math.max(3, Math.round(calculatedDuration * 10) / 10));
+
+          if (calculatedDuration >= 24) {
+            durationDetailText = '24 maanden (wettelijk maximum bereikt)';
+          } else {
+            durationDetailText = `${durationMonths.toString().replace('.', ',')} maanden (10 mnd basis + ${Math.round(post2016Years * 0.5 * 10) / 10} mnd na 2015)`;
+          }
+        }
+      }
+
+      // 4. Update UI - Hero
+      if (goal === 'duration') {
+        resHeroLabel.textContent = 'Geschatte WW-duur';
+        resHeroAmount.textContent = `${durationMonths.toString().replace('.', ',')} maanden`;
+        resHeroSub.textContent = durationDetailText;
+      } else {
+        resHeroLabel.textContent = isWorkOnWw
+          ? 'Resterende WW-uitkering (mnd 1-2)'
+          : 'Geschatte bruto WW-uitkering';
+        resHeroAmount.textContent = isWorkOnWw ? formatCurrency(workBenefit12) : formatCurrency(benefit12);
+        resHeroSub.textContent = isWorkOnWw
+          ? `Vanaf mnd 3: ${formatCurrency(workBenefit3Plus)} / mnd (totaal: ${formatCurrency(totalIncome3Plus)})`
+          : `Eerste 2 maanden: 75% | Vanaf maand 3: ${formatCurrency(benefit3Plus)} (70%)`;
+      }
+
+      // Max Dagloon Alert
+      if (boxMaxDagloonAlert) {
+        boxMaxDagloonAlert.style.display = (isMaxApplied && goal !== 'duration') ? 'block' : 'none';
+      }
+
+      // Eligibility Badge & Explanation
+      if (eligibilityCard && eligibilityBadge && eligibilityExplanation) {
+        if (wekeneisVal === 'no') {
+          eligibilityBadge.className = 'badge badge-danger';
+          eligibilityBadge.textContent = 'Waarschijnlijk geen recht';
+          eligibilityExplanation.textContent = 'Je hebt in de 36 weken vóór werkloosheid minder dan 26 weken gewerkt. Zonder wekeneis kent het UWV in de regel geen WW toe.';
+        } else if (involuntaryVal === 'no') {
+          eligibilityBadge.className = 'badge badge-warning';
+          eligibilityBadge.textContent = 'Mogelijk verwijtbaar';
+          eligibilityExplanation.textContent = 'Als je zelf ontslag neemt of sprake is van eigen schuld (ontslag op staande voet), kan het UWV je WW-uitkering weigeren.';
+        } else if (wekeneisVal === 'unknown' || involuntaryVal === 'unknown') {
+          eligibilityBadge.className = 'badge badge-warning';
+          eligibilityBadge.textContent = 'Deels onzeker';
+          eligibilityExplanation.textContent = 'Controleer of je minimaal 26 van de laatste 36 weken hebt gewerkt en of je ontslag niet aan jezelf te wijten is.';
+        } else {
+          eligibilityBadge.className = 'badge badge-success';
+          eligibilityBadge.textContent = 'Voldoet waarschijnlijk';
+          eligibilityExplanation.textContent = 'Je lijkt op basis van deze gegevens aan de belangrijkste voorwaarden te voldoen (wekeneis en niet-verwijtbare werkloosheid).';
+        }
+      }
+
+      // Breakdown Amount Values
+      resDagloon.textContent = formatCurrency(applicableDagloon);
+      resMaandloon.textContent = formatCurrency(wwMaandloon);
+      resMonth12.textContent = formatCurrency(benefit12);
+      resMonth3Plus.textContent = formatCurrency(benefit3Plus);
+      resWeekly12.textContent = formatCurrency(weekly12);
+      resWeekly3Plus.textContent = formatCurrency(weekly3Plus);
+
+      // Work Results
+      if (isWorkOnWw) {
+        resWorkIncome.textContent = formatCurrency(expectedIncome);
+        resWorkBenefit12.textContent = formatCurrency(workBenefit12);
+        resWorkBenefit3Plus.textContent = formatCurrency(workBenefit3Plus);
+        resTotalIncome12.textContent = formatCurrency(totalIncome12);
+        alert87halfPercent.style.display = isOver87Half ? 'block' : 'none';
+      }
+
+      // Breakdown Duration Values
+      resCheckWeken.textContent = wekeneisVal === 'yes' ? 'Ja (voldaan)' : wekeneisVal === 'no' ? 'Nee (niet voldaan)' : 'Onbekend';
+      resCheckJaren.textContent = jareneisVal === 'yes' ? 'Ja (voldaan)' : jareneisVal === 'no' ? 'Nee (niet voldaan)' : 'Onbekend';
+      resEmploymentHistory.textContent = `${empYears} jaar`;
+      resTotalDuration.textContent = `${durationMonths.toString().replace('.', ',')} maanden`;
+
+      // Expandable Math Content
+      if (boxMathContent) {
+        boxMathContent.innerHTML = `
+          <div>
+            <strong>1. Grondslag & Dagloon:</strong><br />
+            SV-loon refertejaar: <code>${formatCurrency(effectiveSvLoon)}</code> ÷ <code>261 dagen</code> = <strong>${formatCurrency(rawDagloon)}</strong><br />
+            Wettelijk maximumdagloon: <code>${formatCurrency(maxDagloonConst)}</code> → Toegepast dagloon: <strong>${formatCurrency(applicableDagloon)}</strong>
+          </div>
+
+          <div style="margin-top: 0.5rem;">
+            <strong>2. WW-maandloon:</strong><br />
+            <code>${formatCurrency(applicableDagloon)} × 21,75 dagen = ${formatCurrency(wwMaandloon)}</code>
+          </div>
+
+          <div style="margin-top: 0.5rem;">
+            <strong>3. Maandelijkse uitkering:</strong><br />
+            Maand 1 en 2 (75%): <code>${formatCurrency(wwMaandloon)} × 75% = ${formatCurrency(benefit12)}</code><br />
+            Vanaf maand 3 (70%): <code>${formatCurrency(wwMaandloon)} × 70% = ${formatCurrency(benefit3Plus)}</code>
+          </div>
+
+          ${isWorkOnWw ? `
+          <div style="margin-top: 0.5rem; background: var(--bg-subtle); padding: 0.5rem; border-radius: var(--radius-sm);">
+            <strong>4. Inkomstenverrekening (werk):</strong><br />
+            Inkomensverlies: <code>${formatCurrency(wwMaandloon)} - ${formatCurrency(expectedIncome)} = ${formatCurrency(loss)}</code><br />
+            Resterende WW (mnd 1-2): <code>${formatCurrency(loss)} × 75% = ${formatCurrency(workBenefit12)}</code><br />
+            Resterende WW (mnd 3+): <code>${formatCurrency(loss)} × 70% = ${formatCurrency(workBenefit3Plus)}</code><br />
+            Totaal inkomen: <strong>${formatCurrency(totalIncome12)}</strong> (mnd 1-2)
+          </div>
+          ` : ''}
+
+          <div style="margin-top: 0.5rem;">
+            <strong>${isWorkOnWw ? '5' : '4'}. Duurberekening:</strong><br />
+            Wekeneis (26/36): ${wekeneisVal === 'yes' ? 'voldaan' : 'niet voldaan'}. Jareneis (4/5): ${jareneisVal === 'yes' ? 'voldaan' : 'niet voldaan'}.<br />
+            Arbeidsverleden ${empYears} jaar → <strong>${durationMonths.toString().replace('.', ',')} maanden WW</strong>.
+          </div>
+        `;
+      }
+    };
+
+    // Event Listeners
+    selectCalcGoal.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+
+    if (btnToggleSalaryMode) {
+      btnToggleSalaryMode.addEventListener('click', () => {
+        isGrossMode = true;
+        updateVisibility();
+        calculate();
+      });
+    }
+
+    if (btnBackToSv) {
+      btnBackToSv.addEventListener('click', () => {
+        isGrossMode = false;
+        updateVisibility();
+        calculate();
+      });
+    }
+
+    selectWorkOnWw.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+
+    ['input', 'change'].forEach(evt => {
+      inputSvLoon.addEventListener(evt, calculate);
+      inputGrossSalary.addEventListener(evt, calculate);
+      inputExpectedIncome.addEventListener(evt, calculate);
+      inputEmploymentYears.addEventListener(evt, calculate);
+      inputUnemploymentDate.addEventListener(evt, () => {
+        updateReferencePeriodHelper();
+        calculate();
+      });
+    });
+
+    ['change'].forEach(evt => {
+      selectSalaryPeriod.addEventListener(evt, calculate);
+      selectWekeneis.addEventListener(evt, calculate);
+      selectJareneis.addEventListener(evt, calculate);
+      selectInvoluntary.addEventListener(evt, calculate);
+    });
+
+    // Quick SV pills
+    quickSvButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        quickSvButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        inputSvLoon.value = btn.dataset.amount || '36000';
+        calculate();
+      });
+    });
+
+    if (btnResetWw) {
+      btnResetWw.addEventListener('click', () => {
+        selectCalcGoal.value = 'both';
+        isGrossMode = false;
+        inputSvLoon.value = '36000';
+        inputGrossSalary.value = '3000';
+        selectSalaryPeriod.value = 'month';
+        inputUnemploymentDate.value = toIsoDate(new Date());
+
+        selectWorkOnWw.value = 'no';
+        inputExpectedIncome.value = '0';
+
+        selectWekeneis.value = 'yes';
+        selectJareneis.value = 'yes';
+        inputEmploymentYears.value = '8';
+        selectInvoluntary.value = 'yes';
+
+        quickSvButtons.forEach(b => {
+          b.classList.toggle('active', b.dataset.amount === '36000');
+        });
+
+        updateVisibility();
+        updateReferencePeriodHelper();
+        calculate();
+      });
+    }
+
+    // Initial setup
+    updateVisibility();
+    updateReferencePeriodHelper();
+    calculate();
+  })();
+</script>
+
+<style>
+  .calc-header-badge-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  .rate-year-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.625rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary, #1d4ed8);
+    background-color: var(--color-primary-light, #eff6ff);
+    border-radius: 9999px;
+  }
+
+  .btn-quick-sv {
+    padding: 0.25rem 0.625rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-main);
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-quick-sv:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+  }
+
+  .btn-quick-sv.active {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border-color: var(--color-primary);
+  }
+
+  .advanced-details {
+    border: 1px solid var(--border-color);
+    border-radius: 0.5rem;
+    padding: 0.625rem 0.875rem;
+    background-color: var(--bg-subtle);
+  }
+
+  .advanced-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: var(--text-main);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+  }
+
+  .advanced-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .summary-chevron {
+    transition: transform 0.2s ease;
+  }
+
+  .advanced-details[open] .summary-chevron {
+    transform: rotate(180deg);
+  }
+
+  .eligibility-notice {
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+  }
+
+  .badge-success {
+    background-color: var(--color-success-light, #dcfce7);
+    color: var(--color-success, #15803d);
+    border: 1px solid var(--color-success-border, #a7f3d0);
+  }
+
+  .badge-warning {
+    background-color: var(--color-warning-light, #fef9c3);
+    color: var(--color-warning, #a16207);
+    border: 1px solid rgba(217, 119, 6, 0.25);
+  }
+
+  .badge-danger {
+    background-color: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid rgba(185, 28, 28, 0.25);
+  }
+
+  :global([data-theme="dark"]) .badge-danger {
+    background-color: rgba(185, 28, 28, 0.2);
+    color: #f87171;
+    border-color: rgba(248, 113, 113, 0.3);
+  }
+
+  .result-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .font-medium {
+    font-weight: 600;
+  }
+
+  .font-bold {
+    font-weight: 700;
+  }
+
+  .text-primary {
+    color: var(--color-primary);
+  }
+
+  @media (max-width: 480px) {
+    .calc-header-badge-row {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>

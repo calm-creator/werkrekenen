@@ -30,7 +30,11 @@ import {
   calculateNettoBesteedbaarInkomen,
   calculateTransitievergoeding,
   calculateNettoSalaris,
-  calculateJaarinkomen
+  calculateJaarinkomen,
+  calculateDagloon,
+  calculateWw,
+  calculateMinimumloon,
+  calculateArbeidskorting
 } from '../src/utils/calculations.ts';
 
 console.log('--- Testing WerkRekenen calculation engines ---');
@@ -1832,7 +1836,491 @@ console.log('--- Testing WerkRekenen calculation engines ---');
   console.log('✓ Jaarinkomen calculations passed');
 }
 
-console.log('All 26 calculation engines passed tests successfully!');
+// 27. Dagloon Berekenen (Algemeen Dagloon & UWV Dagloon)
+{
+  // Test 1: Algemeen dagloon standaard (€ 50.000 bruto incl 8% vakantiegeld)
+  const res1 = calculateDagloon({
+    type: 'algemeen',
+    grossAnnualSalary: 50000,
+    includeHolidayPay: true,
+    holidayPayPercentage: 8
+  });
+  assert.strictEqual(res1.isValid, true);
+  assert.strictEqual(res1.calculationType, 'algemeen');
+  assert.strictEqual(res1.grossAnnualSalary, 50000);
+  assert.strictEqual(res1.holidayPayAmount, 4000);
+  assert.strictEqual(res1.totalAnnualBasis, 54000);
+  assert.strictEqual(res1.dagloondagen, 261);
+  assert.strictEqual(res1.calculatedDagloon, 206.90);
+  assert.strictEqual(res1.applicableDagloon, 206.90);
+  assert.strictEqual(res1.estimatedWeeklyGross, 1034.50);
+  assert.strictEqual(res1.estimatedMonthlyGross, 4500.08);
+
+  // Test 2: Algemeen dagloon zonder vakantiegeld
+  const res2 = calculateDagloon({
+    type: 'algemeen',
+    grossAnnualSalary: 50000,
+    includeHolidayPay: false
+  });
+  assert.strictEqual(res2.totalAnnualBasis, 50000);
+  assert.strictEqual(res2.holidayPayAmount, 0);
+  assert.strictEqual(res2.calculatedDagloon, 191.57); // 50000 / 261 = 191.5708...
+
+  // Test 3: UWV WW standaard (12 maanden, SV-loon € 40.000)
+  const res3 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'ww',
+    svLoonReferencePeriod: 40000,
+    referencePeriodMonths: 12
+  });
+  assert.strictEqual(res3.isValid, true);
+  assert.strictEqual(res3.calculationType, 'uwv');
+  assert.strictEqual(res3.benefitType, 'ww');
+  assert.strictEqual(res3.dagloondagen, 261);
+  assert.strictEqual(res3.calculatedDagloon, 153.26); // 40000 / 261 = 153.256...
+  assert.strictEqual(res3.applicableDagloon, 153.26);
+  assert.strictEqual(res3.isMaxDagloonApplied, false);
+  assert.strictEqual(res3.estimatedWeeklyGross, 766.30);
+  assert.strictEqual(res3.estimatedMonthlyGross, 3333.41);
+
+  // Test 4: UWV met maximumdagloon bereikt (€ 100.000 SV-loon)
+  const res4 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'ww',
+    svLoonReferencePeriod: 100000
+  });
+  assert.strictEqual(res4.calculatedDagloon, 383.14); // 100000 / 261 = 383.14
+  assert.strictEqual(res4.isMaxDagloonApplied, true);
+  assert.strictEqual(res4.maxDagloon, 309.91);
+  assert.strictEqual(res4.applicableDagloon, 309.91);
+  assert.strictEqual(res4.estimatedWeeklyGross, 1549.55); // 309.91 * 5
+  assert.strictEqual(res4.estimatedMonthlyGross, 6740.54); // 309.91 * 21.75
+
+  // Test 5: UWV Ziektewet (ZW)
+  const res5 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'zw',
+    svLoonReferencePeriod: 36000
+  });
+  assert.strictEqual(res5.benefitType, 'zw');
+  assert.strictEqual(res5.calculatedDagloon, 137.93);
+
+  // Test 6: UWV WIA
+  const res6 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'wia',
+    svLoonReferencePeriod: 45000
+  });
+  assert.strictEqual(res6.benefitType, 'wia');
+  assert.strictEqual(res6.calculatedDagloon, 172.41);
+
+  // Test 7: UWV WAO
+  const res7 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'wao',
+    svLoonReferencePeriod: 30000
+  });
+  assert.strictEqual(res7.benefitType, 'wao');
+  assert.strictEqual(res7.calculatedDagloon, 114.94);
+
+  // Test 8: UWV met kortere referteperiode (6 maanden gewerkt -> 6 * 21.75 = 131 dagen)
+  const res8 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'ww',
+    svLoonReferencePeriod: 18000,
+    referencePeriodMonths: 6
+  });
+  assert.strictEqual(res8.referencePeriodMonths, 6);
+  assert.strictEqual(res8.dagloondagen, 131);
+  assert.strictEqual(res8.calculatedDagloon, 137.40); // 18000 / 131 = 137.4045...
+
+  // Test 9: UWV met tijdelijk lager loon door ziekte/verlof (20 dagen onbetaald verlof)
+  const res9 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'ww',
+    svLoonReferencePeriod: 36000,
+    lowerPayDueToLeaveOrIllness: true,
+    unpaidLeaveDays: 20
+  });
+  assert.strictEqual(res9.baseDagloondagen, 261);
+  assert.strictEqual(res9.dagloondagen, 241); // 261 - 20 = 241
+  assert.strictEqual(res9.calculatedDagloon, 149.38); // 36000 / 241 = 149.377...
+
+  // Test 10: UWV met los opgegeven vakantiegeld en 13e maand
+  const res10 = calculateDagloon({
+    type: 'uwv',
+    benefitType: 'ww',
+    svLoonReferencePeriod: 35000,
+    separateHolidayPay: 2800,
+    separateAvwb: 2500
+  });
+  assert.strictEqual(res10.totalSvLoonCorrected, 40300);
+  assert.strictEqual(res10.calculatedDagloon, 154.41); // 40300 / 261 = 154.406...
+
+  // Test 11: Validatiefout bij negatieve invoer
+  const res11 = calculateDagloon({
+    type: 'algemeen',
+    grossAnnualSalary: -500
+  });
+  assert.strictEqual(res11.isValid, false);
+  assert.strictEqual(res11.errorMessage, 'Het bruto jaarloon kan niet negatief zijn.');
+
+  // Test 12: UWV negatief SV-loon
+  const res12 = calculateDagloon({
+    type: 'uwv',
+    svLoonReferencePeriod: -100
+  });
+  assert.strictEqual(res12.isValid, false);
+  assert.strictEqual(res12.errorMessage, 'Het SV-loon kan niet negatief zijn.');
+
+  console.log('✓ Dagloon calculations passed');
+}
+
+// 28. WW Berekenen
+{
+  // Test 1: Standaard berekening met SV-loon € 36.000
+  const res1 = calculateWw({
+    calculationGoal: 'both',
+    salaryMode: 'sv_loon',
+    svLoon: 36000,
+    unemploymentDate: '2026-04-15',
+    weeksWorkedLast36Weeks: 'yes',
+    worked4OfLast5Years: 'yes',
+    totalEmploymentYears: 8,
+    involuntaryUnemployment: 'yes'
+  });
+  assert.strictEqual(res1.isValid, true);
+  assert.strictEqual(res1.svLoon, 36000);
+  assert.strictEqual(res1.rawDagloon, 137.93); // 36000 / 261 = 137.931...
+  assert.strictEqual(res1.isMaxDagloonApplied, false);
+  assert.strictEqual(res1.applicableDagloon, 137.93);
+  assert.strictEqual(res1.wwMaandloon, 2999.98); // 137.93 * 21.75 = 2999.9775 -> 2999.98
+  assert.strictEqual(res1.benefitMonth1And2, 2249.99); // 2999.98 * 0.75 = 2249.985 -> 2249.99
+  assert.strictEqual(res1.benefitMonth3Plus, 2099.99); // 2999.98 * 0.70 = 2099.986 -> 2099.99
+  assert.strictEqual(res1.benefitDailyMonth1And2, 103.45); // 137.93 * 0.75
+  assert.strictEqual(res1.benefitDailyMonth3Plus, 96.55); // 137.93 * 0.70
+  assert.strictEqual(res1.benefitWeeklyMonth1And2, 517.25);
+  assert.strictEqual(res1.benefitWeeklyMonth3Plus, 482.75);
+  assert.strictEqual(res1.estimatedDurationMonths, 8);
+  assert.strictEqual(res1.eligibilityStatus, 'likely');
+
+  // Test 2: Hoog salaris boven maximumdagloon (€ 90.000 SV-loon)
+  const res2 = calculateWw({
+    svLoon: 90000
+  });
+  assert.strictEqual(res2.rawDagloon, 344.83); // 90000 / 261 = 344.827...
+  assert.strictEqual(res2.isMaxDagloonApplied, true);
+  assert.strictEqual(res2.applicableDagloon, 309.91);
+  assert.strictEqual(res2.wwMaandloon, 6740.54); // 309.91 * 21.75 = 6740.5425
+  assert.strictEqual(res2.benefitMonth1And2, 5055.41); // 6740.54 * 0.75 = 5055.405
+  assert.strictEqual(res2.benefitMonth3Plus, 4718.38); // 6740.54 * 0.70 = 4718.378
+
+  // Test 3: Vereenvoudigde modus op basis van bruto maandsalaris (€ 3.000 / mnd)
+  const res3 = calculateWw({
+    salaryMode: 'gross_salary',
+    grossSalaryMonthly: 3000,
+    salaryPeriod: 'month'
+  });
+  // 3000 * 12 * 1.08 = 38880 -> 38880 / 261 = 148.97
+  assert.strictEqual(res3.svLoon, 38880);
+  assert.strictEqual(res3.rawDagloon, 148.97);
+  assert.strictEqual(res3.wwMaandloon, 3240.10); // 148.97 * 21.75 = 3240.0975
+  assert.strictEqual(res3.benefitMonth1And2, 2430.07);
+  assert.strictEqual(res3.benefitMonth3Plus, 2268.07);
+
+  // Test 4: Werken tijdens WW met inkomen € 1.000 (inkomstenverrekening)
+  const res4 = calculateWw({
+    svLoon: 36000,
+    worksWhileOnWw: true,
+    expectedIncomeMonthly: 1000
+  });
+  // wwMaandloon = 2999.98. verlies = 1999.98
+  // mnd 1-2: 1999.98 * 0.75 = 1499.99
+  // mnd 3+: 1999.98 * 0.70 = 1399.99
+  assert.strictEqual(res4.benefitMonth1And2WithWork, 1499.99);
+  assert.strictEqual(res4.benefitMonth3PlusWithWork, 1399.99);
+  assert.strictEqual(res4.totalIncomeMonth1And2, 2499.99);
+  assert.strictEqual(res4.totalIncomeMonth3Plus, 2399.99);
+  assert.strictEqual(res4.isIncomeOver87Point5Percent, false);
+
+  // Test 5: Werken tijdens WW met inkomen boven 87,5% drempel (€ 2.700 > 2.624,98)
+  const res5 = calculateWw({
+    svLoon: 36000,
+    worksWhileOnWw: true,
+    expectedIncomeMonthly: 2700
+  });
+  assert.strictEqual(res5.isIncomeOver87Point5Percent, true);
+  assert.strictEqual(res5.benefitMonth1And2WithWork, 224.99); // 299.98 * 0.75
+  assert.strictEqual(res5.totalIncomeMonth1And2, 2924.99);
+
+  // Test 6: Wekeneis NIET gehaald
+  const res6 = calculateWw({
+    weeksWorkedLast36Weeks: 'no'
+  });
+  assert.strictEqual(res6.meetsWekeneis, false);
+  assert.strictEqual(res6.estimatedDurationMonths, 0);
+  assert.strictEqual(res6.eligibilityStatus, 'unlikely');
+
+  // Test 7: Wekeneis WEL, maar Jareneis NIET gehaald -> precies 3 maanden basis-WW
+  const res7 = calculateWw({
+    weeksWorkedLast36Weeks: 'yes',
+    worked4OfLast5Years: 'no',
+    totalEmploymentYears: 8
+  });
+  assert.strictEqual(res7.meetsWekeneis, true);
+  assert.strictEqual(res7.meetsJareneis, false);
+  assert.strictEqual(res7.estimatedDurationMonths, 3);
+
+  // Test 8: Lang arbeidsverleden (15 jaar, waarvan 5 na 2015)
+  const res8 = calculateWw({
+    totalEmploymentYears: 15,
+    yearsFrom2016: 5
+  });
+  // 10 + 5*0.5 = 12.5 maanden
+  assert.strictEqual(res8.estimatedDurationMonths, 12.5);
+
+  // Test 9: Zeer lang arbeidsverleden gemaximeerd op wettelijk maximum van 24 maanden
+  const res9 = calculateWw({
+    totalEmploymentYears: 30,
+    yearsFrom2016: 10
+  });
+  assert.strictEqual(res9.estimatedDurationMonths, 24);
+
+  // Test 10: Verwijtbare werkloosheid (eigen schuld / zelf ontslag)
+  const res10 = calculateWw({
+    involuntaryUnemployment: 'no'
+  });
+  assert.strictEqual(res10.isInvoluntary, false);
+  assert.strictEqual(res10.eligibilityStatus, 'unlikely');
+
+  // Test 11: Validatie negatief SV-loon
+  const res11 = calculateWw({
+    salaryMode: 'sv_loon',
+    svLoon: -500
+  });
+  assert.strictEqual(res11.isValid, false);
+  assert.strictEqual(res11.errorMessage, 'Het SV-loon kan niet negatief zijn.');
+
+  // Test 12: Validatie negatief bruto salaris
+  const res12 = calculateWw({
+    salaryMode: 'gross_salary',
+    grossSalaryMonthly: -200
+  });
+  assert.strictEqual(res12.isValid, false);
+  assert.strictEqual(res12.errorMessage, 'Het bruto maandsalaris kan niet negatief zijn.');
+
+  console.log('✓ WW calculations passed');
+}
+
+// 29. Minimumloon Berekenen 2026
+{
+  // Test 1: 21+ jaar per 1 juli 2026 (40 uur per week) - standaard scenario uit specificatie
+  const res1 = calculateMinimumloon({
+    period: '2026-07',
+    age: '21+',
+    isBbl: false,
+    hoursFrequency: 'week',
+    hours: 40
+  });
+  assert.strictEqual(res1.hourlyWage, 14.99);
+  assert.strictEqual(res1.wageWeekly, 599.60);
+  assert.strictEqual(res1.wageFourWeekly, 2398.40);
+  assert.strictEqual(res1.wageMonthly, 2598.27);
+  assert.strictEqual(res1.wageAnnual, 31179.20);
+  assert.strictEqual(res1.percentage, 100);
+
+  // Test 2: 21+ jaar per 1 januari 2026 (40 uur per week)
+  const res2 = calculateMinimumloon({
+    period: '2026-01',
+    age: '21+',
+    isBbl: false,
+    hoursFrequency: 'week',
+    hours: 40
+  });
+  assert.strictEqual(res2.hourlyWage, 14.71);
+  assert.strictEqual(res2.wageWeekly, 588.40);
+  assert.strictEqual(res2.wageMonthly, 2549.73);
+  assert.strictEqual(res2.wageAnnual, 30596.80);
+
+  // Test 3: Minimumjeugdloon leeftijden 15 t/m 20 per 1 juli 2026
+  const youthJul = [
+    { age: '20', rate: 11.99, pct: 80 },
+    { age: '19', rate: 8.99, pct: 60 },
+    { age: '18', rate: 7.50, pct: 50 },
+    { age: '17', rate: 5.92, pct: 39.5 },
+    { age: '16', rate: 5.17, pct: 34.5 },
+    { age: '15', rate: 4.50, pct: 30 }
+  ];
+  for (const item of youthJul) {
+    const res = calculateMinimumloon({ period: '2026-07', age: item.age, isBbl: false, hours: 36 });
+    assert.strictEqual(res.hourlyWage, item.rate, `Fout bij leeftijd ${item.age} per 1 juli`);
+    assert.strictEqual(res.percentage, item.pct);
+  }
+
+  // Test 4: Minimumjeugdloon leeftijden 15 t/m 20 per 1 januari 2026
+  const youthJan = [
+    { age: '20', rate: 11.77, pct: 80 },
+    { age: '19', rate: 8.83, pct: 60 },
+    { age: '18', rate: 7.36, pct: 50 },
+    { age: '17', rate: 5.81, pct: 39.5 },
+    { age: '16', rate: 5.07, pct: 34.5 },
+    { age: '15', rate: 4.41, pct: 30 }
+  ];
+  for (const item of youthJan) {
+    const res = calculateMinimumloon({ period: '2026-01', age: item.age, isBbl: false, hours: 38 });
+    assert.strictEqual(res.hourlyWage, item.rate, `Fout bij leeftijd ${item.age} per 1 januari`);
+    assert.strictEqual(res.percentage, item.pct);
+  }
+
+  // Test 5: BBL minimumloon per 1 juli 2026
+  const bblJul = [
+    { age: '21+', rate: 14.99, pct: 100 },
+    { age: '20', rate: 9.22, pct: 61.5 },
+    { age: '19', rate: 7.87, pct: 52.5 },
+    { age: '18', rate: 6.82, pct: 45.5 },
+    { age: '17', rate: 5.92, pct: 39.5 },
+    { age: '16', rate: 5.17, pct: 34.5 },
+    { age: '15', rate: 4.50, pct: 30 }
+  ];
+  for (const item of bblJul) {
+    const res = calculateMinimumloon({ period: '2026-07', age: item.age, isBbl: true, hours: 32 });
+    assert.strictEqual(res.hourlyWage, item.rate, `Fout bij BBL leeftijd ${item.age} per 1 juli`);
+    assert.strictEqual(res.percentage, item.pct);
+  }
+
+  // Test 6: BBL minimumloon per 1 januari 2026
+  const bblJan = [
+    { age: '21+', rate: 14.71, pct: 100 },
+    { age: '20', rate: 9.05, pct: 61.5 },
+    { age: '19', rate: 7.72, pct: 52.5 },
+    { age: '18', rate: 6.69, pct: 45.5 }
+  ];
+  for (const item of bblJan) {
+    const res = calculateMinimumloon({ period: '2026-01', age: item.age, isBbl: true, hours: 40 });
+    assert.strictEqual(res.hourlyWage, item.rate, `Fout bij BBL leeftijd ${item.age} per 1 januari`);
+    assert.strictEqual(res.percentage, item.pct);
+  }
+
+  // Test 7: Invoer per 4 weken (160 uur)
+  const resFourWeeks = calculateMinimumloon({
+    period: '2026-07',
+    age: '21+',
+    hoursFrequency: 'fourWeeks',
+    hours: 160
+  });
+  assert.strictEqual(resFourWeeks.wageFourWeekly, 2398.40);
+  assert.strictEqual(resFourWeeks.wageWeekly, 599.60);
+  assert.strictEqual(resFourWeeks.calculatedWeeklyHours, 40);
+
+  // Test 8: Invoer per maand (173.33 uur)
+  const resMonth = calculateMinimumloon({
+    period: '2026-07',
+    age: '21+',
+    hoursFrequency: 'month',
+    hours: 173.33
+  });
+  assert.strictEqual(resMonth.wageMonthly, 2598.22);
+  assert.strictEqual(resMonth.calculatedMonthlyHours, 173.33);
+
+  // Test 9: Parttime uren (bijv. 24 uur per week)
+  const resParttime = calculateMinimumloon({
+    period: '2026-07',
+    age: '21+',
+    hoursFrequency: 'week',
+    hours: 24
+  });
+  assert.strictEqual(resParttime.wageWeekly, 359.76);
+  assert.strictEqual(resParttime.wageMonthly, 1558.96);
+
+  // Test 10: Randgeval 0 uren
+  const resZero = calculateMinimumloon({
+    hours: 0
+  });
+  assert.strictEqual(resZero.wageWeekly, 0);
+  assert.strictEqual(resZero.wageMonthly, 0);
+
+  console.log('✓ Minimumloon calculations passed');
+}
+
+// 30. Arbeidskorting Berekenen (2026)
+{
+  // Test 1: €0 inkomen
+  const res0 = calculateArbeidskorting({ income: 0, aowStatus: 'none' });
+  assert.strictEqual(res0.arbeidskorting, 0);
+  assert.strictEqual(res0.isZero, true);
+
+  // Test 2: €10.000 inkomen (Schijf 1: 8,324%)
+  const res10k = calculateArbeidskorting({ income: 10000, aowStatus: 'none' });
+  assert.strictEqual(res10k.arbeidskorting, 832.40);
+  assert.strictEqual(res10k.bracketIndex, 1);
+
+  // Test 3: €11.965 inkomen (Schijf 1 grens)
+  const res11965 = calculateArbeidskorting({ income: 11965, aowStatus: 'none' });
+  assert.strictEqual(res11965.arbeidskorting, 995.97);
+  assert.strictEqual(res11965.bracketIndex, 1);
+
+  // Test 4: €15.000 inkomen (Schijf 2: 996 + 31,009% * (15000 - 11965))
+  // 996 + 0.31009 * 3035 = 996 + 941.12315 = 1937.12
+  const res15k = calculateArbeidskorting({ income: 15000, aowStatus: 'none' });
+  assert.strictEqual(res15k.arbeidskorting, 1937.12);
+  assert.strictEqual(res15k.bracketIndex, 2);
+
+  // Test 5: €25.845 inkomen (Schijf 2 grens: 996 + 0.31009 * 13880 = 5300.05 capped at 5300 or mathematically 5300.05)
+  const res25845 = calculateArbeidskorting({ income: 25845, aowStatus: 'none' });
+  assert.strictEqual(res25845.arbeidskorting, 5300.05);
+  assert.strictEqual(res25845.bracketIndex, 2);
+
+  // Test 6: €30.000 inkomen (Schijf 3: 5300 + 1,950% * (30000 - 25845))
+  // 5300 + 0.0195 * 4155 = 5300 + 81.0225 = 5381.02
+  const res30k = calculateArbeidskorting({ income: 30000, aowStatus: 'none' });
+  assert.strictEqual(res30k.arbeidskorting, 5381.02);
+  assert.strictEqual(res30k.bracketIndex, 3);
+
+  // Test 7: €45.592 inkomen (Piek / Maximale arbeidskorting: 5300 + 0.0195 * 19747 = 5685.07 capped at 5685)
+  const res45592 = calculateArbeidskorting({ income: 45592, aowStatus: 'none' });
+  assert.strictEqual(res45592.arbeidskorting, 5685);
+  assert.strictEqual(res45592.isMaxReached, true);
+
+  // Test 8: €50.000 inkomen (Schijf 4 afbouw: 5685 - 6,510% * (50000 - 45592))
+  // 5685 - 0.0651 * 4408 = 5685 - 286.9608 = 5398.04
+  const res50k = calculateArbeidskorting({ income: 50000, aowStatus: 'none' });
+  assert.strictEqual(res50k.arbeidskorting, 5398.04);
+  assert.strictEqual(res50k.isPhaseOut, true);
+  assert.strictEqual(res50k.bracketIndex, 4);
+
+  // Test 9: €100.000 inkomen (Schijf 4 afbouw: 5685 - 0.0651 * 54408 = 2143.04)
+  const res100k = calculateArbeidskorting({ income: 100000, aowStatus: 'none' });
+  assert.strictEqual(res100k.arbeidskorting, 2143.04);
+
+  // Test 10: €132.920 inkomen (Afbouwgrens: 5685 - 0.0651 * 87328 = 0)
+  const res132920 = calculateArbeidskorting({ income: 132920, aowStatus: 'none' });
+  assert.strictEqual(res132920.arbeidskorting, 0);
+
+  // Test 11: €150.000 inkomen (Boven afbouwgrens -> €0)
+  const res150k = calculateArbeidskorting({ income: 150000, aowStatus: 'none' });
+  assert.strictEqual(res150k.arbeidskorting, 0);
+  assert.strictEqual(res150k.isZero, true);
+  assert.strictEqual(res150k.bracketIndex, 5);
+
+  // Test 12: AOW hele jaar (4,156%, max € 2.840)
+  const resAow10k = calculateArbeidskorting({ income: 10000, aowStatus: 'full' });
+  assert.strictEqual(resAow10k.arbeidskorting, 415.60);
+
+  const resAow50k = calculateArbeidskorting({ income: 50000, aowStatus: 'full' });
+  // 2840 - 0.0325 * (50000 - 45592) = 2840 - 143.26 = 2696.74
+  assert.strictEqual(resAow50k.arbeidskorting, 2696.74);
+  assert.strictEqual(resAow50k.maxArbeidskorting, 2840);
+
+  // Test 13: AOW bereiken in dit jaar (during)
+  const resAowDuring = calculateArbeidskorting({ income: 45000, aowStatus: 'during' });
+  assert.ok(resAowDuring.aowDuringYearNotice);
+  assert.ok(resAowDuring.indicativeMin !== undefined);
+  assert.ok(resAowDuring.indicativeMax !== undefined);
+
+  console.log('✓ Arbeidskorting calculations passed');
+}
+
+console.log('All 30 calculation engines passed tests successfully!');
 
 
 

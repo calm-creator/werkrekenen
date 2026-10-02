@@ -1,0 +1,185 @@
+---
+// src/pages/dagloon-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import DagloonCalculator from '../components/calculators/DagloonCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+import { DUTCH_RATES } from '../data/dutchRates';
+
+const meta = getCalculatorBySlug('dagloon-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat is een dagloon?',
+    answer: 'Het dagloon is het gemiddelde brutoloon dat je per werkdag verdient. In Nederland kent het begrip twee hoofdtoepassingen: enerzijds een algemene omrekening van je jaarsalaris naar een gemiddeld dagbedrag (op basis van 261 werkdagen), en anderzijds het officiële UWV-dagloon. Het UWV-dagloon vormt de wettelijke grondslag voor de hoogte van sociale werknemersuitkeringen zoals de WW, Ziektewet, WIA en WAO.'
+  },
+  {
+    question: 'Hoe bereken ik mijn dagloon?',
+    answer: 'Voor een algemeen gemiddeld dagloon deel je jouw bruto jaarsalaris (inclusief 8% vakantiebijslag en eventuele vaste dertiende maand) door het standaard aantal werkdagen in een kalenderjaar: 261 dagen (5 werkdagen per week × 52,2 weken). Verdien je bijvoorbeeld € 45.000 bruto per jaar inclusief vakantiegeld, dan is je gemiddelde bruto dagloon € 45.000 ÷ 261 = € 172,41 per dag.'
+  },
+  {
+    question: 'Hoe berekent UWV mijn dagloon?',
+    answer: 'Het UWV berekent je dagloon volgens het wettelijke Besluit dagloonregels werknemersverzekeringen. UWV kijkt naar je SV-loon (socialeverzekeringsloon) in een vastgestelde referteperiode van 12 aaneengesloten kalendermaanden. Dit totale SV-loon wordt gedeeld door het aantal dagloondagen in die periode: standaard 261 dagloondagen. De uitkomst is je bruto UWV-dagloon, gemaximeerd op het wettelijk maximumdagloon.'
+  },
+  {
+    question: 'Hoe bereken ik mijn WW-dagloon?',
+    answer: 'Voor de Werkloosheidswet (WW) loopt de referteperiode over 1 jaar (12 volledige kalendermaanden) dat eindigt op de laatste dag van de voorlaatste kalendermaand vóórdat je werkloos werd. Werd je bijvoorbeeld werkloos op 15 april 2026? Dan loopt de referteperiode van 1 maart 2025 tot en met 28 februari 2026. Het totale SV-loon dat je bij alle werkgevers in die 12 maanden hebt verdiend, deel je door 261 dagen. Je WW-uitkering bedraagt de eerste 2 maanden 75% en daarna 70% van dit dagloon.'
+  },
+  {
+    question: 'Hoe bereken ik mijn Ziektewet-dagloon?',
+    answer: 'Voor een Ziektewet-uitkering (ZW) is de referteperiode het jaar (12 kalendermaanden) voorafgaand aan de kalendermaand waarin je eerste ziektedag viel. Heb je in die 12 maanden een totaal SV-loon van € 36.000 opgebouwd? Dan bedraagt je Ziektewet-dagloon € 36.000 ÷ 261 = € 137,93. De Ziektewet-uitkering keert in de regel 70% van dit dagloon uit (tenzij een CAO of bijzondere regeling zoals zwangerschapsverlof 100% toekent).'
+  },
+  {
+    question: 'Hoe wordt het WIA-dagloon berekend?',
+    answer: 'Bij de WIA (WGA of IVA) kijkt het UWV naar het refertejaar vóór je allereerste ziektedag (de dag waarop de wachttijd van 104 weken / 2 jaar loondoorbetaling bij ziekte begon). Doordat UWV teruggaat naar de periode vóórdat je ziek werd, verlaagt het inkomensverlies tijdens je 2 jaar ziekte je WIA-dagloon niet. Het SV-loon uit dat gezonde refertejaar wordt gedeeld door 261 dagen en geïndexeerd met de wettelijke loonstijgingen tot aan de start van je WIA-uitkering.'
+  },
+  {
+    question: 'Telt vakantiegeld mee bij het dagloon?',
+    answer: 'Ja, vakantiegeld telt altijd mee. Bij het UWV-dagloon is het wettelijke vakantiegeld (8%) reeds onderdeel van het SV-loon dat je werkgever maandelijks doorgeeft aan de Polisadministratie van UWV. Als je vakantiegeld wel hebt opgebouwd maar nog niet uitbetaald hebt gekregen, rekent UWV met een evenredige opslag. Ook bij een algemeen dagloon wordt standaard gerekend met het bruto jaarloon inclusief 8% vakantiebijslag.'
+  },
+  {
+    question: 'Wat is het maximumdagloon in 2026?',
+    answer: `In 2026 is het wettelijke maximumdagloon voor UWV-uitkeringen vastgesteld op € ${DUTCH_RATES.uwvRates.maxDagloon.toFixed(2).replace('.', ',')} bruto per dag (inclusief vakantiebijslag). Dit komt overeen met een maximum premieloon van € 80.886,51 op jaarbasis (261 dagen × € 309,91) en circa € 6.740,54 bruto per maand (21,75 dagen × € 309,91). Verdien je meer dan dit bedrag, dan wordt je uitkering berekend over maximaal € 309,91 per dag.`
+  },
+  {
+    question: 'Wat is het verschil tussen dagloon en uurloon?',
+    answer: 'Het uurloon is de contractuele vergoeding die je per gewerkt uur ontvangt (bijvoorbeeld € 20,00 per uur). Het dagloon is een gestandaardiseerde dagmaatstaf gebaseerd op 5 werkdagen per week (ongeacht je feitelijke werkrooster). Een parttimer die 3 dagen van 8 uur werkt (24 uur per week tegen € 20/uur = € 480/week), heeft een uurloon van € 20,00, maar een UWV-dagloon van € 96,00 per dag voor 5 dagen per week (€ 480 ÷ 5).'
+  },
+  {
+    question: 'Waarom is mijn eigen berekende dagloon anders dan het dagloon van UWV?',
+    answer: 'Verschillen ontstaan meestal doordat UWV kijkt naar het exacte SV-loon in de Polisadministratie, en niet naar je bruto basissalaris op je meest recente loonstrook. Bovendien kunnen exacte referteperiodes (door de voorlaatste-maandregel in de WW), loonloze dagen door onbetaald verlof of ziekte, pensioenpremies, een auto van de zaak en het wettelijk maximumdagloon (€ 309,91) ervoor zorgen dat de officiële beschikking van het UWV afwijkt van een eigen globale schatting.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="UWV & Ministerie van Sociale Zaken en Werkgelegenheid"
+  customTitle="Dagloon Berekenen 2026 | UWV Dagloon Calculator"
+>
+  <DagloonCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is dagloon en wat betekent het in Nederland?</h2>
+    <p>
+      Het <strong>dagloon</strong> is het gemiddelde brutoloon dat je per dag verdient. In het Nederlandse arbeidsrecht en het stelsel van sociale zekerheid is het dagloon een cruciale maatstaf. Het vormt namelijk de officiële grondslag voor het berekenen van werknemersuitkeringen door het <strong>UWV</strong>, zoals de WW, Ziektewet (ZW), WIA en WAO.
+    </p>
+    <p>
+      In de praktijk onderscheiden we twee toepassingen:
+    </p>
+    <ul>
+      <li>
+        <strong>Algemeen gemiddeld dagloon:</strong> Een bedrijfseconomische omrekening van je totale bruto jaarsalaris naar een gemiddeld dagbedrag op basis van 261 werkdagen. Handig voor werkgevers en werknemers om de loonkosten of opbrengst per gewerkte dag te bepalen. Zie ook onze tool voor <a href="/uurloon-berekenen/">uurloon berekenen</a>.
+      </li>
+      <li>
+        <strong>Het officiële UWV-dagloon:</strong> Het wettelijk vastgestelde bedrag volgens het <em>Besluit dagloonregels werknemersverzekeringen</em>. Dit bedrag is gebaseerd op het <strong>SV-loon</strong> (socialeverzekeringsloon) over een refertejaar van 12 kalendermaanden en de wettelijke deler van <strong>261 dagloondagen</strong>.
+      </li>
+    </ul>
+
+    <h2>Hoe bereken je dagloon? (De formule en 261 dagloondagen)</h2>
+    <p>
+      Zowel in CAO's als bij het UWV geldt de standaard dat een volledig kalenderjaar bestaat uit <strong>261 dagloondagen</strong> (5 werkdagen per week × 52,2 werkweken per jaar). 
+    </p>
+    <div class="callout callout-info">
+      <strong>Basisformule voor het bruto dagloon:</strong><br />
+      <code>Bruto dagloon = Totaal jaarloon (of SV-loon) in referteperiode ÷ 261 dagloondagen</code>
+    </div>
+    <p>
+      Verdien je bijvoorbeeld € 45.000 bruto per jaar inclusief 8% vakantiegeld? Dan bedraagt je dagloon <code>€ 45.000 ÷ 261 = € 172,41 per werkdag</code>. Wil je jouw totale jaarloon eerst exact bepalen inclusief toeslagen? Raadpleeg dan onze module voor <a href="/jaarinkomen-berekenen/">jaarinkomen berekenen</a>.
+    </p>
+
+    <h2>Wat is het verschil tussen bruto dagloon en netto dagloon?</h2>
+    <p>
+      Het berekende dagloon is <strong>altijd een brutobedrag</strong>. Zowel bij een salarisbetaling als bij een UWV-uitkering worden hierop loonbelasting en premies volksverzekeringen (box 1) ingehouden. 
+    </p>
+    <p>
+      Omdat de uiteindelijke netto uitbetaling sterk afhankelijk is van persoonlijke heffingskortingen, pensioenpremies en de witte tabel, kan een online calculator nooit een bindend nettobedrag garanderen. Voor een betrouwbare bruto-netto schatting gebruik je onze calculator voor <a href="/netto-salaris-berekenen/">netto salaris berekenen</a>.
+    </p>
+
+    <h2>Wat is een UWV-dagloon en wat is SV-loon?</h2>
+    <p>
+      Bij werkloosheid, ziekte of arbeidsongeschiktheid berekent het UWV jouw uitkering aan de hand van het <strong>SV-loon</strong> (socialeverzekeringsloon). Dit is het brutoloon waarover belastingen en sociale premies zijn afgedragen.
+    </p>
+    <p>
+      Onder het SV-loon vallen onder meer je basissalaris, 8% vakantiebijslag, een dertiende maand of eindejaarsuitkering, structureel overwerk en provisies, en de fiscale bijtelling van een leaseauto. Onbelaste vergoedingen (zoals reiskostenvergoeding van € 0,23/km of thuiswerkvergoeding van € 2,40/dag) maken géén deel uit van het SV-loon.
+    </p>
+
+    <h2>Hoe berekent UWV het dagloon per uitkering (WW, Ziektewet, WIA en WAO)?</h2>
+    <p>
+      Het UWV hanteert specifieke regels per werknemersverzekering:
+    </p>
+    <ul>
+      <li>
+        <strong>WW (Werkloosheidswet):</strong> Hier geldt de <em>voorlaatste-maandregel</em>. De referteperiode van 12 kalendermaanden eindigt op de laatste dag van de kalendermaand vóór de maand waarin je werkloos werd. Werd je werkloos op 10 mei 2026? Dan loopt de referteperiode van 1 april 2025 tot en met 31 maart 2026. Al het SV-loon daarin wordt gedeeld door 261 dagen. Je WW is de eerste 2 maanden 75% en daarna 70% van dit dagloon.
+      </li>
+      <li>
+        <strong>Ziektewet (ZW):</strong> De referteperiode is het jaar (12 kalendermaanden) voorafgaand aan de kalendermaand waarin je eerste ziektedag viel. Het SV-loon wordt gedeeld door 261 dagen; de uitkering is standaard 70% van het dagloon.
+      </li>
+      <li>
+        <strong>WIA (WGA en IVA):</strong> Omdat de WIA start na 104 weken ziekte, kijkt het UWV naar het <strong>refertejaar vóór je allereerste ziektedag</strong>. Zo verlaagt inkomensverlies tijdens de 2 ziektejaren je WIA-dagloon niet. Het gezonde SV-loon wordt gedeeld door 261 en geïndexeerd. Ontvang je tevens ontslag? Bereken dan ook je <a href="/transitievergoeding-berekenen/">transitievergoeding</a>.
+      </li>
+      <li>
+        <strong>WAO:</strong> Geldt voor rechten van vóór 2006. Het historische dagloon wordt halfjaarlijks wettelijk geïndexeerd.
+      </li>
+    </ul>
+
+    <h2>Wat is het maximumdagloon in 2026?</h2>
+    <p>
+      In Nederland geldt voor UWV-uitkeringen een wettelijk maximum: het <strong>maximumdagloon</strong>.
+    </p>
+    <div class="callout callout-warning">
+      <strong>Wettelijk maximumdagloon in 2026:</strong><br />
+      Het maximumdagloon bedraagt per 1 januari 2026 <strong>€ 309,91 bruto per dag</strong> (inclusief vakantiegeld).<br />
+      Op jaarbasis is dit € 80.886,51 (261 dagen) en maandelijks <strong>€ 6.740,54 bruto</strong> (21,75 dagen).
+    </div>
+    <p>
+      Als je berekende dagloon hoger is dan € 309,91, wordt je uitkering berekend over dit maximum. Het meerdere is onverzekerd, tenzij je werkgever een WGA-hiaat- of excedentverzekering heeft afgesloten.
+    </p>
+
+    <h2>Hoe werkt dagloon bij parttime werken?</h2>
+    <p>
+      UWV berekent het dagloon standaard over <strong>261 dagloondagen per jaar</strong> (5 werkdagen per week), ongeacht je deeltijdfactor. Werk je 3 dagen per week en verdien je € 26.100 per jaar? Dan is je UWV-dagloon <code>€ 26.100 ÷ 261 = € 100,00</code>. Dit lijkt lager dan je verdienste per feitelijk gewerkte dag (€ 167,31), maar de uitkering wordt vervolgens voor <strong>5 dagen per week</strong> betaald. Het wekelijkse uitkeringsbedrag blijft exact gelijk.
+    </p>
+
+    <h2>Tellen vakantiegeld, 13e maand en IKB mee?</h2>
+    <p>
+      Ja. Vaste inkomensbestanddelen uit de referteperiode tellen mee:
+    </p>
+    <ul>
+      <li><strong>Vakantiegeld:</strong> De wettelijke 8% vakantiebijslag zit standaard in het SV-loon op Mijn UWV.</li>
+      <li><strong>13e maand en eindejaarsuitkering:</strong> Structurele dertiende maanden en IKB-uitkeringen verhogen het SV-loon en tellen volledig mee.</li>
+    </ul>
+
+    <h2>Wat gebeurt er bij een gebroken jaar of ziekte en verlof?</h2>
+    <p>
+      Bij afwijkende situaties past UWV het dagloon aan:
+    </p>
+    <ul>
+      <li>
+        <strong>Minder dan 12 maanden gewerkt:</strong> Volgens art. 5 Besluit dagloonregels wordt de deler aangepast aan het aantal gewerkte maanden (aantal maanden × 21,75 dagloondagen), zodat starters niet worden benadeeld.
+      </li>
+      <li>
+        <strong>Tijdelijk lager loon door ziekte of verlof:</strong> Dagen waarop je wegens onbetaald verlof of ziekte geen of minder loon ontving, worden afgetrokken van de 261 dagen. Hierdoor blijft je dagloon op peil.
+      </li>
+    </ul>
+
+    <h2>Wat is het verschil tussen dagloon en uurloon?</h2>
+    <p>
+      Het <strong>uurloon</strong> is het tarief per gewerkt uur. Het <strong>dagloon</strong> is een gestandaardiseerd dagbedrag gebaseerd op 5 werkdagen per week. Een parttimer met 24 uur per week tegen € 20/uur (€ 480/week) heeft een uurloon van € 20, maar een UWV-dagloon van € 96 per dag (€ 480 ÷ 5).
+    </p>
+
+    <h2>Dagloon omrekenen naar weekbedrag en maandbedrag (de 21,75-norm)</h2>
+    <p>
+      UWV rekent met vaste factoren: <code>Weekbedrag = Dagloon × 5</code> en <code>Maandbedrag = Dagloon × 21,75</code> (261 ÷ 12). Hierdoor schommelt je uitkering niet met het kalendermaandverloop. Wil je weten wat je overhoudt na vaste lasten? Gebruik onze rekentool voor <a href="/netto-besteedbaar-inkomen-berekenen/">netto besteedbaar inkomen berekenen</a>.
+    </p>
+
+    <h2>Waarom kan je eigen berekening verschillen van het UWV-dagloon?</h2>
+    <p>
+      Kleine verschillen met de definitieve toekenningsbeschikking ontstaan doordat UWV rekent met de gegevens uit de loonaangifte (Polisadministratie), de voorlaatste-maandregel in de WW, loonloze verlofdagen of het maximumdagloon van € 309,91.
+    </p>
+    <p>
+      Wil je weten hoe lang je recht hebt op WW? Bereken je gewerkte jaren via <a href="/arbeidsverleden-berekenen/">arbeidsverleden berekenen</a>. Voor ondersteuning bij arbeidsbeperkingen kun je terecht op onze pagina voor <a href="/wajong-uitkering-berekenen/">Wajong uitkering berekenen</a>.
+    </p>
+  </div>
+</CalculatorLayout>

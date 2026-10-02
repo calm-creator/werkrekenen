@@ -1,0 +1,346 @@
+---
+// src/components/calculators/ArbeidskortingCalculator.astro
+import { DUTCH_RATES, ARBEIDSKORTING_RATES_2026 } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="arbeidskorting-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Gegevens invullen</h2>
+      <span class="rate-year-tag">Belastingdienst {DUTCH_RATES.year}</span>
+    </div>
+
+    <!-- 1. Arbeidsinkomen per jaar -->
+    <div class="form-group" style="margin-top: 1.25rem;">
+      <label for="input-income" class="form-label font-semibold">Arbeidsinkomen per jaar (€)</label>
+      <input
+        type="number"
+        id="input-income"
+        class="form-input"
+        min="0"
+        step="500"
+        value="45000"
+        placeholder="bijv. 45000"
+        aria-describedby="hint-income"
+      />
+      <span class="form-hint" id="hint-income">
+        Vul je verwachte arbeidsinkomen over het hele jaar in (zoals brutoloon, winst uit onderneming of resultaat uit werk).
+      </span>
+
+      <!-- Snelle keuzeknoppen -->
+      <div class="quick-pills" id="container-quick-pills" style="margin-top: 0.5rem;">
+        <button type="button" class="btn-quick-income" data-amount="25000">€ 25.000</button>
+        <button type="button" class="btn-quick-income" data-amount="35000">€ 35.000</button>
+        <button type="button" class="btn-quick-income active" data-amount="45000">€ 45.000</button>
+        <button type="button" class="btn-quick-income" data-amount="55000">€ 55.000</button>
+        <button type="button" class="btn-quick-income" data-amount="70000">€ 70.000</button>
+      </div>
+    </div>
+
+    <!-- 2. Belastingjaar -->
+    <div class="form-group">
+      <label for="select-year" class="form-label font-semibold">Belastingjaar</label>
+      <select id="select-year" class="form-select">
+        <option value="2026" selected>2026 (officiële tabellen)</option>
+      </select>
+      <span class="form-hint">
+        De Belastingdienst stelt ieder belastingjaar nieuwe schijven en afbouwpercentages vast.
+      </span>
+    </div>
+
+    <!-- 3. AOW-status -->
+    <div class="form-group">
+      <label for="select-aow" class="form-label font-semibold">Bereik je in dit jaar de AOW-leeftijd?</label>
+      <select id="select-aow" class="form-select">
+        <option value="none" selected>Nee (nog niet de AOW-leeftijd)</option>
+        <option value="during">Ja, ik bereik in 2026 de AOW-leeftijd</option>
+        <option value="full">Ik heb het hele jaar de AOW-leeftijd</option>
+      </select>
+      <span class="form-hint" id="hint-aow">
+        Vanaf de AOW-leeftijd betaal je geen AOW-premie meer, waardoor de arbeidskorting lager is.
+      </span>
+    </div>
+
+    <!-- Informatieve melding bij AOW-bereiken tijdens het jaar -->
+    <div id="alert-aow-during" class="callout callout-warning" style="display: none; margin-top: 1rem; font-size: 0.8125rem; line-height: 1.5; padding: 0.75rem 0.875rem;">
+      <strong>Let op bij AOW-leeftijd in 2026:</strong>
+      <span style="display: block; margin-top: 0.25rem;">
+        Omdat je in 2026 de AOW-leeftijd bereikt, geldt een gecombineerd belasting- en premiepercentage op basis van de exacte maand waarin je AOW ingaat. Je daadwerkelijke arbeidskorting ligt indicatief tussen het AOW-bedrag en het reguliere bedrag. Voor de exacte berekening verwijzen we naar de officiële rekenhulp van de Belastingdienst.
+      </span>
+    </div>
+
+    <!-- Actieknoppen -->
+    <div class="form-actions" style="margin-top: 1.5rem;">
+      <button type="button" id="btn-reset-arbeidskorting" class="btn btn-secondary btn-sm">
+        Standaardwaarden herstellen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart (Strict conform WerkRekenen Design System) -->
+  <div class="calc-result-card" aria-live="polite">
+    <!-- Hero Resultaat -->
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label" id="res-hero-label">Geschatte arbeidskorting</span>
+      <div class="result-hero-value" id="res-hero-amount">€ 5.674</div>
+      <span class="result-hero-sub" id="res-hero-sub">per jaar in 2026 (~ € 473 per maand)</span>
+    </div>
+
+    <!-- Toelichting callout -->
+    <div id="box-explanation" class="callout callout-info" style="margin-top: 0.875rem; margin-bottom: 0.875rem; font-size: 0.8125rem; line-height: 1.5; padding: 0.75rem 0.875rem;">
+      Op basis van een arbeidsinkomen van € 45.000 in 2026 bedraagt je geschatte arbeidskorting ongeveer € 5.674.
+    </div>
+
+    <!-- Specificatie van de Berekening -->
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Specificatie van je heffingskorting</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Arbeidsinkomen</span>
+        <span class="result-row-value font-medium" id="res-spec-income">€ 45.000,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label font-bold">Geschatte arbeidskorting</span>
+        <span class="result-row-value font-bold text-primary" id="res-spec-annual">€ 5.673,78</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Gemiddeld per maand</span>
+        <span class="result-row-value font-medium" id="res-spec-monthly">~ € 472,82</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Maximale arbeidskorting</span>
+        <span class="result-row-value" id="res-spec-max">€ 5.685,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Toepasselijke schijf</span>
+        <span class="result-row-value" id="res-spec-bracket">Schijf 3 (t/m € 45.592)</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">AOW-status</span>
+        <span class="result-row-value" id="res-spec-aow">Nog niet de AOW-leeftijd</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Belastingjaar</span>
+        <span class="result-row-value" id="res-spec-year">2026</span>
+      </div>
+    </div>
+
+    <!-- Uitklapbare uitleg "Hoe is dit berekend?" -->
+    <details class="advanced-details" style="margin-top: 1rem;">
+      <summary class="advanced-summary">
+        <span>Hoe is dit berekend?</span>
+        <svg class="summary-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </summary>
+      <div id="box-math-content" style="padding-top: 0.75rem; font-size: 0.8125rem; line-height: 1.55;">
+        <!-- Dynamisch gevuld via script -->
+      </div>
+    </details>
+
+    <!-- Contextuele link naar Netto Salaris -->
+    <div class="callout callout-subtle" style="margin-top: 1rem; font-size: 0.8125rem; padding: 0.75rem 0.875rem;">
+      <strong>Invloed op je netto salaris:</strong>
+      <span style="display: block; margin-top: 0.25rem;">
+        Arbeidskorting verlaagt de belasting die je betaalt en verhoogt zo direct je netto inkomen. Bereken direct je werkelijke nettoloon via <a href="/netto-salaris-berekenen/">netto salaris berekenen</a> of bekijk je totale jaarloon via <a href="/jaarinkomen-berekenen/">jaarinkomen berekenen</a>.
+      </span>
+    </div>
+
+    <!-- Officiële disclaimer -->
+    <div class="calc-disclaimer" style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-subtle);">
+      Deze calculator geeft een schatting van je arbeidskorting op basis van de door jou ingevulde gegevens en de officiële regels voor het gekozen belastingjaar. De definitieve arbeidskorting wordt door de Belastingdienst vastgesteld. Deze calculator is geen officiële rekentool van de Belastingdienst.
+    </div>
+  </div>
+</div>
+
+<script>
+  import { calculateArbeidskorting } from '../../utils/calculations';
+  import type { AowStatus } from '../../data/dutchRates';
+
+  function initArbeidskortingCalculator() {
+    const inputIncome = document.getElementById('input-income') as HTMLInputElement | null;
+    const selectYear = document.getElementById('select-year') as HTMLSelectElement | null;
+    const selectAow = document.getElementById('select-aow') as HTMLSelectElement | null;
+    const btnReset = document.getElementById('btn-reset-arbeidskorting') as HTMLButtonElement | null;
+    const quickPillButtons = document.querySelectorAll<HTMLButtonElement>('.btn-quick-income');
+    const alertAowDuring = document.getElementById('alert-aow-during');
+
+    // Result elementen
+    const resHeroAmount = document.getElementById('res-hero-amount');
+    const resHeroSub = document.getElementById('res-hero-sub');
+    const boxExplanation = document.getElementById('box-explanation');
+    const resSpecIncome = document.getElementById('res-spec-income');
+    const resSpecAnnual = document.getElementById('res-spec-annual');
+    const resSpecMonthly = document.getElementById('res-spec-monthly');
+    const resSpecMax = document.getElementById('res-spec-max');
+    const resSpecBracket = document.getElementById('res-spec-bracket');
+    const resSpecAow = document.getElementById('res-spec-aow');
+    const resSpecYear = document.getElementById('res-spec-year');
+    const boxMathContent = document.getElementById('box-math-content');
+
+    if (!inputIncome || !selectYear || !selectAow) return;
+
+    const formatEuro = (val: number, decimals: number = 2) => {
+      return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
+      }).format(val);
+    };
+
+    function updateCalculator() {
+      const incomeVal = parseFloat(inputIncome?.value || '0');
+      const yearVal = parseInt(selectYear?.value || '2026', 10);
+      const aowVal = (selectAow?.value || 'none') as AowStatus;
+
+      // Snelle keuzeknoppen active state synchroniseren
+      quickPillButtons.forEach((btn) => {
+        const amt = parseFloat(btn.getAttribute('data-amount') || '0');
+        if (Math.abs(amt - incomeVal) < 1) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+
+      // AOW during-alert zichtbaarheid
+      if (alertAowDuring) {
+        alertAowDuring.style.display = aowVal === 'during' ? 'block' : 'none';
+      }
+
+      // Berekening uitvoeren
+      const res = calculateArbeidskorting({
+        income: isNaN(incomeVal) ? 0 : incomeVal,
+        year: yearVal,
+        aowStatus: aowVal
+      });
+
+      // Hero weergave
+      if (resHeroAmount) {
+        if (aowVal === 'during' && res.indicativeMin !== undefined && res.indicativeMax !== undefined) {
+          resHeroAmount.textContent = `${formatEuro(res.indicativeMin, 0)} – ${formatEuro(res.indicativeMax, 0)}`;
+        } else {
+          resHeroAmount.textContent = formatEuro(res.arbeidskorting, 0);
+        }
+      }
+
+      if (resHeroSub) {
+        if (aowVal === 'during') {
+          resHeroSub.textContent = `Indicatieve bandbreedte in ${res.year} (afhankelijk van exacte AOW-maand)`;
+        } else if (res.arbeidskorting === 0) {
+          resHeroSub.textContent = `per jaar in ${res.year}`;
+        } else {
+          resHeroSub.textContent = `per jaar in ${res.year} (~ ${formatEuro(res.arbeidskortingMonthly, 0)} per maand)`;
+        }
+      }
+
+      // Toelichtingstekst
+      if (boxExplanation) {
+        boxExplanation.textContent = res.explanation;
+      }
+
+      // Specificaties
+      if (resSpecIncome) resSpecIncome.textContent = formatEuro(res.income, 2);
+      if (resSpecAnnual) {
+        if (aowVal === 'during' && res.indicativeMin !== undefined && res.indicativeMax !== undefined) {
+          resSpecAnnual.textContent = `${formatEuro(res.indicativeMin, 2)} – ${formatEuro(res.indicativeMax, 2)}`;
+        } else {
+          resSpecAnnual.textContent = formatEuro(res.arbeidskorting, 2);
+        }
+      }
+      if (resSpecMonthly) {
+        if (aowVal === 'during' && res.indicativeMin !== undefined && res.indicativeMax !== undefined) {
+          resSpecMonthly.textContent = `~ ${formatEuro(res.indicativeMin / 12, 2)} – ${formatEuro(res.indicativeMax / 12, 2)}`;
+        } else {
+          resSpecMonthly.textContent = `~ ${formatEuro(res.arbeidskortingMonthly, 2)}`;
+        }
+      }
+      if (resSpecMax) resSpecMax.textContent = formatEuro(res.maxArbeidskorting, 2);
+      if (resSpecBracket) resSpecBracket.textContent = `Schijf ${res.bracketIndex} (${res.bracketRange})`;
+      if (resSpecAow) resSpecAow.textContent = res.aowStatusLabel;
+      if (resSpecYear) resSpecYear.textContent = String(res.year);
+
+      // Uitklapbare rekenstappen
+      if (boxMathContent) {
+        let mathHtml = `
+          <p style="margin-bottom: 0.5rem;"><strong>Wettelijke formule (${res.bracketRange}):</strong></p>
+          <div style="background-color: var(--bg-subtle); padding: 0.625rem 0.75rem; border-radius: var(--radius-sm); border-left: 3px solid var(--color-primary); margin-bottom: 0.75rem;">
+            <code>${res.formulaDescription}</code>
+          </div>
+        `;
+
+        if (res.income <= 0) {
+          mathHtml += `<p style="color: var(--text-muted); margin-bottom: 0;">Er is geen arbeidsinkomen ingevuld, waardoor de arbeidskorting uitkomt op € 0,00.</p>`;
+        } else if (res.income > 132920) {
+          mathHtml += `<p style="color: var(--text-muted); margin-bottom: 0;">Het inkomen ligt boven de wettelijke afbouwgrens van € 132.920. De korting van maximaal € 5.685 is door de afbouw van 6,510% volledig verminderd tot € 0,00.</p>`;
+        } else if (aowVal === 'during') {
+          mathHtml += `
+            <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+              Voor werknemers die in de loop van het jaar de AOW-leeftijd bereiken, geldt een gewogen belastingtarief en tijdsevenredige korting:
+            </p>
+            <ul style="padding-left: 1.25rem; margin-bottom: 0.5rem; color: var(--text-muted);">
+              <li>Reguliere tabel (onder AOW): ${formatEuro(res.indicativeMax ?? 0, 2)}</li>
+              <li>AOW-tabel (volledig AOW): ${formatEuro(res.indicativeMin ?? 0, 2)}</li>
+            </ul>
+            <p style="color: var(--text-muted); margin-bottom: 0;">
+              Het exacte bedrag hangt af van de precieze geboortedag en ingangsmaand van de AOW.
+            </p>
+          `;
+        } else {
+          mathHtml += `
+            <ul style="padding-left: 1.25rem; margin-bottom: 0; color: var(--text-muted);">
+              <li>Arbeidsinkomen: ${formatEuro(res.income, 2)}</li>
+              <li>Toegepaste schijf: Schijf ${res.bracketIndex}</li>
+              <li>Berekend jaarbedrag: <strong>${formatEuro(res.arbeidskorting, 2)}</strong></li>
+              <li>Gemiddeld per maand: ~ ${formatEuro(res.arbeidskortingMonthly, 2)} (als indicatie)</li>
+            </ul>
+          `;
+        }
+
+        boxMathContent.innerHTML = mathHtml;
+      }
+    }
+
+    // Event listeners voor live berekening
+    inputIncome.addEventListener('input', updateCalculator);
+    inputIncome.addEventListener('change', updateCalculator);
+    selectYear.addEventListener('change', updateCalculator);
+    selectAow.addEventListener('change', updateCalculator);
+
+    // Quick pills
+    quickPillButtons.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const amt = btn.getAttribute('data-amount');
+        if (amt && inputIncome) {
+          inputIncome.value = amt;
+          updateCalculator();
+        }
+      });
+    });
+
+    // Reset button
+    btnReset?.addEventListener('click', () => {
+      if (inputIncome) inputIncome.value = '45000';
+      if (selectYear) selectYear.value = '2026';
+      if (selectAow) selectAow.value = 'none';
+      updateCalculator();
+    });
+
+    // Initiële berekening uitvoeren
+    updateCalculator();
+  }
+
+  // Uitvoeren bij laden en na client-side page swaps
+  document.addEventListener('DOMContentLoaded', initArbeidskortingCalculator);
+  if (document.readyState === 'interactive' || document.readyState === 'complete') {
+    initArbeidskortingCalculator();
+  }
+</script>

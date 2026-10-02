@@ -1,0 +1,338 @@
+---
+// src/pages/minimumloon-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import MinimumloonCalculator from '../components/calculators/MinimumloonCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+import { DUTCH_RATES, MINIMUM_WAGE_RATES_2026 } from '../data/dutchRates';
+
+const meta = getCalculatorBySlug('minimumloon-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Wat is het minimumloon in 2026?',
+    answer: 'In Nederland geldt sinds 1 januari 2024 alleen nog een wettelijk minimumuurloon. Voor volwassenen vanaf 21 jaar bedraagt het wettelijk minimumuurloon € 14,71 bruto per uur vanaf 1 januari 2026 en € 14,99 bruto per uur vanaf 1 juli 2026. Het bedrag dat je per week, 4 weken of maand verdient, hangt direct af van het aantal uren dat je volgens je contract of rooster werkt.'
+  },
+  {
+    question: 'Wat is het minimumuurloon in 2026?',
+    answer: 'Het wettelijk minimumuurloon voor werknemers van 21 jaar en ouder is in 2026 vastgesteld op € 14,71 bruto per uur in de eerste helft van het jaar (per 1 januari 2026) en op € 14,99 bruto per uur in de tweede helft van het jaar (per 1 juli 2026). Voor jongeren van 15 tot en met 20 jaar geldt een percentage van dit volwassen uurloon (het minimumjeugdloon).'
+  },
+  {
+    question: 'Wat is het minimumloon voor 21 jaar?',
+    answer: 'Werknemers van 21 jaar of ouder hebben wettelijk recht op 100% van het wettelijk minimumuurloon. Dit is € 14,71 bruto per uur vanaf 1 januari 2026 en € 14,99 bruto per uur vanaf 1 juli 2026. Bij een 40-urige werkweek komt dit per 1 juli 2026 neer op € 599,60 bruto per week en gemiddeld circa € 2.598,27 bruto per maand (exclusief 8% vakantiebijslag).'
+  },
+  {
+    question: 'Wat is het minimumloon voor jongeren van 15 tot 20 jaar?',
+    answer: 'Voor jongeren van 15 t/m 20 jaar geldt het wettelijk minimumjeugdloon. Dit is een vast wettelijk percentage van het volwassen minimumuurloon: 15 jaar (30%), 16 jaar (34,5%), 17 jaar (39,5%), 18 jaar (50%), 19 jaar (60%) en 20 jaar (80%). Per 1 juli 2026 is het minimumjeugdloon: € 4,50 (15 jr), € 5,17 (16 jr), € 5,92 (17 jr), € 7,50 (18 jr), € 8,99 (19 jr) en € 11,99 (20 jr).'
+  },
+  {
+    question: 'Hoe bereken ik mijn minimumloon per maand?',
+    answer: 'Omdat er geen vast wettelijk maandloon meer bestaat, bereken je je maandloon via de wettelijke jaarmethode: vermenigvuldig je gewerkte uren per week met het geldende minimumuurloon voor je wekelijkse loon. Vermenigvuldig dit weekloon met 52 weken en deel de uitkomst door 12 maanden (Formule: Weekloon × 52 ÷ 12). Bij 36 uur per week tegen € 14,99 is dat: 36 × € 14,99 = € 539,64 per week → € 539,64 × 52 ÷ 12 = € 2.338,44 bruto per maand.'
+  },
+  {
+    question: 'Is er een vast minimum maandloon in Nederland?',
+    answer: 'Nee. Sinds de invoering van de Wet invoering minimumuurloon op 1 januari 2024 kent Nederland geen wettelijk vastgesteld minimum maandloon, weekloon of dagloon meer. Iedere werknemer heeft recht op hetzelfde minimumbedrag per gewerkt uur. Iemand die 40 uur werkt ontvangt per maand daardoor meer dan iemand die 36 of 38 uur werkt bij dezelfde werkgever.'
+  },
+  {
+    question: 'Hoeveel is het minimumloon bij 40 uur werken?',
+    answer: 'Bij een werkweek van 40 uur bedraagt het bruto minimumloon vanaf 1 juli 2026: € 599,60 per week (40 × € 14,99), € 2.398,40 per 4 weken en gemiddeld circa € 2.598,27 bruto per maand (599,60 × 52 ÷ 12). Vanaf 1 januari 2026 was dit bij 40 uur: € 588,40 per week en gemiddeld € 2.549,73 bruto per maand.'
+  },
+  {
+    question: 'Telt vakantiegeld mee bij het minimumloon?',
+    answer: 'Nee. Het wettelijk minimumuurloon is het basisloon exclusief vakantiegeld. Volgens de Wet minimumloon en minimumvakantiebijslag (Wml) heeft elke werknemer daarnaast recht op minimaal 8% wettelijke vakantiebijslag over het totale brutoloon. Vakantiegeld mag door de werkgever dus niet worden verrekend om aan het minimumuurloon te voldoen.'
+  },
+  {
+    question: 'Wat is het minimumloon voor een BBL-leerling?',
+    answer: 'Voor leerlingen in de beroepsbegeleidende leerweg (BBL) van 18, 19 en 20 jaar gelden afwijkende wettelijke staffelpercentages: 18 jaar (45,5%), 19 jaar (52,5%) en 20 jaar (61,5%). Per 1 juli 2026 is het BBL-minimumuurloon: € 6,82 (18 jr), € 7,87 (19 jr) en € 9,22 (20 jr). Voor BBL-leerlingen van 15 t/m 17 jaar en 21 jaar of ouder gelden dezelfde bedragen als voor reguliere werknemers.'
+  },
+  {
+    question: 'Wat kan ik doen als mijn werkgever minder dan het minimumloon betaalt?',
+    answer: 'Onderbetaling is verboden bij wet. Als je werkgever minder betaalt dan het wettelijk minimumuurloon, kun je het achterstallige loon met terugwerkende kracht opeisen (tot 5 jaar terug), vermeerderd met wettelijke rente en wettelijke verhoging (tot maximaal 50%). Je kunt een melding doen bij de Nederlandse Arbeidsinspectie (NLA), die werkgevers boetes kan opleggen tot tienduizenden euro\'s per overtreding.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="Rijksoverheid & Wet minimumloon en minimumvakantiebijslag"
+  customTitle="Minimumloon Berekenen 2026 | Minimumuurloon per Uur, Week en Maand"
+>
+  <MinimumloonCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is het wettelijk minimumloon in Nederland?</h2>
+    <p>
+      Het <strong>wettelijk minimumloon</strong> is de wettelijke ondergrens voor de beloning van werknemers in Nederland. De regels zijn vastgelegd in de <em>Wet minimumloon en minimumvakantiebijslag (Wml)</em>. Het doel van de wet is om iedere werkende in loondienst te beschermen tegen onderbetaling en te zorgen voor een sociaal aanvaardbaar bestaansminimum.
+    </p>
+    <p>
+      Zowel fulltime werknemers, parttimers, oproepkrachten, uitzendkrachten als stagiairs met een arbeidsovereenkomst hebben recht op ten minste het geldende minimumloon. Werkgevers mogen hier niet van afwijken in het nadeel van de werknemer, zelfs niet als de werknemer daar schriftelijk mee heeft ingestemd. Een bepaling in een arbeidscontract waarin een lager loon wordt afgesproken dan het wettelijk minimum is juridisch nietig.
+    </p>
+
+    <h2>Sinds 2024: Uitsluitend een wettelijk minimumuurloon</h2>
+    <p>
+      Een van de belangrijkste arbeidsrechtelijke hervormingen van de afgelopen jaren is de invoering van het <strong>uniforme wettelijk minimumuurloon</strong> per 1 januari 2024. Vóór die datum kende de Nederlandse wet vaste minimumbedragen per maand, per week en per dag. Dat leidde tot een oneerlijke situatie: iemand die 40 uur per week werkte in bijvoorbeeld de bouw of logistiek kreeg hetzelfde minimum maandbedrag als iemand die 36 uur per week werkte in de financiële sector, waardoor het feitelijke uurloon flink verschilde.
+    </p>
+    <div class="callout callout-info">
+      <strong>Kernbeginsel sinds 2024:</strong><br />
+      Er bestaat in Nederland <strong>geen vast wettelijk minimum maandloon meer</strong>. De wet kent uitsluitend een wettelijk minimumbedrag <em>per gewerkt uur</em>. Het bedrag dat je per week, per 4 weken of per maand ontvangt, wordt altijd berekend door je gewerkte uren te vermenigvuldigen met dit wettelijk minimumuurloon.
+    </div>
+
+    <h2>Wat zijn de officiële minimumloon bedragen in 2026?</h2>
+    <p>
+      Het wettelijk minimumloon wordt in Nederland gewoonlijk twee keer per jaar geïndexeerd door het Ministerie van Sociale Zaken en Werkgelegenheid (SZW): per <strong>1 januari</strong> en per <strong>1 juli</strong>. Deze aanpassing volgt de gemiddelde contractloonontwikkeling in Nederland.
+    </p>
+    <p>
+      Voor 2026 gelden de volgende officiële bedragen van de Rijksoverheid voor volwassenen vanaf 21 jaar:
+    </p>
+    <ul>
+      <li><strong>Vanaf 1 januari 2026:</strong> <code>€ 14,71 bruto per uur</code></li>
+      <li><strong>Vanaf 1 juli 2026:</strong> <code>€ 14,99 bruto per uur</code></li>
+    </ul>
+    <p>
+      Benieuwd naar je huidige loon per uur? Bereken direct je werkelijke uurloon via onze calculator voor <a href="/uurloon-berekenen/">uurloon berekenen</a>.
+    </p>
+
+    <h2>Minimumjeugdloon per leeftijd in 2026 (15 t/m 20 jaar)</h2>
+    <p>
+      Voor jonge werknemers van 15 tot en met 20 jaar geldt het <strong>minimumjeugdloon</strong>. Het uurloon van een jongere is een wettelijk vastgesteld percentage van het minimumuurloon voor volwassenen (21 jaar en ouder). Vanaf de dag dat een werknemer 21 jaar wordt, ontstaat direct recht op het volledige minimumloon.
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Wettelijk minimumloon en minimumjeugdloon per leeftijd in 2026">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Leeftijd</th>
+            <th>Wettelijk percentage</th>
+            <th>Per 1 januari 2026</th>
+            <th>Per 1 juli 2026</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>21 jaar of ouder</strong></td>
+            <td>100,0%</td>
+            <td>€ 14,71</td>
+            <td>€ 14,99</td>
+          </tr>
+          <tr>
+            <td><strong>20 jaar</strong></td>
+            <td>80,0%</td>
+            <td>€ 11,77</td>
+            <td>€ 11,99</td>
+          </tr>
+          <tr>
+            <td><strong>19 jaar</strong></td>
+            <td>60,0%</td>
+            <td>€ 8,83</td>
+            <td>€ 8,99</td>
+          </tr>
+          <tr>
+            <td><strong>18 jaar</strong></td>
+            <td>50,0%</td>
+            <td>€ 7,36</td>
+            <td>€ 7,50</td>
+          </tr>
+          <tr>
+            <td><strong>17 jaar</strong></td>
+            <td>39,5%</td>
+            <td>€ 5,81</td>
+            <td>€ 5,92</td>
+          </tr>
+          <tr>
+            <td><strong>16 jaar</strong></td>
+            <td>34,5%</td>
+            <td>€ 5,08</td>
+            <td>€ 5,17</td>
+          </tr>
+          <tr>
+            <td><strong>15 jaar</strong></td>
+            <td>30,0%</td>
+            <td>€ 4,41</td>
+            <td>€ 4,50</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Wat is het BBL minimumloon in 2026?</h2>
+    <p>
+      Voor leerlingen die een opleiding volgen via de <strong>beroepsbegeleidende leerweg (BBL)</strong> geldt een specifieke wettelijke regeling op grond van het <em>Besluit minimumjeugdloonregeling</em>. Deze staffel geldt uitsluitend voor de leeftijden 18, 19 en 20 jaar.
+    </p>
+    <p>
+      Voor BBL-leerlingen van 15, 16 en 17 jaar en voor BBL-werknemers van 21 jaar en ouder gelden dezelfde minimumuurlonen als in de reguliere staffel. De verlaagde BBL-percentages voor 18 t/m 20 jaar zijn bedoeld om werkgevers te stimuleren opleidingsplaatsen aan te bieden:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: BBL minimumloon staffel per leeftijd in 2026">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Leeftijd (BBL)</th>
+            <th>BBL percentage</th>
+            <th>Per 1 januari 2026</th>
+            <th>Per 1 juli 2026</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>21 jaar of ouder</strong></td>
+            <td>100,0%</td>
+            <td>€ 14,71</td>
+            <td>€ 14,99</td>
+          </tr>
+          <tr>
+            <td><strong>20 jaar</strong></td>
+            <td>61,5%</td>
+            <td>€ 9,05</td>
+            <td>€ 9,22</td>
+          </tr>
+          <tr>
+            <td><strong>19 jaar</strong></td>
+            <td>52,5%</td>
+            <td>€ 7,72</td>
+            <td>€ 7,87</td>
+          </tr>
+          <tr>
+            <td><strong>18 jaar</strong></td>
+            <td>45,5%</td>
+            <td>€ 6,69</td>
+            <td>€ 6,82</td>
+          </tr>
+          <tr>
+            <td><strong>15 t/m 17 jaar</strong></td>
+            <td>Gelijk aan regulier</td>
+            <td>€ 4,41 – € 5,81</td>
+            <td>€ 4,50 – € 5,92</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Hoe bereken je het minimumloon per week, per maand en per jaar?</h2>
+    <p>
+      Omdat een kalendermaand gemiddeld <code>4,333 weken</code> telt (52 weken gedeeld door 12 maanden), mag een werkgever het maandloon niet simpelweg berekenen door het weekloon met 4 te vermenigvuldigen. De officiële rekenmethode verloopt volgens vaste wiskundige stappen:
+    </p>
+    <ol>
+      <li><strong>Minimumloon per week:</strong> <code>Aantal uren per week × Minimumuurloon</code></li>
+      <li><strong>Minimumloon per 4 weken:</strong> <code>Weekloon × 4</code> (of: <code>Uren per 4 weken × Minimumuurloon</code>)</li>
+      <li><strong>Geschat minimumloon per maand:</strong> <code>(Weekloon × 52 weken) ÷ 12 kalendermaanden</code></li>
+      <li><strong>Minimumloon per jaar:</strong> <code>Weekloon × 52 weken</code> (of: <code>Maandloon × 12</code>)</li>
+    </ol>
+
+    <h3>Rekenvoorbeelden bij verschillende werkweken (per 1 juli 2026, 21+ jaar)</h3>
+    <p>
+      In onderstaand overzicht zie je hoe het bruto wettelijk minimumloon uitvalt bij gangbare arbeidsduren in Nederland:
+    </p>
+
+    <div class="table-container" tabindex="0" role="region" aria-label="Tabel: Rekenvoorbeelden minimumloon per week, 4 weken, maand en jaar">
+      <table class="table-wide">
+        <thead>
+          <tr>
+            <th>Werkweek</th>
+            <th>Minimum per week</th>
+            <th>Per 4 weken</th>
+            <th>Geschat per maand</th>
+            <th>Geschat per jaar</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>24 uur (parttime)</strong></td>
+            <td>€ 359,76</td>
+            <td>€ 1.439,04</td>
+            <td>€ 1.558,96</td>
+            <td>€ 18.707,52</td>
+          </tr>
+          <tr>
+            <td><strong>32 uur (4 dagen)</strong></td>
+            <td>€ 479,68</td>
+            <td>€ 1.918,72</td>
+            <td>€ 2.078,61</td>
+            <td>€ 24.943,36</td>
+          </tr>
+          <tr>
+            <td><strong>36 uur (CAO standaard)</strong></td>
+            <td>€ 539,64</td>
+            <td>€ 2.158,56</td>
+            <td>€ 2.338,44</td>
+            <td>€ 28.061,28</td>
+          </tr>
+          <tr>
+            <td><strong>38 uur (gemiddeld)</strong></td>
+            <td>€ 569,62</td>
+            <td>€ 2.278,48</td>
+            <td>€ 2.468,35</td>
+            <td>€ 29.620,24</td>
+          </tr>
+          <tr>
+            <td><strong>40 uur (fulltime)</strong></td>
+            <td>€ 599,60</td>
+            <td>€ 2.398,40</td>
+            <td>€ 2.598,27</td>
+            <td>€ 31.179,20</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p>
+      Bekijk ook onze rekentools voor <a href="/uurloon-naar-maandloon-berekenen/">uurloon naar maandloon omrekenen</a> en <a href="/weekloon-berekenen/">weekloon berekenen</a> voor verdere salarisvergelijkingen.
+    </p>
+
+    <h2>Minimumloon bij parttime werk</h2>
+    <p>
+      Werk je in deeltijd, bijvoorbeeld 16, 20 of 28 uur per week? Dan geldt exact hetzelfde wettelijk minimumuurloon als voor fulltime collega\'s van dezelfde leeftijd. Je hebt wettelijk recht op het minimumuurloon vermenigvuldigd met elk uur dat je daadwerkelijk hebt gewerkt. Vergelijk parttime inkomens eenvoudig via onze module voor <a href="/parttime-salaris-berekenen/">parttime salaris berekenen</a>.
+    </p>
+
+    <h2>Wat gebeurt er als je jarig bent tijdens de loonperiode?</h2>
+    <p>
+      Voor werknemers tussen de 15 en 20 jaar stijgt het minimumjeugdloon op de verjaardag. De wet bepaalt dat het nieuwe, hogere minimumuurloon ingaat op de <strong>exacte dag van je verjaardag</strong>.
+    </p>
+    <p>
+      Valt je verjaardag midden in een loonperiode (bijvoorbeeld op de 15e van de maand)? Dan moet de werkgever de gewerkte uren tot aan je verjaardag uitbetalen tegen het oude jeugdloon, en de uren vanaf je verjaardag tegen het nieuwe hogere uurloon. Veel salarissystemen splitsen deze uren automatisch op de loonstrook.
+    </p>
+
+    <h2>Telt vakantiegeld mee voor het minimumloon?</h2>
+    <p>
+      Een veelgemaakte misvatting is dat het minimumloon inclusief vakantiegeld is. Dit is <strong>niet het geval</strong>. Het wettelijk minimumuurloon betreft het zuivere basisloon.
+    </p>
+    <p>
+      Op grond van artikel 15 van de Wet minimumloon en minimumvakantiebijslag heeft iedere werknemer daarnaast recht op ten minste <strong>8% vakantiebijslag</strong> over het totale bruto jaarloon. Een werkgever mag dit vakantiegeld dus nooit gebruiken om een te laag basisuurloon aan te vullen tot het minimumloon. Bereken je vakantiegeld nauwkeurig via <a href="/vakantiegeld-berekenen/">vakantiegeld berekenen</a>.
+    </p>
+
+    <h2>Wat telt wel en niet mee voor het wettelijk minimumloon?</h2>
+    <p>
+      Om te toetsen of je werkgever aan de wet voldoet, kijkt de Nederlandse Arbeidsinspectie naar de samenstelling van je brutoloon:
+    </p>
+    <ul>
+      <li><strong>Telt WEL mee:</strong> Het bruto basisloon per uur, structurele prestatiebeloningen en provisies, en vergoedingen voor gewerkte uren op basis van stukloon.</li>
+      <li><strong>Telt NIET mee:</strong> Wettelijke vakantiebijslag (8%), overwerkvergoedingen en overurentoeslagen, onkostenvergoedingen (zoals reiskosten en thuiswerkvergoeding), gratificaties en eenmalige eindejaarsuitkeringen of winstdelingen.</li>
+    </ul>
+    <p>
+      Maak je regelmatig overuren? Bekijk onze rekentool voor <a href="/overuren-berekenen/">overuren berekenen</a> om te zien hoe extra uren worden vergoed.
+    </p>
+
+    <h2>Verschil tussen bruto en netto minimumloon</h2>
+    <p>
+      Het wettelijk minimumloon is altijd een <strong>brutobedrag</strong>. Hoeveel je daarvan daadwerkelijk op je bankrekening gestort krijgt (het nettoloon), hangt af van je persoonlijke fiscale situatie:
+    </p>
+    <ul>
+      <li>De inhouding van loonbelasting en premies volksverzekeringen (box 1);</li>
+      <li>De toepassing van de <strong>algemene heffingskorting</strong> en <strong>arbeidskorting</strong>;</li>
+      <li>Eventuele inhoudingen voor pensioenpremie volgens je cao;</li>
+      <li>Of je de loonheffingskorting bij deze werkgever laat toepassen.</li>
+    </ul>
+    <p>
+      Wil je direct zien hoeveel je netto overhoudt van je bruto minimumloon? Gebruik onze uitgebreide rekentool voor <a href="/netto-salaris-berekenen/">netto salaris berekenen</a> of bekijk je totale jaarinkomen via <a href="/jaarinkomen-berekenen/">jaarinkomen berekenen</a>.
+    </p>
+
+    <h2>Wat als je werkgever minder dan het minimumloon betaalt?</h2>
+    <p>
+      Het betalen van minder dan het wettelijk minimumloon is een economisch delict. Als werknemer sta je sterk in je recht:
+    </p>
+    <ol>
+      <li><strong>Loonvordering:</strong> Je kunt het achterstallige loon schriftelijk opeisen bij je werkgever. De verjaringstermijn hiervoor is 5 jaar.</li>
+      <li><strong>Wettelijke verhoging en rente:</strong> Bij te late of onvolledige betaling heb je recht op de wettelijke verhoging (art. 7:625 BW), die kan oplopen tot 50% van het achterstallige loon, plus de wettelijke rente.</li>
+      <li><strong>Melding Arbeidsinspectie:</strong> Je kunt vertrouwelijk een melding indienen bij de <em>Nederlandse Arbeidsinspectie (NLA)</em>. Inspecteurs kunnen onaangekondigd controleren en werkgevers boetes opleggen die kunnen oplopen tot € 10.000 per onderbetaalde werknemer.</li>
+    </ol>
+  </div>
+</CalculatorLayout>

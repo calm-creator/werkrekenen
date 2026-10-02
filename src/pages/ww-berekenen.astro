@@ -1,0 +1,235 @@
+---
+// src/pages/ww-berekenen.astro
+import CalculatorLayout from '../layouts/CalculatorLayout.astro';
+import WwCalculator from '../components/calculators/WwCalculator.astro';
+import { getCalculatorBySlug } from '../data/calculators';
+import { DUTCH_RATES } from '../data/dutchRates';
+
+const meta = getCalculatorBySlug('ww-berekenen')!;
+
+const faqItems = [
+  {
+    question: 'Hoeveel WW krijg ik per maand?',
+    answer: 'De hoogte van je WW-uitkering is gebaseerd op je SV-loon (socialeverzekeringsloon) in het refertejaar vóór je werkloosheid. Tijdens de eerste 2 maanden ontvang je 75% van je berekende WW-maandloon (dagloon × 21,75). Vanaf de derde maand bedraagt je WW-uitkering 70% van het WW-maandloon. Verdien je meer dan het wettelijk maximumdagloon (€ 309,91 bruto per dag in 2026), dan geldt een maximale bruto WW-uitkering van circa € 5.055,41 per maand in de eerste 2 maanden en circa € 4.718,38 per maand vanaf maand 3.'
+  },
+  {
+    question: 'Hoe wordt mijn WW-uitkering berekend?',
+    answer: 'UWV berekent je WW-uitkering in drie vaste stappen: 1) Het totale SV-loon over de 12 kalendermaanden van de referteperiode wordt gedeeld door 261 dagloondagen om je bruto dagloon te bepalen. 2) Dit dagloon wordt vermenigvuldigd met 21,75 (het gemiddelde aantal werkdagen per maand) om het WW-maandloon vast te stellen. 3) Je uitkering is in de eerste 2 maanden 75% van dit maandloon en vanaf maand 3 bedraagt dit 70%.'
+  },
+  {
+    question: 'Hoeveel procent van mijn loon krijg ik met WW?',
+    answer: 'In de eerste 2 kalendermaanden van je werkloosheid ontvang je 75% van je WW-maandloon. Vanaf de derde maand tot aan het einde van je recht bedraagt de uitkering 70% van het WW-maandloon. Let op: dit percentage geldt over je SV-loon tot aan het maximumdagloon, niet onbeperkt over elk willekeurig topsalaris.'
+  },
+  {
+    question: 'Hoe lang heb ik recht op een WW-uitkering?',
+    answer: 'De minimale duur van een WW-uitkering is 3 maanden als je aan de wekeneis voldoet (minimaal 26 van de laatste 36 weken gewerkt). Voldoe je ook aan de jareneis (minimaal 4 van de laatste 5 jaar gewerkt), dan wordt de duur verlengd op basis van je totale arbeidsverleden: 1 maand per jaar voor de eerste 10 jaar, 1 maand per jaar voor resterende jaren t/m 2015, en 0,5 maand per jaar voor jaren vanaf 2016. De maximale wettelijke duur van de WW is 24 maanden.'
+  },
+  {
+    question: 'Hoe wordt het WW-dagloon berekend?',
+    answer: 'Het WW-dagloon wordt berekend door je totale SV-loon in de referteperiode te delen door 261 dagloondagen. De referteperiode beslaat 12 aaneengesloten kalendermaanden die eindigen op de laatste dag van de voorlaatste maand vóórdat je werkloos werd. In het SV-loon zijn opgebouwd vakantiegeld, een dertiende maand en eventuele vaste ploegentoeslagen reeds inbegrepen. Het dagloon is gemaximeerd op € 309,91 bruto per dag in 2026.'
+  },
+  {
+    question: 'Wat is de wekeneis voor WW?',
+    answer: 'De wekeneis (ook wel referte-eis genoemd) houdt in dat je in de 36 weken direct voorafgaand aan je eerste werkloosheidsdag in minimaal 26 weken moet hebben gewerkt. Het aantal gewerkte uren per week maakt hierbij niet uit: ook 1 gewerkt uur in een kalenderweek telt al mee als een gewerkte week. Voldoe je aan de wekeneis, dan heb je recht op de basis-WW van ten minste 3 maanden.'
+  },
+  {
+    question: 'Wat is de jareneis voor WW?',
+    answer: 'De jareneis bepaalt of je recht hebt op een langere WW-uitkering dan de basisduur van 3 maanden. Je voldoet aan de jareneis als je in de 5 kalenderjaren vóór het jaar waarin je werkloos werd, in minimaal 4 kalenderjaren voldoende loon hebt ontvangen (ten minste 208 uur per jaar betaald loon). Voldoe je aan de jareneis, dan telt je totale arbeidsverleden mee voor de duur van je uitkering.'
+  },
+  {
+    question: 'Kan ik werken naast mijn WW-uitkering?',
+    answer: 'Ja, je mag altijd werken tijdens je WW-uitkering. UWV hanteert een inkomstenverrekening waarbij werken altijd financieel loont: UWV vult 75% (in de eerste 2 maanden) of 70% (vanaf maand 3) van je inkomensverlies aan ten opzichte van je WW-maandloon. Van elke verdiende euro hou je dus minimaal 25 tot 30 cent extra over vergeleken met alleen een uitkering. Je moet je inkomsten maandelijks doorgeven via de Inkomstenopgave op Mijn UWV.'
+  },
+  {
+    question: 'Wanneer stopt mijn WW-uitkering?',
+    answer: 'Je WW-uitkering stopt wanneer: 1) de maximale duur van je uitkering is bereikt; 2) je nieuwe inkomsten uit werk meer bedragen dan 87,5% van je WW-maandloon gedurende 2 opeenvolgende maanden; 3) je de AOW-gerechtigde leeftijd bereikt; 4) je verhuist naar het buitenland zonder toestemming; of 5) je niet voldoet aan verplichtingen zoals de sollicitatieplicht of het tijdig doorgeven van wijzigingen.'
+  },
+  {
+    question: 'Kan ik WW krijgen als mijn tijdelijke contract niet wordt verlengd?',
+    answer: 'Ja. Als je tijdelijke contract van rechtswege afloopt en je werkgever besluit het niet te verlengen, ben je niet verwijtbaar werkloos. Mits je voldoet aan de wekeneis (minstens 26 van de laatste 36 weken gewerkt) en beschikbaar bent voor arbeid, kom je in aanmerking voor een WW-uitkering. Vraag de WW aan vanaf 1 week vóór je laatste werkdag tot uiterlijk 1 week na je eerste werkloosheidsdag.'
+  }
+];
+---
+
+<CalculatorLayout
+  calculator={meta}
+  faqItems={faqItems}
+  applicableYear={2026}
+  officialSource="UWV & Besluit dagloonregels werknemersverzekeringen"
+  customTitle="WW Berekenen 2026 | WW-Uitkering Berekenen"
+>
+  <WwCalculator slot="calculator" />
+
+  <div slot="explanation">
+    <h2>Wat is een WW-uitkering en hoe werkt het in Nederland?</h2>
+    <p>
+      Een <strong>WW-uitkering</strong> (Werkloosheidswet) is een wettelijke werknemersverzekering die een tijdelijke inkomensvoorziening biedt wanneer je onvrijwillig geheel of gedeeltelijk werkloos raakt. Het doel van de WW is om werknemers een financieel vangnet te bieden tijdens de zoektocht naar nieuw werk. De uitvoering ligt bij het <strong>UWV</strong>.
+    </p>
+    <p>
+      Om recht te hebben op een WW-uitkering moet je aan de wettelijke basisvoorwaarden voldoen:
+    </p>
+    <ul>
+      <li>Je bent verzekerd voor de WW (vrijwel iedere werknemer in loondienst in Nederland).</li>
+      <li>Je verliest minimaal 5 arbeidsuren per week (of minimaal de helft van je uren bij een contract onder 10 uur) plus het bijbehorende loon.</li>
+      <li>Je bent direct beschikbaar voor betaald werk op de arbeidsmarkt.</li>
+      <li>Er is geen sprake van <em>verwijtbare werkloosheid</em> (niet zelf ontslag genomen zonder gegronde reden of op staande voet ontslagen).</li>
+      <li>Je voldoet aan de <strong>wekeneis</strong>: in ten minste 26 van de laatste 36 weken vóór werkloosheid heb je gewerkt.</li>
+    </ul>
+
+    <h2>Hoe bereken je de hoogte van een WW-uitkering?</h2>
+    <p>
+      De hoogte van je WW-uitkering wordt niet bepaald door je meest recente maandsalaris, maar door je officiële <strong>WW-dagloon</strong>. Dit dagloon is gebaseerd op je <strong>SV-loon</strong> (socialeverzekeringsloon) over een vaste referteperiode van 12 kalendermaanden.
+    </p>
+    <div class="callout callout-info">
+      <strong>De officiële WW-berekeningsformule:</strong><br />
+      1. <code>WW-dagloon = Totaal SV-loon in referteperiode ÷ 261 dagloondagen</code> (max. € 309,91 in 2026)<br />
+      2. <code>WW-maandloon = WW-dagloon × 21,75 dagen</code><br />
+      3. <strong>Maand 1 en 2:</strong> <code>75% van het WW-maandloon</code><br />
+      4. <strong>Vanaf maand 3:</strong> <code>70% van het WW-maandloon</code>
+    </div>
+    <p>
+      Wil je jouw dagloon vooraf exact analyseren? Raadpleeg dan ook onze rekentool voor <a href="/dagloon-berekenen/">dagloon berekenen</a>.
+    </p>
+
+    <h2>Wat is het SV-loon en waar vind je dit bedrag?</h2>
+    <p>
+      Het <strong>SV-loon</strong> is het brutoloon waarover premies voor de werknemersverzekeringen zijn afgedragen. Dit bedrag staat op je salarisstrook vermeld als <em>SV-loon</em> of <em>loon voor de werknemersverzekeringen</em>.
+    </p>
+    <p>
+      In het SV-loon zijn alle vaste loonbestanddelen reeds inbegrepen:
+    </p>
+    <ul>
+      <li>Het bruto basissalaris;</li>
+      <li>Het opgebouwde wettelijke <strong>vakantiegeld</strong> (8%);</li>
+      <li>Een vaste <strong>dertiende maand</strong> of eindejaarsuitkering;</li>
+      <li>Structurele ploegen- en onregelmatigheidstoeslagen;</li>
+      <li>Uitbetaald overwerk in het refertejaar.</li>
+    </ul>
+    <p>
+      Je vindt je officiële SV-loon per maand door in te loggen met DigiD op <strong>Mijn UWV</strong> onder <em>Loongegevens</em> (de Polisadministratie). Dit is de bindende gegevensbron die het UWV hanteert.
+    </p>
+
+    <h2>Wat is de referteperiode voor de WW?</h2>
+    <p>
+      De <strong>referteperiode</strong> voor de WW is het tijdvak van 12 aaneengesloten kalendermaanden waarin je loongegevens worden getoetst. Deze periode eindigt op de laatste dag van de <em>voorlaatste kalendermaand</em> vóór de maand waarin je werkloos werd.
+    </p>
+    <p>
+      <strong>Praktijkvoorbeeld:</strong> Word je werkloos op <strong>15 april 2026</strong>? Dan is april de werkloosheidsmaand en februari de voorlaatste maand. De referteperiode loopt dan van <strong>1 maart 2025 tot en met 28 februari 2026</strong>. Het totale SV-loon over deze 12 maanden wordt gedeeld door 261 dagloondagen.
+    </p>
+
+    <h2>Wettelijk maximumdagloon in 2026</h2>
+    <p>
+      In 2026 bedraagt het <strong>maximumdagloon € 309,91 bruto per dag</strong> (inclusief vakantiebijslag). Dit komt neer op een maximum premieloon van € 80.886,51 op jaarbasis (261 × € 309,91) en een maximum WW-maandloon van <strong>€ 6.740,54 bruto per maand</strong> (21,75 × € 309,91).
+    </p>
+    <p>
+      Verdien je meer dan dit maximum? Dan wordt je uitkering afgetopt:
+    </p>
+    <ul>
+      <li><strong>Maximale WW maand 1 en 2:</strong> <code>75% van € 6.740,54 = € 5.055,41 bruto per maand</code>.</li>
+      <li><strong>Maximale WW vanaf maand 3:</strong> <code>70% van € 6.740,54 = € 4.718,38 bruto per maand</code>.</li>
+    </ul>
+
+    <h2>Rekenvoorbeelden WW-uitkering</h2>
+    <div class="table-responsive">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Situatie</th>
+            <th>SV-jaarloon</th>
+            <th>WW-dagloon</th>
+            <th>WW-maandloon</th>
+            <th>Maand 1 & 2 (75%)</th>
+            <th>Vanaf mnd 3 (70%)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Modaal salaris</strong></td>
+            <td>€ 42.000</td>
+            <td>€ 160,92</td>
+            <td>€ 3.500,01</td>
+            <td>€ 2.625,01</td>
+            <td>€ 2.450,01</td>
+          </tr>
+          <tr>
+            <td><strong>Parttime (24 uur)</strong></td>
+            <td>€ 24.000</td>
+            <td>€ 91,95</td>
+            <td>€ 1.999,91</td>
+            <td>€ 1.499,93</td>
+            <td>€ 1.399,94</td>
+          </tr>
+          <tr>
+            <td><strong>Bovengemiddeld</strong></td>
+            <td>€ 95.000</td>
+            <td>€ 309,91 (max)</td>
+            <td>€ 6.740,54</td>
+            <td>€ 5.055,41</td>
+            <td>€ 4.718,38</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Hoe lang duurt een WW-uitkering? (Wekeneis en Jareneis)</h2>
+    <p>
+      De duur van je WW-uitkering hangt af van twee wettelijke voorwaarden:
+    </p>
+    <h3>1. De wekeneis (basisrecht: 3 maanden)</h3>
+    <p>
+      Heb je in minstens 26 van de laatste 36 weken vóór werkloosheid gewerkt? Dan heb je recht op de basis-WW van <strong>3 maanden</strong>.
+    </p>
+
+    <h3>2. De jareneis (verlenging op basis van arbeidsverleden)</h3>
+    <p>
+      Heb je in de 5 kalenderjaren vóór het jaar van werkloosheid in minimaal <strong>4 kalenderjaren gewerkt</strong> (minstens 208 uur loon per jaar)? Dan telt je totale <strong>arbeidsverleden</strong> mee voor een langere uitkering:
+    </p>
+    <ul>
+      <li><strong>Eerste 10 jaar:</strong> 1 maand WW per gewerkt kalenderjaar (10 jaar = 10 maanden).</li>
+      <li><strong>Jaren daarboven t/m 2015:</strong> 1 maand WW per jaar.</li>
+      <li><strong>Jaren daarboven vanaf 2016:</strong> 0,5 maand WW per jaar.</li>
+      <li><strong>Wettelijk maximum:</strong> 24 maanden (2 jaar).</li>
+    </ul>
+    <p>
+      Bereken je exacte diensttijd via onze tool voor <a href="/arbeidsverleden-berekenen/">arbeidsverleden berekenen</a>.
+    </p>
+
+    <h2>Werken naast je WW-uitkering (Inkomstenverrekening)</h2>
+    <p>
+      Werken naast de WW loont altijd dankzij het systeem van inkomstenverrekening. Het UWV vult 75% (eerste 2 maanden) of 70% (vanaf maand 3) van je inkomensverlies aan:
+    </p>
+    <div class="callout callout-info">
+      <code>Resterende WW = Percentage (75% of 70%) × (WW-maandloon - Inkomsten uit werk)</code>
+    </div>
+    <p>
+      Hierdoor verdien je met werk altijd meer dan met alleen een uitkering:
+    </p>
+    <ul>
+      <li>Verdien je € 1.000 bij een WW-maandloon van € 3.000? Je verlies is € 2.000. De uitkering (70%) is € 1.400. Je totale inkomen is € 1.000 + € 1.400 = <strong>€ 2.400 bruto per maand</strong>.</li>
+      <li><strong>De 87,5%-drempel:</strong> Verdien je meer dan 87,5% van je WW-maandloon gedurende 2 opeenvolgende maanden? Dan stopt je WW-uitkering definitief.</li>
+    </ul>
+
+    <h2>Verwijtbare werkloosheid en ontslag</h2>
+    <p>
+      Het UWV keert alleen uit bij onvrijwillige werkloosheid. Er is sprake van <strong>verwijtbare werkloosheid</strong> wanneer je zelf zonder dringende noodzaak ontslag neemt of op staande voet bent ontslagen wegens een dringende reden (zoals fraude of werkweigering).
+    </p>
+    <p>
+      Bij een <strong>vaststellingsovereenkomst (VSO)</strong> met wederzijds goedvinden behoud je je WW-recht als het initiatief bij de werkgever lag en er geen sprake is van verwijtbaarheid. Controleer bij ontslag ook je recht op een <a href="/transitievergoeding-berekenen/">transitievergoeding</a>.
+    </p>
+
+    <h2>Fictieve opzegtermijn en ingangsdatum</h2>
+    <p>
+      Eindigt je contract via een beëindigingsovereenkomst zonder dat de wettelijke opzegtermijn van de werkgever is aangehouden? Dan hanteert het UWV een <strong>fictieve opzegtermijn</strong>. De WW start pas ná afloop van die termijn. Bereken je termijn via <a href="/opzegtermijn-berekenen/">opzegtermijn berekenen</a>.
+    </p>
+
+    <h2>Verschil tussen bruto en netto WW</h2>
+    <p>
+      De uitkering van het UWV is een brutobedrag. Hierop worden loonheffing en Zvw-premies ingehouden. Het nettobedrag hangt af van je persoonlijke situatie en of je de <strong>loonheffingskorting</strong> laat toepassen door het UWV. Raadpleeg voor salarisvergelijkingen onze module voor <a href="/netto-salaris-berekenen/">netto salaris berekenen</a>.
+    </p>
+
+    <h2>Wat is een garantiedagloon?</h2>
+    <p>
+      Aanvaard je vanuit een WW-uitkering een lagerbetaalde baan en raak je opnieuw werkloos? Dan kan onder voorwaarden van het <em>Besluit dagloonregels</em> een <strong>garantiedagloon</strong> gelden, waarbij het UWV teruggrijpt op je eerdere hogere dagloon. Deze calculator gaat uit van de standaardberekening.
+    </p>
+  </div>
+</CalculatorLayout>

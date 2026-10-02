@@ -1,0 +1,914 @@
+---
+// src/components/calculators/DagloonCalculator.astro
+import { DUTCH_RATES } from '../../data/dutchRates';
+---
+
+<div class="calc-grid" id="dagloon-calc">
+  <!-- Invoerkaart -->
+  <div class="calc-card">
+    <div class="calc-header-badge-row">
+      <h2 class="calc-section-title" style="margin-bottom: 0;">Gegevens invoeren</h2>
+      <span class="rate-year-tag">UWV normen {DUTCH_RATES.year}</span>
+    </div>
+
+    <!-- 1. Waarvoor wil je het dagloon berekenen? -->
+    <div class="form-group" style="margin-top: 1.25rem;">
+      <label for="select-dagloon-type" class="form-label font-semibold">
+        Waarvoor wil je het dagloon berekenen?
+      </label>
+      <select id="select-dagloon-type" class="form-select">
+        <option value="algemeen" selected>Algemeen dagloon (gemiddeld werkdagloon)</option>
+        <option value="uwv">UWV dagloon (voor WW, Ziektewet, WIA of WAO)</option>
+      </select>
+      <span class="form-hint" id="hint-dagloon-type">
+        Kies 'Algemeen' voor een eenvoudige omrekening van je jaarsalaris naar een gemiddeld dagloon.
+      </span>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VELDEN VOOR ALGEMEEN DAGLOON               -->
+    <!-- ========================================== -->
+    <div id="section-algemeen-fields">
+      <!-- Bruto jaarloon -->
+      <div class="form-group">
+        <label for="input-general-annual-salary" class="form-label">Bruto jaarloon (€)</label>
+        <input
+          type="number"
+          id="input-general-annual-salary"
+          class="form-input"
+          min="0"
+          step="500"
+          value="45000"
+          placeholder="45000"
+        />
+        <!-- Snelle keuzeknoppen -->
+        <div class="quick-salary-buttons" style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem;">
+          <button type="button" class="btn-quick-gen" data-amount="30000">€ 30.000</button>
+          <button type="button" class="btn-quick-gen" data-amount="40000">€ 40.000</button>
+          <button type="button" class="btn-quick-gen active" data-amount="45000">€ 45.000</button>
+          <button type="button" class="btn-quick-gen" data-amount="55000">€ 55.000</button>
+          <button type="button" class="btn-quick-gen" data-amount="65000">€ 65.000</button>
+        </div>
+      </div>
+
+      <!-- Vakantiegeld meenemen? -->
+      <div class="form-group">
+        <label for="select-general-holiday" class="form-label">Vakantiegeld meenemen?</label>
+        <select id="select-general-holiday" class="form-select">
+          <option value="yes" selected>Ja (inclusief 8% wettelijk vakantiegeld)</option>
+          <option value="no">Nee (alleen het kale basisjaarsalaris)</option>
+        </select>
+        <span class="form-hint">
+          In Nederland wordt vakantiebijslag (minimaal 8%) gewoonlijk meegeteld bij het totale bruto jaarloon.
+        </span>
+      </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VELDEN VOOR UWV DAGLOON                    -->
+    <!-- ========================================== -->
+    <div id="section-uwv-fields" style="display: none;">
+      <!-- Voor welke uitkering? -->
+      <div class="form-group">
+        <label for="select-uwv-benefit" class="form-label font-semibold">Voor welke uitkering?</label>
+        <select id="select-uwv-benefit" class="form-select">
+          <option value="ww" selected>WW (Werkloosheidswet)</option>
+          <option value="zw">Ziektewet (ZW)</option>
+          <option value="wia">WIA (WGA / IVA)</option>
+          <option value="wao">WAO</option>
+        </select>
+        <span class="form-hint" id="hint-uwv-benefit">
+          Voor de WW geldt een referteperiode van 12 kalendermaanden vóór de voorlaatste maand van werkloosheid.
+        </span>
+      </div>
+
+      <!-- SV-loon in de referteperiode -->
+      <div class="form-group">
+        <label for="input-uwv-sv-loon" class="form-label font-semibold">
+          SV-loon in de referteperiode (€)
+        </label>
+        <input
+          type="number"
+          id="input-uwv-sv-loon"
+          class="form-input"
+          min="0"
+          step="500"
+          value="40000"
+          placeholder="40000"
+        />
+        <span class="form-hint">
+          Je SV-loon staat onder andere bij je loongegevens in Mijn UWV en op je salarisstroken (ook wel loon voor loonheffing genoemd).
+        </span>
+        <!-- Snelle keuzeknoppen -->
+        <div class="quick-salary-buttons" style="display: flex; gap: 0.35rem; flex-wrap: wrap; margin-top: 0.5rem;">
+          <button type="button" class="btn-quick-sv" data-amount="28000">€ 28.000</button>
+          <button type="button" class="btn-quick-sv" data-amount="35000">€ 35.000</button>
+          <button type="button" class="btn-quick-sv active" data-amount="40000">€ 40.000</button>
+          <button type="button" class="btn-quick-sv" data-amount="50000">€ 50.000</button>
+          <button type="button" class="btn-quick-sv" data-amount="65000">€ 65.000</button>
+        </div>
+      </div>
+
+      <!-- Datum eerste werkloosheidsdag of eerste ziektedag -->
+      <div class="form-group" id="group-reference-date">
+        <label for="input-reference-date" class="form-label" id="label-reference-date">
+          Datum eerste werkloosheidsdag
+        </label>
+        <input
+          type="date"
+          id="input-reference-date"
+          class="form-input"
+        />
+        <!-- Dynamische referteperiode toelichting -->
+        <div class="callout callout-info" id="badge-referteperiode" style="margin-top: 0.5rem; font-size: 0.8125rem; padding: 0.625rem;">
+          <strong>Referteperiode:</strong> <span id="text-referteperiode">12 volledige kalendermaanden.</span>
+        </div>
+      </div>
+
+      <!-- Vakantiegeld en 13e maand / AVWB status -->
+      <div class="form-group">
+        <label for="select-sv-components" class="form-label">
+          Zit vakantiegeld en 13e maand/AVWB al in het SV-loon?
+        </label>
+        <select id="select-sv-components" class="form-select">
+          <option value="included" selected>Ja, zit al in het SV-loon (standaard op Mijn UWV)</option>
+          <option value="separate">Nee, moet nog apart worden opgeteld</option>
+        </select>
+        <span class="form-hint">
+          In Mijn UWV is het SV-loon inclusief het uitbetaalde vakantiegeld en eventuele eindejaarsuitkering.
+        </span>
+      </div>
+
+      <!-- Extra velden indien apart op te tellen -->
+      <div id="group-separate-components" style="display: none; background-color: var(--bg-subtle); padding: 0.875rem; border-radius: var(--radius-md); margin-bottom: 1rem; border: 1px solid var(--border-color);">
+        <div class="form-group" style="margin-bottom: 0.75rem;">
+          <label for="input-separate-holiday" class="form-label">Nog op te tellen vakantiegeld (€)</label>
+          <input
+            type="number"
+            id="input-separate-holiday"
+            class="form-input"
+            min="0"
+            step="100"
+            value="0"
+            placeholder="0"
+          />
+        </div>
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="input-separate-avwb" class="form-label">13e maand, eindejaarsuitkering of IKB (€)</label>
+          <input
+            type="number"
+            id="input-separate-avwb"
+            class="form-input"
+            min="0"
+            step="100"
+            value="0"
+            placeholder="0"
+          />
+        </div>
+      </div>
+
+      <!-- Hele jaar gewerkt? (12 maanden) -->
+      <div class="form-group">
+        <label for="select-worked-period" class="form-label">
+          Heb je alle 12 maanden gewerkt in de referteperiode?
+        </label>
+        <select id="select-worked-period" class="form-select">
+          <option value="full" selected>Ja, alle 12 maanden (standaard 261 dagloondagen)</option>
+          <option value="less">Nee, korter gewerkt (minder dan 12 maanden)</option>
+        </select>
+      </div>
+
+      <!-- Aantal gewerkte maanden indien korter -->
+      <div id="group-months-worked" style="display: none;" class="form-group">
+        <label for="input-months-worked" class="form-label">Aantal gewerkte kalendermaanden (1 t/m 11)</label>
+        <input
+          type="number"
+          id="input-months-worked"
+          class="form-input"
+          min="1"
+          max="11"
+          step="1"
+          value="6"
+        />
+        <span class="form-hint">
+          UWV vermenigvuldigt het aantal gewerkte maanden met 21,75 om het aantal dagloondagen vast te stellen.
+        </span>
+      </div>
+
+      <!-- Tijdelijk lager loon door ziekte of verlof? -->
+      <div class="form-group">
+        <label for="select-lower-pay" class="form-label">
+          Was je loon in de referteperiode tijdelijk lager door ziekte of verlof?
+        </label>
+        <select id="select-lower-pay" class="form-select">
+          <option value="no" selected>Nee, normaal gewerkt en betaald</option>
+          <option value="yes">Ja (bijv. onbetaald verlof, ouderschapsverlof of ziekte)</option>
+        </select>
+      </div>
+
+      <!-- Aantal verlof-/ziektedagen indien van toepassing -->
+      <div id="group-unpaid-days" style="display: none;" class="form-group">
+        <label for="input-unpaid-days" class="form-label">Aantal werkdagen verlof of ziekte zonder (volledig) loon</label>
+        <input
+          type="number"
+          id="input-unpaid-days"
+          class="form-input"
+          min="0"
+          max="260"
+          step="1"
+          value="20"
+        />
+        <span class="form-hint">
+          Volgens het Besluit dagloonregels worden deze dagen in mindering gebracht op de noemer van 261 dagen, zodat je dagloon niet kunstmatig daalt.
+        </span>
+      </div>
+    </div>
+
+    <!-- Actieknoppen -->
+    <div class="form-actions" style="margin-top: 1.5rem;">
+      <button type="button" id="btn-reset-dagloon" class="btn btn-secondary btn-sm">
+        Standaardwaarden herstellen
+      </button>
+    </div>
+  </div>
+
+  <!-- Resultatenkaart -->
+  <div class="calc-result-card" aria-live="polite">
+    <!-- Hero Resultaat: Dagloon -->
+    <div class="result-hero" id="result-hero-box">
+      <span class="result-hero-label" id="res-hero-label">Gemiddeld bruto dagloon</span>
+      <div class="result-hero-value" id="res-hero-dagloon">€ 0,00</div>
+      <span class="result-hero-sub" id="res-hero-sub">Per dagloondag (5 dagen per week)</span>
+    </div>
+
+    <!-- Alert bij Maximumdagloon -->
+    <div id="box-max-dagloon-alert" class="callout callout-warning" style="display: none; margin-bottom: 1.25rem;">
+      <div style="display: flex; align-items: flex-start; gap: 0.5rem;">
+        <span style="font-size: 1.25rem; line-height: 1;">⚠️</span>
+        <div>
+          <strong style="display: block; font-size: 0.9375rem; color: var(--color-warning);">Maximumdagloon toegepast ({DUTCH_RATES.year})</strong>
+          <span style="font-size: 0.8125rem; color: var(--text-main); display: block; margin-top: 0.25rem;">
+            Voor UWV-uitkeringen geldt een wettelijk maximum van <strong>€ {DUTCH_RATES.uwvRates.maxDagloon.toFixed(2).replace('.', ',')}</strong> bruto per dag. Omdat je berekende dagloon hoger is (<span id="text-raw-dagloon">€ 0,00</span>), rekent UWV met het gemaximeerde dagloon.
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Snelle periodieke omrekeningen & Opbouw dagloon -->
+    <div class="result-breakdown" id="result-breakdown-box">
+      <div class="result-subtitle">Omgerekend naar periode (bruto)</div>
+
+      <div class="result-row">
+        <span class="result-row-label">Geschat bruto per week (× 5 dagen)</span>
+        <span class="result-row-value font-medium" id="res-weekly-gross">€ 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Geschat bruto per maand (× 21,75 dagen)</span>
+        <span class="result-row-value font-medium" id="res-monthly-gross">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-regular-monthly" style="display: flex;">
+        <span class="result-row-label">Gemiddeld bruto maandsalaris (jaarloon ÷ 12)</span>
+        <span class="result-row-value" id="res-regular-monthly">€ 0,00</span>
+      </div>
+
+      <div class="result-section-divider"></div>
+
+      <div class="result-subtitle" style="margin-top: 0.5rem;">Opbouw van het dagloon</div>
+
+      <div class="result-row">
+        <span class="result-row-label" id="label-res-grondslag">Totaal bruto loon / SV-loon</span>
+        <span class="result-row-value font-medium" id="res-total-basis">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-res-holiday">
+        <span class="result-row-label">Vakantiegeld</span>
+        <span class="result-row-value" id="res-holiday-val">Inbegrepen</span>
+      </div>
+
+      <div class="result-row" id="row-res-avwb" style="display: none;">
+        <span class="result-row-label">13e maand / eindejaarsuitkering</span>
+        <span class="result-row-value" id="res-avwb-val">+ € 0,00</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Aantal dagloondagen (deler)</span>
+        <span class="result-row-value" id="res-dagloondagen">261 dagen</span>
+      </div>
+
+      <div class="result-row">
+        <span class="result-row-label">Berekend dagloon (ongetoetst)</span>
+        <span class="result-row-value" id="res-raw-calculated-dagloon">€ 0,00</span>
+      </div>
+
+      <div class="result-row" id="row-max-dagloon-info">
+        <span class="result-row-label">Wettelijk maximumdagloon ({DUTCH_RATES.year})</span>
+        <span class="result-row-value">€ {DUTCH_RATES.uwvRates.maxDagloon.toFixed(2).replace('.', ',')}</span>
+      </div>
+    </div>
+
+    <!-- Uitklapbare uitleg "Hoe is dit berekend?" -->
+    <details class="expandable-math-box" style="margin-top: 1.25rem;">
+      <summary class="expandable-math-summary">
+        <span class="font-semibold text-sm">Hoe is dit berekend?</span>
+        <svg class="chevron-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </summary>
+      <div class="expandable-math-content" id="box-math-content">
+        <!-- Dynamisch gevuld via script -->
+      </div>
+    </details>
+
+    <!-- Parttime toelichting -->
+    <div class="callout callout-info" style="margin-top: 1.25rem; font-size: 0.8125rem;">
+      <strong>Let op bij parttime werk:</strong> UWV berekent het dagloon standaard over <strong>261 dagloondagen per jaar</strong> (5 werkdagen per week), ongeacht hoeveel dagen of uren je contractueel werkte. Daardoor is het dagloon lager dan wat je feitelijk per gewerkte dag verdiende, maar wordt het vervolgens wel voor 5 dagen per week uitgekeerd.
+    </div>
+
+    <!-- Geen Netto UWV Disclaimer -->
+    <div class="callout callout-subtle" style="margin-top: 0.75rem; font-size: 0.775rem;">
+      <strong>Waarom geen netto-bedrag?</strong> Het UWV houdt op je uitkering loonheffing in op basis van jouw persoonlijke situatie (wel of geen loonheffingskorting) en eventuele pensioen- of verzekeringspremies. Je exacte netto uitkering vind je op je officiële UWV-betaalspecificatie.
+    </div>
+
+    <!-- Officiële disclaimer -->
+    <div class="calc-disclaimer" style="margin-top: 0.75rem; font-size: 0.75rem; color: var(--text-subtle);">
+      <em>Deze calculator geeft een indicatie. De officiële berekening van het UWV kan afwijken, bijvoorbeeld door je persoonlijke situatie, de exacte referteperiode, loongegevens of specifieke regels voor je uitkering. Deze calculator is geen officiële UWV-rekentool.</em>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { calculateDagloon, formatUwvReferencePeriod, type UwvBenefitType } from '../../utils/calculations';
+  import { DUTCH_RATES } from '../../data/dutchRates';
+
+  const calc = document.getElementById('dagloon-calc');
+  if (calc) {
+    // Inputs
+    const selectDagloonType = calc.querySelector('#select-dagloon-type') as HTMLSelectElement;
+    const hintDagloonType = calc.querySelector('#hint-dagloon-type') as HTMLElement;
+    const sectionAlgemeenFields = calc.querySelector('#section-algemeen-fields') as HTMLElement;
+    const sectionUwvFields = calc.querySelector('#section-uwv-fields') as HTMLElement;
+
+    // General inputs
+    const inputGeneralAnnualSalary = calc.querySelector('#input-general-annual-salary') as HTMLInputElement;
+    const selectGeneralHoliday = calc.querySelector('#select-general-holiday') as HTMLSelectElement;
+    const btnQuickGens = calc.querySelectorAll('.btn-quick-gen');
+
+    // UWV inputs
+    const selectUwvBenefit = calc.querySelector('#select-uwv-benefit') as HTMLSelectElement;
+    const hintUwvBenefit = calc.querySelector('#hint-uwv-benefit') as HTMLElement;
+    const inputUwvSvLoon = calc.querySelector('#input-uwv-sv-loon') as HTMLInputElement;
+    const btnQuickSvs = calc.querySelectorAll('.btn-quick-sv');
+    const inputReferenceDate = calc.querySelector('#input-reference-date') as HTMLInputElement;
+    const labelReferenceDate = calc.querySelector('#label-reference-date') as HTMLElement;
+    const textReferteperiode = calc.querySelector('#text-referteperiode') as HTMLElement;
+
+    const selectSvComponents = calc.querySelector('#select-sv-components') as HTMLSelectElement;
+    const groupSeparateComponents = calc.querySelector('#group-separate-components') as HTMLElement;
+    const inputSeparateHoliday = calc.querySelector('#input-separate-holiday') as HTMLInputElement;
+    const inputSeparateAvwb = calc.querySelector('#input-separate-avwb') as HTMLInputElement;
+
+    const selectWorkedPeriod = calc.querySelector('#select-worked-period') as HTMLSelectElement;
+    const groupMonthsWorked = calc.querySelector('#group-months-worked') as HTMLElement;
+    const inputMonthsWorked = calc.querySelector('#input-months-worked') as HTMLInputElement;
+
+    const selectLowerPay = calc.querySelector('#select-lower-pay') as HTMLSelectElement;
+    const groupUnpaidDays = calc.querySelector('#group-unpaid-days') as HTMLElement;
+    const inputUnpaidDays = calc.querySelector('#input-unpaid-days') as HTMLInputElement;
+
+    const btnResetDagloon = calc.querySelector('#btn-reset-dagloon') as HTMLButtonElement;
+
+    // Output elements
+    const resHeroLabel = calc.querySelector('#res-hero-label') as HTMLElement;
+    const resHeroDagloon = calc.querySelector('#res-hero-dagloon') as HTMLElement;
+    const resHeroSub = calc.querySelector('#res-hero-sub') as HTMLElement;
+    const boxMaxDagloonAlert = calc.querySelector('#box-max-dagloon-alert') as HTMLElement;
+    const textRawDagloon = calc.querySelector('#text-raw-dagloon') as HTMLElement;
+
+    const resWeeklyGross = calc.querySelector('#res-weekly-gross') as HTMLElement;
+    const resMonthlyGross = calc.querySelector('#res-monthly-gross') as HTMLElement;
+    const rowRegularMonthly = calc.querySelector('#row-regular-monthly') as HTMLElement;
+    const resRegularMonthly = calc.querySelector('#res-regular-monthly') as HTMLElement;
+
+    const labelResGrondslag = calc.querySelector('#label-res-grondslag') as HTMLElement;
+    const resTotalBasis = calc.querySelector('#res-total-basis') as HTMLElement;
+    const rowResHoliday = calc.querySelector('#row-res-holiday') as HTMLElement;
+    const resHolidayVal = calc.querySelector('#res-holiday-val') as HTMLElement;
+    const rowResAvwb = calc.querySelector('#row-res-avwb') as HTMLElement;
+    const resAvwbVal = calc.querySelector('#res-avwb-val') as HTMLElement;
+    const resDagloondagen = calc.querySelector('#res-dagloondagen') as HTMLElement;
+    const resRawCalculatedDagloon = calc.querySelector('#res-raw-calculated-dagloon') as HTMLElement;
+    const boxMathContent = calc.querySelector('#box-math-content') as HTMLElement;
+
+    // Stel standaard datum in op vandaag (YYYY-MM-DD)
+    const today = new Date();
+    const todayStr = today.toISOString().split('T')[0];
+    if (inputReferenceDate && !inputReferenceDate.value) {
+      inputReferenceDate.value = todayStr;
+    }
+
+    const fmtCurrency = (val: number) => {
+      return new Intl.NumberFormat('nl-NL', {
+        style: 'currency',
+        currency: 'EUR',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      }).format(val);
+    };
+
+    function updateVisibility() {
+      const mode = selectDagloonType.value;
+      if (mode === 'algemeen') {
+        sectionAlgemeenFields.style.display = 'block';
+        sectionUwvFields.style.display = 'none';
+        hintDagloonType.textContent = 'Kies \'Algemeen\' voor een eenvoudige omrekening van je jaarsalaris naar een gemiddeld dagloon.';
+        rowRegularMonthly.style.display = 'flex';
+      } else {
+        sectionAlgemeenFields.style.display = 'none';
+        sectionUwvFields.style.display = 'block';
+        hintDagloonType.textContent = 'Kies \'UWV dagloon\' voor een berekening conform de officiële UWV-dagloonregels voor 2026.';
+        rowRegularMonthly.style.display = 'none';
+      }
+
+      // Update UWV date label & hint based on benefit
+      const benefit = selectUwvBenefit.value as UwvBenefitType;
+      if (benefit === 'ww') {
+        labelReferenceDate.textContent = 'Datum eerste werkloosheidsdag';
+        hintUwvBenefit.textContent = 'Voor de WW is de referteperiode 12 kalendermaanden vóór de voorlaatste maand van werkloosheid.';
+      } else if (benefit === 'zw') {
+        labelReferenceDate.textContent = 'Datum eerste ziektedag';
+        hintUwvBenefit.textContent = 'Voor de Ziektewet is de referteperiode 12 kalendermaanden vóór de maand waarin je ziek werd.';
+      } else if (benefit === 'wia') {
+        labelReferenceDate.textContent = 'Datum eerste ziektedag (start 104 weken)';
+        hintUwvBenefit.textContent = 'Voor de WIA is de referteperiode het jaar (12 kalendermaanden) vóór je allereerste ziektedag.';
+      } else {
+        labelReferenceDate.textContent = 'Datum arbeidsongeschiktheid';
+        hintUwvBenefit.textContent = 'Voor de WAO geldt het refertejaar vóór de arbeidsongeschiktheidsdatum.';
+      }
+
+      // Update referteperiode badge text
+      const refDesc = formatUwvReferencePeriod(benefit, inputReferenceDate.value);
+      textReferteperiode.textContent = refDesc;
+
+      // Separate components
+      if (selectSvComponents.value === 'separate') {
+        groupSeparateComponents.style.display = 'block';
+      } else {
+        groupSeparateComponents.style.display = 'none';
+      }
+
+      // Worked period
+      if (selectWorkedPeriod.value === 'less') {
+        groupMonthsWorked.style.display = 'block';
+      } else {
+        groupMonthsWorked.style.display = 'none';
+      }
+
+      // Lower pay
+      if (selectLowerPay.value === 'yes') {
+        groupUnpaidDays.style.display = 'block';
+      } else {
+        groupUnpaidDays.style.display = 'none';
+      }
+    }
+
+    function calculate() {
+      const mode = selectDagloonType.value as 'algemeen' | 'uwv';
+
+      if (mode === 'algemeen') {
+        const grossSalary = parseFloat(inputGeneralAnnualSalary.value) || 0;
+        const includeHoliday = selectGeneralHoliday.value === 'yes';
+
+        const result = calculateDagloon({
+          type: 'algemeen',
+          grossAnnualSalary: grossSalary,
+          includeHolidayPay: includeHoliday,
+          holidayPayPercentage: 8.0,
+          workingDaysPerYear: 261
+        });
+
+        resHeroLabel.textContent = 'Gemiddeld bruto dagloon';
+        resHeroDagloon.textContent = fmtCurrency(result.applicableDagloon);
+        resHeroSub.textContent = `Op basis van 261 werkdagen (${includeHoliday ? 'inclusief 8% vakantiegeld' : 'exclusief vakantiegeld'})`;
+        boxMaxDagloonAlert.style.display = 'none';
+
+        resWeeklyGross.textContent = fmtCurrency(result.estimatedWeeklyGross);
+        resMonthlyGross.textContent = fmtCurrency(result.estimatedMonthlyGross);
+        if (result.regularAnnualMonthlyGross !== undefined) {
+          resRegularMonthly.textContent = fmtCurrency(result.regularAnnualMonthlyGross);
+        }
+
+        labelResGrondslag.textContent = 'Bruto jaarsalaris';
+        resTotalBasis.textContent = fmtCurrency(result.totalAnnualBasis || 0);
+
+        rowResHoliday.style.display = 'flex';
+        resHolidayVal.textContent = includeHoliday
+          ? `+ ${fmtCurrency(result.holidayPayAmount || 0)} (8%)`
+          : 'Niet meegerekend (€ 0,00)';
+
+        rowResAvwb.style.display = 'none';
+        resDagloondagen.textContent = `${result.dagloondagen} werkdagen`;
+        resRawCalculatedDagloon.textContent = fmtCurrency(result.calculatedDagloon);
+
+        boxMathContent.innerHTML = `
+          <div style="font-size: 0.8125rem; color: var(--text-muted); line-height: 1.6;">
+            <p><strong>Rekenformule algemeen dagloon:</strong></p>
+            <p>1. Bruto basissalaris: <strong>${fmtCurrency(result.grossAnnualSalary || 0)}</strong></p>
+            ${includeHoliday ? `<p>2. Vakantiebijslag (8%): <strong>+ ${fmtCurrency(result.holidayPayAmount || 0)}</strong></p>` : ''}
+            <p>${includeHoliday ? '3.' : '2.'} Totaal bruto jaarloon: <strong>${fmtCurrency(result.totalAnnualBasis || 0)}</strong></p>
+            <p>${includeHoliday ? '4.' : '3.'} Aantal werkdagen per jaar: <strong>261 dagen</strong> (5 dagen per week)</p>
+            <p><strong>Gemiddeld dagloon</strong> = ${fmtCurrency(result.totalAnnualBasis || 0)} ÷ 261 = <strong>${fmtCurrency(result.applicableDagloon)} per dag</strong></p>
+          </div>
+        `;
+      } else {
+        // UWV Berekening
+        const benefit = selectUwvBenefit.value as UwvBenefitType;
+        const svLoon = parseFloat(inputUwvSvLoon.value) || 0;
+        const isSeparate = selectSvComponents.value === 'separate';
+        const separateHoliday = isSeparate ? (parseFloat(inputSeparateHoliday.value) || 0) : 0;
+        const separateAvwb = isSeparate ? (parseFloat(inputSeparateAvwb.value) || 0) : 0;
+
+        const isLessMonths = selectWorkedPeriod.value === 'less';
+        const monthsCount = isLessMonths ? (parseInt(inputMonthsWorked.value) || 12) : 12;
+
+        const isLowerPay = selectLowerPay.value === 'yes';
+        const unpaidDays = isLowerPay ? (parseInt(inputUnpaidDays.value) || 0) : 0;
+
+        const result = calculateDagloon({
+          type: 'uwv',
+          benefitType: benefit,
+          svLoonReferencePeriod: svLoon,
+          referencePeriodMonths: monthsCount,
+          referenceDate: inputReferenceDate.value,
+          separateHolidayPay: separateHoliday,
+          separateAvwb: separateAvwb,
+          lowerPayDueToLeaveOrIllness: isLowerPay,
+          unpaidLeaveDays: unpaidDays
+        });
+
+        resHeroLabel.textContent = `Geschat bruto UWV-dagloon (${result.benefitType?.toUpperCase()})`;
+        resHeroDagloon.textContent = fmtCurrency(result.applicableDagloon);
+        resHeroSub.textContent = `Voor ${result.benefitTypeLabel || 'UWV-uitkering'} (per dagloondag)`;
+
+        if (result.isMaxDagloonApplied) {
+          boxMaxDagloonAlert.style.display = 'block';
+          textRawDagloon.textContent = fmtCurrency(result.calculatedDagloon);
+        } else {
+          boxMaxDagloonAlert.style.display = 'none';
+        }
+
+        resWeeklyGross.textContent = fmtCurrency(result.estimatedWeeklyGross);
+        resMonthlyGross.textContent = fmtCurrency(result.estimatedMonthlyGross);
+
+        labelResGrondslag.textContent = 'SV-loon in referteperiode';
+        resTotalBasis.textContent = fmtCurrency(result.totalSvLoonCorrected || 0);
+
+        if (isSeparate && (separateHoliday > 0 || separateAvwb > 0)) {
+          rowResHoliday.style.display = 'flex';
+          resHolidayVal.textContent = separateHoliday > 0 ? `+ ${fmtCurrency(separateHoliday)}` : 'Reeds in SV-loon';
+          rowResAvwb.style.display = separateAvwb > 0 ? 'flex' : 'none';
+          resAvwbVal.textContent = `+ ${fmtCurrency(separateAvwb)}`;
+        } else {
+          rowResHoliday.style.display = 'flex';
+          resHolidayVal.textContent = 'Inbegrepen in SV-loon';
+          rowResAvwb.style.display = 'none';
+        }
+
+        resDagloondagen.textContent = isLowerPay && unpaidDays > 0
+          ? `${result.dagloondagen} dagen (${result.baseDagloondagen} - ${unpaidDays} verlofdagen)`
+          : `${result.dagloondagen} dagen`;
+
+        resRawCalculatedDagloon.textContent = fmtCurrency(result.calculatedDagloon);
+
+        boxMathContent.innerHTML = `
+          <div style="font-size: 0.8125rem; color: var(--text-muted); line-height: 1.6;">
+            <p><strong>UWV-dagloon rekenformule (${result.benefitType?.toUpperCase()}):</strong></p>
+            <p>1. Totaal SV-loon in referteperiode: <strong>${fmtCurrency(result.totalSvLoonCorrected || 0)}</strong></p>
+            <p>2. Aantal dagloondagen in periode: <strong>${result.baseDagloondagen} dagen</strong> (${result.referencePeriodMonths} mnd × 21,75)</p>
+            ${isLowerPay && unpaidDays > 0 ? `<p>3. Aftrek wegens ziekte-/verlofdagen: <strong>-${unpaidDays} dagen</strong> &rarr; effectieve noemer: <strong>${result.dagloondagen} dagen</strong></p>` : ''}
+            <p><strong>Ongetopt dagloon</strong> = ${fmtCurrency(result.totalSvLoonCorrected || 0)} ÷ ${result.dagloondagen} = <strong>${fmtCurrency(result.calculatedDagloon)}</strong></p>
+            ${result.isMaxDagloonApplied
+              ? `<p style="color: var(--color-warning);">4. Toepassing wettelijk maximumdagloon 2026: gemaximeerd op <strong>${fmtCurrency(result.maxDagloon)}</strong></p>`
+              : `<p>4. Binnen het maximumdagloon van ${fmtCurrency(result.maxDagloon)} &rarr; dagloon blijft <strong>${fmtCurrency(result.applicableDagloon)}</strong></p>`
+            }
+            <p><strong>Weekbedrag</strong> = ${fmtCurrency(result.applicableDagloon)} × 5 = <strong>${fmtCurrency(result.estimatedWeeklyGross)}</strong></p>
+            <p><strong>Maandbedrag</strong> = ${fmtCurrency(result.applicableDagloon)} × 21,75 = <strong>${fmtCurrency(result.estimatedMonthlyGross)}</strong></p>
+          </div>
+        `;
+      }
+    }
+
+    // Event listeners
+    selectDagloonType.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+
+    selectUwvBenefit.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+
+    inputGeneralAnnualSalary.addEventListener('input', calculate);
+    selectGeneralHoliday.addEventListener('change', calculate);
+
+    inputUwvSvLoon.addEventListener('input', calculate);
+    inputReferenceDate.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+
+    selectSvComponents.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+    inputSeparateHoliday.addEventListener('input', calculate);
+    inputSeparateAvwb.addEventListener('input', calculate);
+
+    selectWorkedPeriod.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+    inputMonthsWorked.addEventListener('input', calculate);
+
+    selectLowerPay.addEventListener('change', () => {
+      updateVisibility();
+      calculate();
+    });
+    inputUnpaidDays.addEventListener('input', calculate);
+
+    // Quick buttons
+    btnQuickGens.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btnQuickGens.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const amount = btn.getAttribute('data-amount');
+        if (amount) {
+          inputGeneralAnnualSalary.value = amount;
+          calculate();
+        }
+      });
+    });
+
+    btnQuickSvs.forEach((btn) => {
+      btn.addEventListener('click', () => {
+        btnQuickSvs.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const amount = btn.getAttribute('data-amount');
+        if (amount) {
+          inputUwvSvLoon.value = amount;
+          calculate();
+        }
+      });
+    });
+
+    // Reset button
+    btnResetDagloon.addEventListener('click', () => {
+      selectDagloonType.value = 'algemeen';
+      inputGeneralAnnualSalary.value = '45000';
+      selectGeneralHoliday.value = 'yes';
+      selectUwvBenefit.value = 'ww';
+      inputUwvSvLoon.value = '40000';
+      inputReferenceDate.value = todayStr;
+      selectSvComponents.value = 'included';
+      inputSeparateHoliday.value = '0';
+      inputSeparateAvwb.value = '0';
+      selectWorkedPeriod.value = 'full';
+      inputMonthsWorked.value = '6';
+      selectLowerPay.value = 'no';
+      inputUnpaidDays.value = '20';
+
+      btnQuickGens.forEach(b => b.classList.remove('active'));
+      const activeGen = calc.querySelector('.btn-quick-gen[data-amount="45000"]');
+      if (activeGen) activeGen.classList.add('active');
+
+      btnQuickSvs.forEach(b => b.classList.remove('active'));
+      const activeSv = calc.querySelector('.btn-quick-sv[data-amount="40000"]');
+      if (activeSv) activeSv.classList.add('active');
+
+      updateVisibility();
+      calculate();
+    });
+
+    // Initial setup
+    updateVisibility();
+    calculate();
+  }
+</script>
+
+<style>
+  .calc-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    align-items: start;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  @media (min-width: 1024px) {
+    .calc-grid {
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 2rem;
+    }
+  }
+
+  .calc-card,
+  .calc-result-card {
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--shadow-sm);
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  @media (min-width: 640px) {
+    .calc-card,
+    .calc-result-card {
+      padding: 1.75rem;
+    }
+  }
+
+  .calc-header-badge-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border-color);
+  }
+
+  .calc-section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-main);
+  }
+
+  .rate-year-tag {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--radius-full);
+  }
+
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+
+  .form-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 0.375rem;
+  }
+
+  .form-hint {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-top: 0.35rem;
+    line-height: 1.4;
+  }
+
+  .form-input,
+  .form-select {
+    width: 100%;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.9375rem;
+    color: var(--text-main);
+    background-color: var(--bg-input);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .form-input:focus,
+  .form-select:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+
+  .btn-quick-gen,
+  .btn-quick-sv {
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-size: 0.75rem;
+    font-weight: 500;
+    padding: 0.25rem 0.6rem;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .btn-quick-gen:hover,
+  .btn-quick-sv:hover {
+    background-color: var(--color-primary-light);
+    border-color: var(--color-primary-border);
+    color: var(--color-primary);
+  }
+
+  .btn-quick-gen.active,
+  .btn-quick-sv.active {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: #ffffff;
+  }
+
+  /* Result Card Styling */
+  .result-subtitle {
+    font-size: 0.8125rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .result-section-divider {
+    border-top: 1px dashed var(--border-color);
+    margin: 0.75rem 0 0.5rem 0;
+  }
+
+  .font-medium {
+    font-weight: 600;
+  }
+
+  /* Callouts */
+  .callout {
+    border-radius: var(--radius-md);
+    padding: 0.875rem 1rem;
+    line-height: 1.5;
+  }
+
+  .callout-info {
+    background-color: var(--color-primary-light);
+    border: 1px solid var(--color-primary-border);
+    color: var(--text-main);
+  }
+
+  .callout-warning {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+  }
+
+  .callout-subtle {
+    background-color: var(--bg-subtle);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+  }
+
+  [data-theme="dark"] .callout-warning {
+    background-color: #451a03;
+    border-color: #78350f;
+    color: #fef3c7;
+  }
+
+  /* Expandable math */
+  .expandable-math-box {
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    background-color: var(--bg-surface);
+    overflow: hidden;
+  }
+
+  .expandable-math-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-main);
+    background-color: var(--bg-subtle);
+  }
+
+  .expandable-math-summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .chevron-icon {
+    transition: transform 0.2s ease;
+  }
+
+  .expandable-math-box[open] .chevron-icon {
+    transform: rotate(180deg);
+  }
+
+  .expandable-math-content {
+    padding: 1rem;
+    background-color: var(--bg-surface);
+    border-top: 1px solid var(--border-color);
+  }
+</style>

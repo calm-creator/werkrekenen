@@ -1,4 +1,14 @@
-import { DUTCH_RATES, PAYROLL_TAX_RATES_2026, type PayrollTaxRates } from '../data/dutchRates.ts';
+import {
+  DUTCH_RATES,
+  PAYROLL_TAX_RATES_2026,
+  MINIMUM_WAGE_RATES_2026,
+  ARBEIDSKORTING_RATES_2026,
+  ARBEIDSKORTING_BY_YEAR,
+  type PayrollTaxRates,
+  type MinimumWagePeriod,
+  type MinimumWageAge,
+  type AowStatus
+} from '../data/dutchRates.ts';
 import { getDutchHolidays } from '../data/holidays.ts';
 
 /* =========================================================================
@@ -3182,6 +3192,1044 @@ export function calculateJaarinkomen(options: JaarinkomenOptions): JaarinkomenRe
     estimatedNetMonthlyIncome: estimateNet ? round2(estimatedNetMonthlyIncome) : undefined,
 
     taxYear,
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   27. Dagloon Berekenen (Algemeen Dagloon & UWV Dagloon)
+   Bronnen:
+   - UWV Besluit dagloonregels werknemersverzekeringen
+   - Wet werk en inkomen naar arbeidsvermogen (WIA)
+   - Werkloosheidswet (WW) & Ziektewet (ZW)
+   - Standaard Nederlandse werkdagen/dagloondagen: 261 dagen per jaar, 21,75 per maand
+   - UWV maximumdagloon 2026: € 309,91 bruto per dag incl. vakantiebijslag
+   ========================================================================= */
+
+export type DagloonCalculationType = 'algemeen' | 'uwv';
+export type UwvBenefitType = 'ww' | 'zw' | 'wia' | 'wao';
+
+export interface DagloonParams {
+  type: DagloonCalculationType;
+
+  // Algemeen dagloon
+  grossAnnualSalary?: number; // Bruto jaarloon (€)
+  includeHolidayPay?: boolean; // Vakantiegeld meenemen? Standaard true (8%)
+  holidayPayPercentage?: number; // Standaard 8.0%
+  workingDaysPerYear?: number; // Standaard 261
+
+  // UWV dagloon
+  benefitType?: UwvBenefitType; // 'ww' | 'zw' | 'wia' | 'wao'
+  svLoonReferencePeriod?: number; // SV-loon in de referteperiode (€)
+  referencePeriodMonths?: number; // Aantal maanden gewerkt (1 t/m 12, standaard 12)
+  referenceDate?: string; // YYYY-MM-DD datum eerste werkloosheidsdag of eerste ziektedag
+  holidayPayAlreadyIncluded?: boolean; // Zit vakantiegeld al in SV-loon? (standaard true)
+  separateHolidayPay?: number; // Los vakantiegeld indien nog niet in SV-loon (€)
+  separateAvwb?: number; // 13e maand / eindejaarsuitkering / IKB indien nog niet in SV-loon (€)
+
+  lowerPayDueToLeaveOrIllness?: boolean; // Loon tijdelijk lager door ziekte/verlof?
+  unpaidLeaveDays?: number; // Aantal verlof-/ziektedagen zonder loon (verlaagt noemer)
+  customMaxDagloon?: number; // Optioneel overschrijven, standaard DUTCH_RATES.uwvRates.maxDagloon (309.91)
+}
+
+export interface DagloonCalculationResult {
+  calculationType: DagloonCalculationType;
+  benefitType?: UwvBenefitType;
+  benefitTypeLabel?: string;
+
+  // Algemeen dagloon details
+  grossAnnualSalary?: number;
+  includeHolidayPay?: boolean;
+  holidayPayPercentage?: number;
+  holidayPayAmount?: number;
+  totalAnnualBasis?: number;
+
+  // UWV details
+  svLoon?: number;
+  referencePeriodMonths?: number;
+  referenceDate?: string;
+  referencePeriodDescription?: string;
+  separateHolidayPay?: number;
+  separateAvwb?: number;
+  totalSvLoonCorrected?: number;
+
+  lowerPayDueToLeaveOrIllness?: boolean;
+  unpaidLeaveDays?: number;
+
+  // Dagloondagen noemer
+  dagloondagen: number; // Standaard 261 (of aangepast bij gebroken jaar / verlof)
+  baseDagloondagen: number;
+
+  // Dagloon uitkomsten
+  calculatedDagloon: number; // Ongetopt berekend dagloon
+  maxDagloon: number; // 309.91 in 2026
+  isMaxDagloonApplied: boolean;
+  applicableDagloon: number; // Het toe te passen dagloon (gemaximeerd indien UWV)
+
+  // Omgerekende periodieke bedragen
+  estimatedWeeklyGross: number; // dagloon * 5
+  estimatedMonthlyGross: number; // dagloon * 21.75
+  regularAnnualMonthlyGross?: number; // jaarloon / 12 (ter vergelijking bij algemeen)
+
+  // Toelichtingen & metadata
+  year: number;
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export function getUwvBenefitLabel(type?: UwvBenefitType): string {
+  switch (type) {
+    case 'ww':
+      return 'WW-uitkering (Werkloosheidswet)';
+    case 'zw':
+      return 'Ziektewet (ZW)';
+    case 'wia':
+      return 'WIA-uitkering (WGA / IVA)';
+    case 'wao':
+      return 'WAO-uitkering';
+    default:
+      return 'UWV-uitkering';
+  }
+}
+
+export function formatUwvReferencePeriod(benefitType: UwvBenefitType, referenceDateStr?: string): string {
+  if (!referenceDateStr) {
+    switch (benefitType) {
+      case 'ww':
+        return '1 jaar (12 volledige kalendermaanden) vóór de voorlaatste kalendermaand voorafgaand aan je werkloosheid.';
+      case 'zw':
+        return '1 jaar (12 kalendermaanden) vóór de kalendermaand waarin je ziek werd.';
+      case 'wia':
+        return '1 jaar (12 kalendermaanden) vóór je allereerste ziektedag (waarmee de wachttijd van 104 weken ziekte begon).';
+      case 'wao':
+        return '1 jaar (12 kalendermaanden) vóór het intreden van de arbeidsongeschiktheid.';
+    }
+  }
+
+  const refDate = new Date(referenceDateStr);
+  if (isNaN(refDate.getTime())) {
+    return formatUwvReferencePeriod(benefitType);
+  }
+
+  const monthNames = [
+    'januari', 'februari', 'maart', 'april', 'mei', 'juni',
+    'juli', 'augustus', 'september', 'oktober', 'november', 'december'
+  ];
+
+  const year = refDate.getFullYear();
+  const month = refDate.getMonth(); // 0-11
+
+  if (benefitType === 'ww') {
+    // Voorlaatste maand voor werkloosheid
+    // Voorbeeld: werkloos in april (month 3) -> voorlaatste maand is februari (month 1).
+    // Eindmaand = month - 2
+    const endMonthDate = new Date(year, month - 1, 0); // Laatste dag van voorlaatste maand
+    const startMonthDate = new Date(endMonthDate.getFullYear() - 1, endMonthDate.getMonth() + 1, 1);
+
+    const startStr = `1 ${monthNames[startMonthDate.getMonth()]} ${startMonthDate.getFullYear()}`;
+    const endStr = `${endMonthDate.getDate()} ${monthNames[endMonthDate.getMonth()]} ${endMonthDate.getFullYear()}`;
+    return `Van ${startStr} tot en met ${endStr} (12 kalendermaanden vóór de voorlaatste maand).`;
+  } else if (benefitType === 'zw') {
+    // 12 maanden vóór de maand waarin je ziek werd
+    const endMonthDate = new Date(year, month, 0); // Laatste dag van vorige maand
+    const startMonthDate = new Date(endMonthDate.getFullYear() - 1, endMonthDate.getMonth() + 1, 1);
+
+    const startStr = `1 ${monthNames[startMonthDate.getMonth()]} ${startMonthDate.getFullYear()}`;
+    const endStr = `${endMonthDate.getDate()} ${monthNames[endMonthDate.getMonth()]} ${endMonthDate.getFullYear()}`;
+    return `Van ${startStr} tot en met ${endStr} (12 kalendermaanden vóór de ziektemaand).`;
+  } else if (benefitType === 'wia') {
+    // 12 maanden vóór de eerste ziektedag
+    const endMonthDate = new Date(year, month, 0);
+    const startMonthDate = new Date(endMonthDate.getFullYear() - 1, endMonthDate.getMonth() + 1, 1);
+
+    const startStr = `1 ${monthNames[startMonthDate.getMonth()]} ${startMonthDate.getFullYear()}`;
+    const endStr = `${endMonthDate.getDate()} ${monthNames[endMonthDate.getMonth()]} ${endMonthDate.getFullYear()}`;
+    return `Van ${startStr} tot en met ${endStr} (het jaar vóór de start van de 104 weken ziekte).`;
+  } else {
+    return '12 kalendermaanden voorafgaand aan de datum van arbeidsongeschiktheid.';
+  }
+}
+
+export function calculateDagloon(params: DagloonParams): DagloonCalculationResult {
+  const round2 = (val: number) => Math.round(val * 100) / 100;
+  const year = DUTCH_RATES.year;
+  const maxDagloon = params.customMaxDagloon ?? (DUTCH_RATES.uwvRates?.maxDagloon ?? 309.91);
+
+  if (params.type === 'algemeen') {
+    const rawGross = params.grossAnnualSalary ?? 0;
+    if (rawGross < 0) {
+      return {
+        calculationType: 'algemeen',
+        dagloondagen: 261,
+        baseDagloondagen: 261,
+        calculatedDagloon: 0,
+        maxDagloon,
+        isMaxDagloonApplied: false,
+        applicableDagloon: 0,
+        estimatedWeeklyGross: 0,
+        estimatedMonthlyGross: 0,
+        year,
+        isValid: false,
+        errorMessage: 'Het bruto jaarloon kan niet negatief zijn.'
+      };
+    }
+
+    const includeHoliday = params.includeHolidayPay !== false;
+    const holidayPct = includeHoliday ? (params.holidayPayPercentage ?? 8.0) : 0;
+    const holidayAmount = rawGross * (holidayPct / 100);
+    const totalAnnualBasis = rawGross + holidayAmount;
+
+    const dagloondagen = params.workingDaysPerYear && params.workingDaysPerYear > 0
+      ? params.workingDaysPerYear
+      : 261;
+
+    const calculatedDagloon = dagloondagen > 0 ? totalAnnualBasis / dagloondagen : 0;
+    const applicableDagloon = calculatedDagloon; // Bij algemeen dagloon geen verplichte UWV-aftopping
+    const isMaxDagloonApplied = false;
+
+    const roundedApplicableDagloon = round2(applicableDagloon);
+    const estimatedWeeklyGross = round2(roundedApplicableDagloon * 5);
+    const estimatedMonthlyGross = round2(roundedApplicableDagloon * 21.75);
+    const regularAnnualMonthlyGross = round2(totalAnnualBasis / 12);
+
+    return {
+      calculationType: 'algemeen',
+      grossAnnualSalary: round2(rawGross),
+      includeHolidayPay: includeHoliday,
+      holidayPayPercentage: round2(holidayPct),
+      holidayPayAmount: round2(holidayAmount),
+      totalAnnualBasis: round2(totalAnnualBasis),
+
+      dagloondagen,
+      baseDagloondagen: dagloondagen,
+
+      calculatedDagloon: round2(calculatedDagloon),
+      maxDagloon: round2(maxDagloon),
+      isMaxDagloonApplied,
+      applicableDagloon: roundedApplicableDagloon,
+
+      estimatedWeeklyGross,
+      estimatedMonthlyGross,
+      regularAnnualMonthlyGross,
+
+      year,
+      isValid: true
+    };
+  }
+
+  // UWV Dagloon Berekening
+  const benefitType: UwvBenefitType = params.benefitType || 'ww';
+  const benefitTypeLabel = getUwvBenefitLabel(benefitType);
+
+  const rawSvLoon = params.svLoonReferencePeriod ?? 0;
+  if (rawSvLoon < 0) {
+    return {
+      calculationType: 'uwv',
+      benefitType,
+      benefitTypeLabel,
+      dagloondagen: 261,
+      baseDagloondagen: 261,
+      calculatedDagloon: 0,
+      maxDagloon,
+      isMaxDagloonApplied: false,
+      applicableDagloon: 0,
+      estimatedWeeklyGross: 0,
+      estimatedMonthlyGross: 0,
+      year,
+      isValid: false,
+      errorMessage: 'Het SV-loon kan niet negatief zijn.'
+    };
+  }
+
+  const rawHoliday = Math.max(0, params.separateHolidayPay || 0);
+  const rawAvwb = Math.max(0, params.separateAvwb || 0);
+  const totalSvLoonCorrected = rawSvLoon + rawHoliday + rawAvwb;
+
+  const rawMonths = params.referencePeriodMonths !== undefined
+    ? Math.min(12, Math.max(1, params.referencePeriodMonths))
+    : 12;
+
+  // Standaard noemer: 12 maanden = 261 dagen; bij minder maanden = maanden * 21,75
+  const baseDagloondagen = rawMonths === 12 ? 261 : Math.round(rawMonths * 21.75);
+
+  // Correctie voor tijdelijk lager loon door ziekte/onbetaald verlof
+  let dagloondagen = baseDagloondagen;
+  if (params.lowerPayDueToLeaveOrIllness && (params.unpaidLeaveDays ?? 0) > 0) {
+    const leaveDays = Math.max(0, params.unpaidLeaveDays || 0);
+    dagloondagen = Math.max(1, baseDagloondagen - leaveDays);
+  }
+
+  const calculatedDagloon = dagloondagen > 0 ? totalSvLoonCorrected / dagloondagen : 0;
+  const isMaxDagloonApplied = calculatedDagloon > maxDagloon;
+  const applicableDagloon = isMaxDagloonApplied ? maxDagloon : calculatedDagloon;
+
+  const roundedApplicableDagloon = round2(applicableDagloon);
+  const estimatedWeeklyGross = round2(roundedApplicableDagloon * 5);
+  const estimatedMonthlyGross = round2(roundedApplicableDagloon * 21.75);
+
+  const referencePeriodDescription = formatUwvReferencePeriod(benefitType, params.referenceDate);
+
+  return {
+    calculationType: 'uwv',
+    benefitType,
+    benefitTypeLabel,
+
+    svLoon: round2(rawSvLoon),
+    referencePeriodMonths: rawMonths,
+    referenceDate: params.referenceDate,
+    referencePeriodDescription,
+    separateHolidayPay: round2(rawHoliday),
+    separateAvwb: round2(rawAvwb),
+    totalSvLoonCorrected: round2(totalSvLoonCorrected),
+
+    lowerPayDueToLeaveOrIllness: Boolean(params.lowerPayDueToLeaveOrIllness),
+    unpaidLeaveDays: params.lowerPayDueToLeaveOrIllness ? (params.unpaidLeaveDays || 0) : undefined,
+
+    dagloondagen,
+    baseDagloondagen,
+
+    calculatedDagloon: round2(calculatedDagloon),
+    maxDagloon: round2(maxDagloon),
+    isMaxDagloonApplied,
+    applicableDagloon: roundedApplicableDagloon,
+
+    estimatedWeeklyGross,
+    estimatedMonthlyGross,
+
+    year,
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   28. WW Berekenen (Werkloosheidswet)
+   Formules & regels UWV (2026):
+   - Referteperiode: 12 kalendermaanden vóór de voorlaatste maand van werkloosheid
+   - Aantal dagloondagen: 261 dagen per jaar (Besluit dagloonregels UWV)
+   - Gemaximeerd dagloon 2026: € 309,91 bruto/dag (inclusief vakantiegeld)
+   - WW-maandloon: dagloon × 21,75 (261 / 12)
+   - Hoogte uitkering:
+     * Maand 1 en 2: 75% van het WW-maandloon
+     * Vanaf maand 3: 70% van het WW-maandloon
+   - Inkomstenverrekening bij neveninkomsten:
+     * Resterende WW = percentage × (WW-maandloon - inkomen uit werk)
+     * Bij inkomen > 87,5% van WW-maandloon gedurende 2 maanden stopt de WW
+   - Duur & Voorwaarden:
+     * Wekeneis: in minstens 26 van 36 weken gewerkt -> recht op 3 maanden basis-WW
+     * Jareneis: in minstens 4 van laatste 5 kalenderjaren gewerkt -> verlenging op basis van arbeidsverleden
+     * Arbeidsverleden duur:
+       - Eerste 10 jaar: 1 maand per jaar
+       - Jaren boven 10 t/m 2015: 1 maand per jaar
+       - Jaren vanaf 2016: 0,5 maand per jaar
+       - Wettelijk maximum: 24 maanden
+   ========================================================================= */
+
+export interface WwCalculationInput {
+  calculationGoal?: 'both' | 'amount' | 'duration';
+  salaryMode?: 'sv_loon' | 'gross_salary';
+  svLoon?: number;
+  unemploymentDate?: string;
+  grossSalaryMonthly?: number;
+  salaryPeriod?: 'month' | '4weeks';
+  customMaxDagloon?: number;
+
+  worksWhileOnWw?: boolean;
+  expectedIncomeMonthly?: number;
+
+  weeksWorkedLast36Weeks?: 'yes' | 'no' | 'unknown';
+  worked4OfLast5Years?: 'yes' | 'no' | 'unknown';
+  totalEmploymentYears?: number;
+  yearsFrom2016?: number;
+  involuntaryUnemployment?: 'yes' | 'no' | 'unknown';
+}
+
+export interface WwCalculationResult {
+  calculationGoal: 'both' | 'amount' | 'duration';
+  salaryMode: 'sv_loon' | 'gross_salary';
+
+  // Dagloon & grondslag
+  svLoon: number;
+  rawDagloon: number;
+  maxDagloon: number;
+  isMaxDagloonApplied: boolean;
+  applicableDagloon: number;
+  wwMaandloon: number;
+  rawWwMaandloon: number;
+
+  // Standaard uitkering (zonder nevenwerk)
+  benefitMonth1And2: number;
+  benefitMonth3Plus: number;
+  benefitDailyMonth1And2: number;
+  benefitDailyMonth3Plus: number;
+  benefitWeeklyMonth1And2: number;
+  benefitWeeklyMonth3Plus: number;
+
+  // Werken tijdens WW
+  worksWhileOnWw: boolean;
+  expectedIncomeMonthly: number;
+  benefitMonth1And2WithWork: number;
+  benefitMonth3PlusWithWork: number;
+  totalIncomeMonth1And2: number;
+  totalIncomeMonth3Plus: number;
+  isIncomeOver87Point5Percent: boolean;
+
+  // Voorwaarden & Duur
+  meetsWekeneis: boolean | null;
+  meetsJareneis: boolean | null;
+  isInvoluntary: boolean | null;
+  totalEmploymentYears: number;
+  yearsFrom2016: number;
+  estimatedDurationMonths: number;
+  durationExplanation: string;
+  eligibilityStatus: 'likely' | 'unlikely' | 'partial' | 'unknown';
+  eligibilityMessage: string;
+
+  unemploymentDate?: string;
+  referencePeriodDescription: string;
+  year: number;
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export function calculateWw(params: WwCalculationInput = {}): WwCalculationResult {
+  const round2 = (val: number) => Math.round((val + Number.EPSILON) * 100) / 100;
+  const round1 = (val: number) => Math.round((val + Number.EPSILON) * 10) / 10;
+  const year = DUTCH_RATES.year;
+  const maxDagloon = params.customMaxDagloon ?? (DUTCH_RATES.uwvRates?.maxDagloon ?? 309.91);
+
+  const calculationGoal = params.calculationGoal ?? 'both';
+  const salaryMode = params.salaryMode ?? 'sv_loon';
+
+  // 1. Validatie invoer
+  if (salaryMode === 'sv_loon' && (params.svLoon ?? 0) < 0) {
+    return {
+      calculationGoal,
+      salaryMode,
+      svLoon: 0,
+      rawDagloon: 0,
+      maxDagloon,
+      isMaxDagloonApplied: false,
+      applicableDagloon: 0,
+      wwMaandloon: 0,
+      rawWwMaandloon: 0,
+      benefitMonth1And2: 0,
+      benefitMonth3Plus: 0,
+      benefitDailyMonth1And2: 0,
+      benefitDailyMonth3Plus: 0,
+      benefitWeeklyMonth1And2: 0,
+      benefitWeeklyMonth3Plus: 0,
+      worksWhileOnWw: false,
+      expectedIncomeMonthly: 0,
+      benefitMonth1And2WithWork: 0,
+      benefitMonth3PlusWithWork: 0,
+      totalIncomeMonth1And2: 0,
+      totalIncomeMonth3Plus: 0,
+      isIncomeOver87Point5Percent: false,
+      meetsWekeneis: null,
+      meetsJareneis: null,
+      isInvoluntary: null,
+      totalEmploymentYears: 0,
+      yearsFrom2016: 0,
+      estimatedDurationMonths: 0,
+      durationExplanation: '',
+      eligibilityStatus: 'unknown',
+      eligibilityMessage: '',
+      referencePeriodDescription: '',
+      year,
+      isValid: false,
+      errorMessage: 'Het SV-loon kan niet negatief zijn.'
+    };
+  }
+
+  if (salaryMode === 'gross_salary' && (params.grossSalaryMonthly ?? 0) < 0) {
+    return {
+      calculationGoal,
+      salaryMode,
+      svLoon: 0,
+      rawDagloon: 0,
+      maxDagloon,
+      isMaxDagloonApplied: false,
+      applicableDagloon: 0,
+      wwMaandloon: 0,
+      rawWwMaandloon: 0,
+      benefitMonth1And2: 0,
+      benefitMonth3Plus: 0,
+      benefitDailyMonth1And2: 0,
+      benefitDailyMonth3Plus: 0,
+      benefitWeeklyMonth1And2: 0,
+      benefitWeeklyMonth3Plus: 0,
+      worksWhileOnWw: false,
+      expectedIncomeMonthly: 0,
+      benefitMonth1And2WithWork: 0,
+      benefitMonth3PlusWithWork: 0,
+      totalIncomeMonth1And2: 0,
+      totalIncomeMonth3Plus: 0,
+      isIncomeOver87Point5Percent: false,
+      meetsWekeneis: null,
+      meetsJareneis: null,
+      isInvoluntary: null,
+      totalEmploymentYears: 0,
+      yearsFrom2016: 0,
+      estimatedDurationMonths: 0,
+      durationExplanation: '',
+      eligibilityStatus: 'unknown',
+      eligibilityMessage: '',
+      referencePeriodDescription: '',
+      year,
+      isValid: false,
+      errorMessage: 'Het bruto maandsalaris kan niet negatief zijn.'
+    };
+  }
+
+  // 2. Grondslag en Dagloon bepalen
+  let effectiveSvLoon = 0;
+  if (salaryMode === 'sv_loon') {
+    effectiveSvLoon = Math.max(0, params.svLoon ?? 0);
+  } else {
+    const rawSalary = Math.max(0, params.grossSalaryMonthly ?? 0);
+    const is4Weeks = params.salaryPeriod === '4weeks';
+    // SV-loon bevat standaard 8% vakantiebijslag
+    const annualBasis = is4Weeks ? rawSalary * 13 * 1.08 : rawSalary * 12 * 1.08;
+    effectiveSvLoon = round2(annualBasis);
+  }
+
+  const rawDagloon = effectiveSvLoon > 0 ? round2(effectiveSvLoon / 261) : 0;
+  const isMaxDagloonApplied = rawDagloon > maxDagloon;
+  const applicableDagloon = isMaxDagloonApplied ? maxDagloon : rawDagloon;
+
+  const wwMaandloon = round2(applicableDagloon * 21.75);
+  const rawWwMaandloon = round2(rawDagloon * 21.75);
+
+  // 3. Standaard WW bedragen (zonder inkomen uit werk)
+  const benefitMonth1And2 = round2(wwMaandloon * 0.75);
+  const benefitMonth3Plus = round2(wwMaandloon * 0.70);
+
+  const benefitDailyMonth1And2 = round2(applicableDagloon * 0.75);
+  const benefitDailyMonth3Plus = round2(applicableDagloon * 0.70);
+
+  const benefitWeeklyMonth1And2 = round2(benefitDailyMonth1And2 * 5);
+  const benefitWeeklyMonth3Plus = round2(benefitDailyMonth3Plus * 5);
+
+  // 4. Inkomstenverrekening (werken tijdens WW)
+  const worksWhileOnWw = Boolean(params.worksWhileOnWw);
+  const expectedIncome = worksWhileOnWw ? Math.max(0, params.expectedIncomeMonthly ?? 0) : 0;
+
+  let benefitMonth1And2WithWork = benefitMonth1And2;
+  let benefitMonth3PlusWithWork = benefitMonth3Plus;
+  let isIncomeOver87Point5Percent = false;
+
+  if (worksWhileOnWw && expectedIncome > 0) {
+    const loss = Math.max(0, wwMaandloon - expectedIncome);
+    benefitMonth1And2WithWork = round2(loss * 0.75);
+    benefitMonth3PlusWithWork = round2(loss * 0.70);
+    isIncomeOver87Point5Percent = expectedIncome > (wwMaandloon * 0.875);
+  }
+
+  const totalIncomeMonth1And2 = round2(expectedIncome + benefitMonth1And2WithWork);
+  const totalIncomeMonth3Plus = round2(expectedIncome + benefitMonth3PlusWithWork);
+
+  // 5. Voorwaarden en Duurberekening
+  const wekeneisInput = params.weeksWorkedLast36Weeks ?? 'yes';
+  const meetsWekeneis = wekeneisInput === 'yes' ? true : wekeneisInput === 'no' ? false : null;
+
+  const jareneisInput = params.worked4OfLast5Years ?? 'yes';
+  const meetsJareneis = jareneisInput === 'yes' ? true : jareneisInput === 'no' ? false : null;
+
+  const involuntaryInput = params.involuntaryUnemployment ?? 'yes';
+  const isInvoluntary = involuntaryInput === 'yes' ? true : involuntaryInput === 'no' ? false : null;
+
+  const rawEmploymentYears = Math.max(0, Math.min(50, params.totalEmploymentYears ?? 5));
+  let yearsFrom2016 = params.yearsFrom2016;
+
+  // Indien niet opgegeven en arbeidsverleden > 10 jaar: verdeel logisch
+  // 2016 t/m 2025 = maximaal 10 kalenderjaren vanaf 2016
+  if (yearsFrom2016 === undefined) {
+    if (rawEmploymentYears > 10) {
+      yearsFrom2016 = Math.min(rawEmploymentYears - 10, 10);
+    } else {
+      yearsFrom2016 = 0;
+    }
+  } else {
+    yearsFrom2016 = Math.max(0, Math.min(10, yearsFrom2016));
+  }
+
+  let estimatedDurationMonths = 0;
+  let durationExplanation = '';
+
+  if (meetsWekeneis === false) {
+    estimatedDurationMonths = 0;
+    durationExplanation = 'Geen WW-recht omdat je niet aan de wekeneis voldoet (minimaal 26 gewerkte weken in de laatste 36 weken).';
+  } else if (meetsWekeneis === true && meetsJareneis === false) {
+    estimatedDurationMonths = 3;
+    durationExplanation = '3 maanden basis-WW (wel voldaan aan de wekeneis van 26 weken, maar niet aan de jareneis van 4 uit 5 kalenderjaren).';
+  } else if (meetsWekeneis === null && meetsJareneis === false) {
+    estimatedDurationMonths = 3;
+    durationExplanation = 'Maximaal 3 maanden basis-WW mits je aan de wekeneis voldoet (jareneis niet behaald).';
+  } else {
+    // Wel aan de jareneis voldaan (of onbekend maar uitgaande van arbeidsverleden)
+    if (rawEmploymentYears <= 0) {
+      estimatedDurationMonths = 3;
+      durationExplanation = '3 maanden basis-WW (minimumgarantie bij het voldoen aan de wekeneis).';
+    } else if (rawEmploymentYears < 3) {
+      estimatedDurationMonths = 3;
+      durationExplanation = '3 maanden basis-WW (de wekeneis geeft altijd recht op minimaal 3 maanden).';
+    } else if (rawEmploymentYears <= 10) {
+      estimatedDurationMonths = rawEmploymentYears;
+      durationExplanation = `${rawEmploymentYears} maanden (${rawEmploymentYears} gewerkte kalenderjaren leveren elk 1 maand WW op).`;
+    } else {
+      // Meer dan 10 jaar arbeidsverleden:
+      // Eerste 10 jaar = 10 maanden
+      // Jaren vanaf 2016 = 0,5 maand per jaar
+      // Resterende jaren tot en met 2015 = 1,0 maand per jaar
+      const yearsAbove10 = rawEmploymentYears - 10;
+      const safePost2016 = Math.min(yearsAbove10, yearsFrom2016);
+      const pre2016Years = yearsAbove10 - safePost2016;
+
+      const calculatedDuration = 10 + (pre2016Years * 1.0) + (safePost2016 * 0.5);
+      const cappedDuration = Math.min(24, Math.max(3, calculatedDuration));
+      estimatedDurationMonths = round1(cappedDuration);
+
+      if (calculatedDuration >= 24) {
+        durationExplanation = '24 maanden (het wettelijk maximum voor een WW-uitkering is bereikt).';
+      } else {
+        const post2016Text = safePost2016 > 0 ? ` + ${safePost2016} jaar vanaf 2016 (${round1(safePost2016 * 0.5)} mnd)` : '';
+        const pre2016Text = pre2016Years > 0 ? ` + ${pre2016Years} jaar t/m 2015 (${pre2016Years} mnd)` : '';
+        durationExplanation = `${estimatedDurationMonths.toString().replace('.', ',')} maanden (10 maanden voor eerste 10 jaar${pre2016Text}${post2016Text}).`;
+      }
+    }
+  }
+
+  // 6. Toetsing WW-voorwaarden statusbericht
+  let eligibilityStatus: 'likely' | 'unlikely' | 'partial' | 'unknown' = 'likely';
+  let eligibilityMessage = '';
+
+  if (meetsWekeneis === false) {
+    eligibilityStatus = 'unlikely';
+    eligibilityMessage = 'Je voldoet waarschijnlijk niet aan de wekeneis (minimaal 26 van de laatste 36 weken gewerkt). Zonder wekeneis ontstaat in beginsel geen WW-recht.';
+  } else if (isInvoluntary === false) {
+    eligibilityStatus = 'unlikely';
+    eligibilityMessage = 'Je geeft aan dat je zelf ontslag hebt genomen of sprake is van eigen schuld. Bij verwijtbare werkloosheid wijst het UWV een WW-aanvraag in de regel af.';
+  } else if (meetsWekeneis === null || isInvoluntary === null) {
+    eligibilityStatus = 'partial';
+    eligibilityMessage = 'Het is nog niet met zekerheid te bepalen of je aan alle voorwaarden voldoet. Controleer je wekeneis (26 uit 36 weken) en of de werkloosheid niet verwijtbaar is.';
+  } else {
+    eligibilityStatus = 'likely';
+    eligibilityMessage = 'Je lijkt op basis van deze gegevens aan de belangrijkste voorwaarden te voldoen (wekeneis en niet-verwijtbare werkloosheid).';
+  }
+
+  const referencePeriodDescription = formatUwvReferencePeriod('ww', params.unemploymentDate);
+
+  return {
+    calculationGoal,
+    salaryMode,
+
+    svLoon: round2(effectiveSvLoon),
+    rawDagloon,
+    maxDagloon: round2(maxDagloon),
+    isMaxDagloonApplied,
+    applicableDagloon: round2(applicableDagloon),
+    wwMaandloon,
+    rawWwMaandloon,
+
+    benefitMonth1And2,
+    benefitMonth3Plus,
+    benefitDailyMonth1And2,
+    benefitDailyMonth3Plus,
+    benefitWeeklyMonth1And2,
+    benefitWeeklyMonth3Plus,
+
+    worksWhileOnWw,
+    expectedIncomeMonthly: round2(expectedIncome),
+    benefitMonth1And2WithWork,
+    benefitMonth3PlusWithWork,
+    totalIncomeMonth1And2,
+    totalIncomeMonth3Plus,
+    isIncomeOver87Point5Percent,
+
+    meetsWekeneis,
+    meetsJareneis,
+    isInvoluntary,
+    totalEmploymentYears: rawEmploymentYears,
+    yearsFrom2016,
+    estimatedDurationMonths,
+    durationExplanation,
+    eligibilityStatus,
+    eligibilityMessage,
+
+    unemploymentDate: params.unemploymentDate,
+    referencePeriodDescription,
+    year,
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   29. Minimumloon Berekenen 2026
+   Wet minimumloon en minimumvakantiebijslag (Wml)
+   Met ingang van 1 januari 2024 geldt uitsluitend een wettelijk minimumuurloon.
+   Bedragen per 1 januari 2026 en 1 juli 2026 (Rijksoverheid)
+   ========================================================================= */
+
+export type MinimumWageHoursFrequency = 'week' | 'fourWeeks' | 'month';
+
+export interface MinimumWageCalculationInput {
+  period?: MinimumWagePeriod;
+  age?: MinimumWageAge;
+  isBbl?: boolean;
+  hoursFrequency?: MinimumWageHoursFrequency;
+  hours?: number;
+}
+
+export interface MinimumWageCalculationResult {
+  period: MinimumWagePeriod;
+  periodLabel: string;
+  effectiveFrom: string;
+  age: MinimumWageAge;
+  ageLabel: string;
+  isBbl: boolean;
+  percentage: number;
+  hourlyWage: number;
+
+  hoursFrequency: MinimumWageHoursFrequency;
+  inputHours: number;
+  calculatedWeeklyHours: number;
+  calculatedFourWeeklyHours: number;
+  calculatedMonthlyHours: number;
+  calculatedAnnualHours: number;
+
+  wageWeekly: number;
+  wageFourWeekly: number;
+  wageMonthly: number;
+  wageAnnual: number;
+
+  isValid: boolean;
+  errorMessage?: string;
+}
+
+export function calculateMinimumloon(params: MinimumWageCalculationInput): MinimumWageCalculationResult {
+  const round2 = (val: number) => Math.round((val + Number.EPSILON) * 100) / 100;
+
+  const period: MinimumWagePeriod = params.period === '2026-01' ? '2026-01' : '2026-07';
+  const validAges: MinimumWageAge[] = ['21+', '20', '19', '18', '17', '16', '15'];
+  const age: MinimumWageAge = validAges.includes(params.age as MinimumWageAge) ? (params.age as MinimumWageAge) : '21+';
+  const isBbl = Boolean(params.isBbl);
+  const hoursFrequency: MinimumWageHoursFrequency =
+    params.hoursFrequency === 'fourWeeks' || params.hoursFrequency === 'month'
+      ? params.hoursFrequency
+      : 'week';
+  const rawHours = Number(params.hours);
+  const inputHours = isNaN(rawHours) ? (hoursFrequency === 'week' ? 40 : hoursFrequency === 'fourWeeks' ? 160 : 173.33) : Math.max(0, rawHours);
+
+  const periodConfig = MINIMUM_WAGE_RATES_2026[period];
+  const rateConfig = periodConfig.rates[age];
+
+  const hourlyWage = isBbl ? rateConfig.bblRate : rateConfig.regularRate;
+  const percentage = isBbl ? rateConfig.bblPercentage : rateConfig.regularPercentage;
+
+  let calculatedWeeklyHours = 0;
+  let calculatedFourWeeklyHours = 0;
+  let calculatedMonthlyHours = 0;
+  let calculatedAnnualHours = 0;
+
+  let wageWeekly = 0;
+  let wageFourWeekly = 0;
+  let wageMonthly = 0;
+  let wageAnnual = 0;
+
+  if (hoursFrequency === 'week') {
+    calculatedWeeklyHours = round2(inputHours);
+    calculatedFourWeeklyHours = round2(inputHours * 4);
+    calculatedMonthlyHours = round2((inputHours * 52) / 12);
+    calculatedAnnualHours = round2(inputHours * 52);
+
+    wageWeekly = round2(inputHours * hourlyWage);
+    wageFourWeekly = round2(wageWeekly * 4);
+    wageMonthly = round2((wageWeekly * 52) / 12);
+    wageAnnual = round2(wageWeekly * 52);
+  } else if (hoursFrequency === 'fourWeeks') {
+    calculatedFourWeeklyHours = round2(inputHours);
+    calculatedWeeklyHours = round2(inputHours / 4);
+    calculatedMonthlyHours = round2((calculatedWeeklyHours * 52) / 12);
+    calculatedAnnualHours = round2(calculatedWeeklyHours * 52);
+
+    wageFourWeekly = round2(inputHours * hourlyWage);
+    wageWeekly = round2(wageFourWeekly / 4);
+    wageMonthly = round2((wageWeekly * 52) / 12);
+    wageAnnual = round2(wageWeekly * 52);
+  } else {
+    calculatedMonthlyHours = round2(inputHours);
+    calculatedWeeklyHours = round2((inputHours * 12) / 52);
+    calculatedFourWeeklyHours = round2(calculatedWeeklyHours * 4);
+    calculatedAnnualHours = round2(inputHours * 12);
+
+    wageMonthly = round2(inputHours * hourlyWage);
+    wageAnnual = round2(wageMonthly * 12);
+    wageWeekly = round2((wageAnnual) / 52);
+    wageFourWeekly = round2(wageWeekly * 4);
+  }
+
+  return {
+    period,
+    periodLabel: periodConfig.label,
+    effectiveFrom: periodConfig.effectiveFrom,
+    age,
+    ageLabel: rateConfig.label,
+    isBbl,
+    percentage,
+    hourlyWage: round2(hourlyWage),
+
+    hoursFrequency,
+    inputHours: round2(inputHours),
+    calculatedWeeklyHours,
+    calculatedFourWeeklyHours,
+    calculatedMonthlyHours,
+    calculatedAnnualHours,
+
+    wageWeekly: round2(wageWeekly),
+    wageFourWeekly: round2(wageFourWeekly),
+    wageMonthly: round2(wageMonthly),
+    wageAnnual: round2(wageAnnual),
+
+    isValid: true
+  };
+}
+
+/* =========================================================================
+   30. Arbeidskorting Berekenen (2026)
+   Bron: Belastingdienst — Tabel arbeidskorting 2026
+   ========================================================================= */
+
+export interface ArbeidskortingCalculationInput {
+  income: number;
+  year?: number;
+  aowStatus?: AowStatus;
+}
+
+export interface ArbeidskortingCalculationResult {
+  year: number;
+  income: number;
+  aowStatus: AowStatus;
+  aowStatusLabel: string;
+  arbeidskorting: number;
+  arbeidskortingMonthly: number;
+  maxArbeidskorting: number;
+  bracketIndex: number;
+  bracketRange: string;
+  formulaDescription: string;
+  isMaxReached: boolean;
+  isPhaseOut: boolean;
+  isZero: boolean;
+  zeroReason?: string;
+  aowDuringYearNotice?: string;
+  indicativeMin?: number;
+  indicativeMax?: number;
+  explanation: string;
+  isValid: boolean;
+}
+
+export function calculateArbeidskorting(params: ArbeidskortingCalculationInput): ArbeidskortingCalculationResult {
+  const round2 = (val: number) => Math.round((val + Number.EPSILON) * 100) / 100;
+  const formatEuro = (val: number) =>
+    new Intl.NumberFormat('nl-NL', {
+      style: 'currency',
+      currency: 'EUR',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(val);
+
+  const year = params.year === 2026 || !params.year ? 2026 : params.year;
+  const config = ARBEIDSKORTING_BY_YEAR[year] || ARBEIDSKORTING_RATES_2026;
+  const aowStatus: AowStatus = params.aowStatus === 'during' || params.aowStatus === 'full' ? params.aowStatus : 'none';
+
+  const rawIncome = Number(params.income);
+  const income = isNaN(rawIncome) || rawIncome < 0 ? 0 : rawIncome;
+
+  const aowStatusLabel =
+    aowStatus === 'full'
+      ? 'Hele jaar AOW-leeftijd'
+      : aowStatus === 'during'
+      ? 'Bereikt AOW-leeftijd in ' + year
+      : 'Nog niet de AOW-leeftijd';
+
+  const maxArbeidskorting = aowStatus === 'full' ? config.maxAmountAow : config.maxAmountStandard;
+
+  const calcAmountForTiers = (brackets: typeof config.standardBrackets, maxCap: number) => {
+    if (income <= 0) {
+      return {
+        amount: 0,
+        bracketIndex: 1,
+        bracketRange: 'Tot en met € 11.965',
+        formula: brackets[0].formulaDescription,
+        isPhaseOut: false,
+        isMax: false,
+        isZero: true,
+        zeroReason: 'Bij een arbeidsinkomen van € 0 heb je geen recht op arbeidskorting omdat je geen inkomsten uit tegenwoordige arbeid hebt.'
+      };
+    }
+    if (income > config.zeroThreshold) {
+      return {
+        amount: 0,
+        bracketIndex: 5,
+        bracketRange: 'Boven € 132.920',
+        formula: 'Volledig afgebouwd naar € 0',
+        isPhaseOut: true,
+        isMax: false,
+        isZero: true,
+        zeroReason: 'Boven een arbeidsinkomen van € 132.920 is de arbeidskorting door de wettelijke afbouw volledig verminderd tot € 0.'
+      };
+    }
+
+    if (income <= 11965) {
+      const amt = brackets[0].rate * income;
+      return {
+        amount: Math.min(maxCap, Math.max(0, amt)),
+        bracketIndex: 1,
+        bracketRange: 'Tot en met € 11.965',
+        formula: brackets[0].formulaDescription,
+        isPhaseOut: false,
+        isMax: false,
+        isZero: false
+      };
+    } else if (income <= 25845) {
+      const amt = brackets[1].baseAmount + brackets[1].rate * (income - 11965);
+      return {
+        amount: Math.min(maxCap, Math.max(0, amt)),
+        bracketIndex: 2,
+        bracketRange: '€ 11.966 t/m € 25.845',
+        formula: brackets[1].formulaDescription,
+        isPhaseOut: false,
+        isMax: false,
+        isZero: false
+      };
+    } else if (income <= 45592) {
+      const amt = brackets[2].baseAmount + brackets[2].rate * (income - 25845);
+      return {
+        amount: Math.min(maxCap, Math.max(0, amt)),
+        bracketIndex: 3,
+        bracketRange: '€ 25.846 t/m € 45.592',
+        formula: brackets[2].formulaDescription,
+        isPhaseOut: false,
+        isMax: amt >= maxCap - 0.05,
+        isZero: false
+      };
+    } else {
+      const amt = brackets[3].baseAmount - brackets[3].rate * (income - 45592);
+      return {
+        amount: Math.max(0, Math.min(maxCap, amt)),
+        bracketIndex: 4,
+        bracketRange: '€ 45.593 t/m € 132.920 (afbouwtraject)',
+        formula: brackets[3].formulaDescription,
+        isPhaseOut: true,
+        isMax: false,
+        isZero: amt <= 0.005,
+        zeroReason: amt <= 0.005 ? 'Door de wettelijke afbouw is het bedrag gedaald naar € 0.' : undefined
+      };
+    }
+  };
+
+  const standardRes = calcAmountForTiers(config.standardBrackets, config.maxAmountStandard);
+  const aowRes = calcAmountForTiers(config.aowBrackets, config.maxAmountAow);
+
+  let finalAmount = 0;
+  let bracketIndex = 1;
+  let bracketRange = '';
+  let formulaDescription = '';
+  let isPhaseOut = false;
+  let isMaxReached = false;
+  let isZero = false;
+  let zeroReason: string | undefined;
+  let aowDuringYearNotice: string | undefined;
+  let indicativeMin: number | undefined;
+  let indicativeMax: number | undefined;
+
+  if (aowStatus === 'full') {
+    finalAmount = round2(aowRes.amount);
+    bracketIndex = aowRes.bracketIndex;
+    bracketRange = aowRes.bracketRange;
+    formulaDescription = aowRes.formula;
+    isPhaseOut = aowRes.isPhaseOut;
+    isMaxReached = aowRes.isMax;
+    isZero = aowRes.isZero;
+    zeroReason = aowRes.zeroReason;
+  } else if (aowStatus === 'during') {
+    finalAmount = round2(standardRes.amount);
+    bracketIndex = standardRes.bracketIndex;
+    bracketRange = standardRes.bracketRange;
+    formulaDescription = standardRes.formula;
+    isPhaseOut = standardRes.isPhaseOut;
+    isMaxReached = standardRes.isMax;
+    isZero = standardRes.isZero;
+    zeroReason = standardRes.zeroReason;
+
+    indicativeMin = round2(aowRes.amount);
+    indicativeMax = round2(standardRes.amount);
+    aowDuringYearNotice =
+      'Omdat je in ' +
+      year +
+      ' de AOW-leeftijd bereikt, geldt een gecombineerd belasting- en premiepercentage op basis van de exacte maand waarin je AOW ingaat. Je daadwerkelijke arbeidskorting ligt indicatief tussen ' +
+      formatEuro(indicativeMin) +
+      ' en ' +
+      formatEuro(indicativeMax) +
+      '. Gebruik voor je exacte situatie de officiële rekenhulp van de Belastingdienst.';
+  } else {
+    finalAmount = round2(standardRes.amount);
+    bracketIndex = standardRes.bracketIndex;
+    bracketRange = standardRes.bracketRange;
+    formulaDescription = standardRes.formula;
+    isPhaseOut = standardRes.isPhaseOut;
+    isMaxReached = standardRes.isMax;
+    isZero = standardRes.isZero;
+    zeroReason = standardRes.zeroReason;
+  }
+
+  const arbeidskortingMonthly = round2(finalAmount / 12);
+
+  let explanation = '';
+  if (isZero) {
+    explanation = zeroReason || 'Bij dit inkomen bedraagt de geschatte arbeidskorting € 0,00.';
+  } else if (aowStatus === 'during') {
+    explanation =
+      'Op basis van een arbeidsinkomen van ' +
+      formatEuro(income) +
+      ' in ' +
+      year +
+      ' bedraagt de indicatieve bandbreedte van je arbeidskorting naar schatting tussen ' +
+      formatEuro(indicativeMin ?? 0) +
+      ' en ' +
+      formatEuro(indicativeMax ?? 0) +
+      '.';
+  } else {
+    explanation =
+      'Op basis van een arbeidsinkomen van ' +
+      formatEuro(income) +
+      ' in ' +
+      year +
+      ' bedraagt je geschatte arbeidskorting ongeveer ' +
+      formatEuro(finalAmount) +
+      ' per jaar' +
+      (finalAmount > 0 ? ' (gemiddeld circa ' + formatEuro(arbeidskortingMonthly) + ' per maand)' : '') +
+      '.';
+  }
+
+  return {
+    year,
+    income: round2(income),
+    aowStatus,
+    aowStatusLabel,
+    arbeidskorting: finalAmount,
+    arbeidskortingMonthly,
+    maxArbeidskorting,
+    bracketIndex,
+    bracketRange,
+    formulaDescription,
+    isMaxReached,
+    isPhaseOut,
+    isZero,
+    zeroReason,
+    aowDuringYearNotice,
+    indicativeMin,
+    indicativeMax,
+    explanation,
     isValid: true
   };
 }
